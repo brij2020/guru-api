@@ -1,6 +1,6 @@
 const ApiError = require('../errors/apiError');
 const taskService = require('../services/taskService');
-const logger = require('../config/logger');
+const { logger } = require('../config/logger');
 const {
   validateTaskCreation,
   validateTaskUpdate,

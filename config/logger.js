@@ -1,4 +1,5 @@
 const { createLogger, transports, format } = require('winston');
+const morgan = require('morgan');
 const { logLevel, nodeEnv } = require('./env');
 
 const formatter = format.combine(
@@ -18,10 +19,18 @@ const logger = createLogger({
   exitOnError: false,
 });
 
-logger.stream = {
+const stream = {
   write(message = '') {
     logger.info(message.trim());
   },
 };
 
-module.exports = logger;
+const httpLogger = morgan(nodeEnv === 'production' ? 'combined' : 'dev', {
+  stream,
+});
+
+module.exports = {
+  logger,
+  httpLogger,
+  stream,
+};

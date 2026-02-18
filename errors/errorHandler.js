@@ -1,4 +1,4 @@
-const logger = require('../config/logger');
+const { logger } = require('../config/logger');
 const { nodeEnv } = require('../config/env');
 
 const errorHandler = (err, req, res, next) => {
