@@ -1,0 +1,130 @@
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
+const ApiError = require('../errors/apiError');
+const {
+  jwtSecret,
+  jwtRefreshSecret,
+  jwtExpiresIn,
+  jwtRefreshExpiresIn,
+} = require('../config/env');
+
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+const createAccessToken = (user) =>
+  jwt.sign({ sub: user._id.toString(), role: user.role }, jwtSecret, {
+    expiresIn: jwtExpiresIn,
+  });
+
+const createRefreshToken = (user) =>
+  jwt.sign({ sub: user._id.toString(), type: 'refresh' }, jwtRefreshSecret, {
+    expiresIn: jwtRefreshExpiresIn,
+  });
+
+const sanitizeUser = (user) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
+});
+
+const issueTokens = async (user) => {
+  const accessToken = createAccessToken(user);
+  const refreshToken = createRefreshToken(user);
+
+  user.refreshTokenHash = hashToken(refreshToken);
+  await user.save({ validateBeforeSave: false });
+
+  return { accessToken, refreshToken };
+};
+
+const register = async ({ name, email, password }) => {
+  const existing = await User.findOne({ email: email.toLowerCase() });
+  if (existing) {
+    throw new ApiError(409, 'Email is already in use');
+  }
+
+  const user = await User.create({
+    name,
+    email: email.toLowerCase(),
+    password,
+  });
+
+  const tokens = await issueTokens(user);
+  return { user: sanitizeUser(user), ...tokens };
+};
+
+const login = async ({ email, password }) => {
+  const user = await User.findOne({ email: email.toLowerCase() }).select('+password +refreshTokenHash');
+  if (!user) {
+    throw new ApiError(401, 'Invalid email or password');
+  }
+
+  const valid = await user.comparePassword(password);
+  if (!valid) {
+    throw new ApiError(401, 'Invalid email or password');
+  }
+
+  const tokens = await issueTokens(user);
+  return { user: sanitizeUser(user), ...tokens };
+};
+
+const refresh = async ({ refreshToken }) => {
+  if (!refreshToken) {
+    throw new ApiError(401, 'Refresh token is required');
+  }
+
+  let payload;
+  try {
+    payload = jwt.verify(refreshToken, jwtRefreshSecret);
+  } catch (error) {
+    throw new ApiError(401, 'Invalid or expired refresh token');
+  }
+
+  if (payload.type !== 'refresh') {
+    throw new ApiError(401, 'Invalid refresh token type');
+  }
+
+  const user = await User.findById(payload.sub).select('+refreshTokenHash');
+  if (!user || !user.refreshTokenHash) {
+    throw new ApiError(401, 'Refresh token is not active');
+  }
+
+  if (hashToken(refreshToken) !== user.refreshTokenHash) {
+    throw new ApiError(401, 'Refresh token is not active');
+  }
+
+  const tokens = await issueTokens(user);
+  return { user: sanitizeUser(user), ...tokens };
+};
+
+const logout = async (userId) => {
+  await User.findByIdAndUpdate(userId, { refreshTokenHash: null });
+};
+
+const getProfile = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+  return sanitizeUser(user);
+};
+
+const verifyAccessToken = (token) => {
+  try {
+    return jwt.verify(token, jwtSecret);
+  } catch (error) {
+    throw new ApiError(401, 'Invalid or expired access token');
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  refresh,
+  logout,
+  getProfile,
+  verifyAccessToken,
+};

@@ -6,6 +6,16 @@ const errorHandler = (err, req, res, next) => {
     return next(err);
   }
 
+  if (err.name === 'CastError') {
+    err.statusCode = 400;
+    err.message = 'Invalid resource identifier';
+  }
+
+  if (err.code === 11000) {
+    err.statusCode = 409;
+    err.message = 'Duplicate value for a unique field';
+  }
+
   const status = err.statusCode || err.status || 500;
   const response = {
     status,

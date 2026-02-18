@@ -1,13 +1,17 @@
 const express = require('express');
 const tasksController = require('../../../controllers/tasksController');
 const asyncHandler = require('../../../middleware/asyncHandler');
+const authenticate = require('../../../middleware/authenticate');
 
-const router = express.Router();
+module.exports = (app) => {
+  const router = express.Router();
 
-router.get('/', asyncHandler(tasksController.listTasks));
-router.get('/:id', asyncHandler(tasksController.getTask));
-router.post('/', asyncHandler(tasksController.createTask));
-router.put('/:id', asyncHandler(tasksController.updateTask));
-router.delete('/:id', asyncHandler(tasksController.deleteTask));
+  router.use(authenticate);
+  router.get('/', asyncHandler(tasksController.listTasks));
+  router.get('/:id', asyncHandler(tasksController.getTask));
+  router.post('/', asyncHandler(tasksController.createTask));
+  router.put('/:id', asyncHandler(tasksController.updateTask));
+  router.delete('/:id', asyncHandler(tasksController.deleteTask));
 
-module.exports = router;
+  app.use('/api/v1/tasks', router);
+};

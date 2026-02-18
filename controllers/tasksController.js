@@ -7,12 +7,12 @@ const {
 } = require('../validators/taskValidator');
 
 const listTasks = async (req, res) => {
-  const tasks = await taskService.getAllTasks();
+  const tasks = await taskService.getAllTasks(req.user.id);
   res.json({ data: tasks });
 };
 
 const getTask = async (req, res) => {
-  const task = await taskService.getTask(req.params.id);
+  const task = await taskService.getTask(req.params.id, req.user.id);
   if (!task) {
     throw new ApiError(404, 'Task not found');
   }
@@ -21,14 +21,14 @@ const getTask = async (req, res) => {
 
 const createTask = async (req, res) => {
   const payload = validateTaskCreation(req.body);
-  const task = await taskService.createTask(payload);
+  const task = await taskService.createTask(payload, req.user.id);
   logger.info('Task created', { taskId: task._id });
   res.status(201).json({ data: task });
 };
 
 const updateTask = async (req, res) => {
   const payload = validateTaskUpdate(req.body);
-  const task = await taskService.updateTask(req.params.id, payload);
+  const task = await taskService.updateTask(req.params.id, payload, req.user.id);
   if (!task) {
     throw new ApiError(404, 'Task not found');
   }
@@ -37,7 +37,7 @@ const updateTask = async (req, res) => {
 };
 
 const deleteTask = async (req, res) => {
-  const task = await taskService.deleteTask(req.params.id);
+  const task = await taskService.deleteTask(req.params.id, req.user.id);
   if (!task) {
     throw new ApiError(404, 'Task not found');
   }

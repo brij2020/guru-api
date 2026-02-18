@@ -1,5 +1,5 @@
 {
-  "name": "med-cert-server",
+  "name": "guru-api",
   "version": "1.0.0",
   "private": true,
   "main": "app.js",
@@ -8,10 +8,15 @@
     "dev": "nodemon app.js"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "joi": "^17.13.3",
+    "mongoose": "^8.7.1",
     "morgan": "^1.10.0",
-    "uuid": "^13.0.0"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
