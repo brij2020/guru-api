@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.local
+.env.stg
+.env.test
+.env.production
+.env.*
+!.env*.example

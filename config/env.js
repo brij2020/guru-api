@@ -1,10 +1,27 @@
 const path = require('path');
 const dotenv = require('dotenv');
+const fs = require('fs');
 
-const nodeEnv = process.env.NODE_ENV || 'development';
-const envPath = nodeEnv === 'production' ? undefined : path.join(process.cwd(), '.env');
+const resolveRuntimeEnv = (value) => {
+  const normalized = String(value || 'local').toLowerCase();
+  if (normalized === 'development') return 'local';
+  if (['local', 'stg', 'test', 'production'].includes(normalized)) return normalized;
+  return 'local';
+};
 
-dotenv.config({ path: envPath });
+const nodeEnv = resolveRuntimeEnv(process.env.NODE_ENV);
+const envCandidates = [
+  `.env.${nodeEnv}`,
+  '.env',
+];
+
+const selectedEnvFile = envCandidates
+  .map((file) => path.join(process.cwd(), file))
+  .find((filePath) => fs.existsSync(filePath));
+
+if (selectedEnvFile) {
+  dotenv.config({ path: selectedEnvFile });
+}
 
 const requiredVars = ['MONGODB_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
 const missing = requiredVars.filter((key) => !process.env[key]);
@@ -14,7 +31,7 @@ if (missing.length > 0 && nodeEnv !== 'test') {
 
 const port = Number(process.env.PORT) || 4000;
 const host = process.env.HOST || '0.0.0.0';
-const name = process.env.NODE_ENV || 'development';
+const name = nodeEnv;
 const logLevel = process.env.LOG_LEVEL || 'info';
 const corsOrigin = process.env.CORS_ORIGIN || '*';
 const corsOrigins = corsOrigin
@@ -34,6 +51,7 @@ const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 module.exports = {
   nodeEnv,
+  envFile: selectedEnvFile || null,
   port,
   host,
   name,

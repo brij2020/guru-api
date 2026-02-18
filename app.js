@@ -81,9 +81,16 @@ if (require.main === module) {
   bootstrapDatabase()
     .then(() => {
       app.listen(config.port, config.host, () => {
-        logger.info(`Server started on ${config.host}:${config.port} in ${config.name} mode`);
-        logger.info(`API URL: ${config.apiUrl}`);
-        logger.info(`Frontend URL: ${config.frontendUrl}`);
+       
+        logger.info('########################################');
+        logger.info(
+          `🚀 Server started successfully on ${config.host}:${config.port} in ${config.name} mode`
+        );
+        logger.info(`📊 Environment: ${String(config.name).toUpperCase()}`);
+        logger.info(`🗄️  Database URL: ${config.mongoUri}`);
+        logger.info(`🔗 API URL: ${config.apiUrl}`);
+        logger.info(`📱 Frontend URL: ${config.frontendUrl}`);
+        logger.info('########################################');
       });
     })
     .catch((error) => {
