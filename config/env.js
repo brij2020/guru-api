@@ -48,6 +48,10 @@ const jwtRefreshExpiresIn = process.env.JWT_REFRESH_EXPIRES_IN || '30d';
 const bcryptSaltRounds = Number(process.env.BCRYPT_SALT_ROUNDS) || 12;
 const apiUrl = process.env.API_URL || `http://localhost:${port}`;
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+const seedAdminOnBoot = String(process.env.SEED_ADMIN_ON_BOOT || 'false').toLowerCase() === 'true';
+const seedAdminName = process.env.SEED_ADMIN_NAME || '';
+const seedAdminEmail = process.env.SEED_ADMIN_EMAIL || '';
+const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD || '';
 
 module.exports = {
   nodeEnv,
@@ -69,4 +73,8 @@ module.exports = {
   bcryptSaltRounds,
   apiUrl,
   frontendUrl,
+  seedAdminOnBoot,
+  seedAdminName,
+  seedAdminEmail,
+  seedAdminPassword,
 };

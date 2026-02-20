@@ -8,6 +8,7 @@ const config = require('./config/env');
 const { logger, httpLogger } = require('./config/logger');
 const errorHandler = require('./errors/errorHandler');
 const ApiError = require('./errors/apiError');
+const { seedAdminUser } = require('./services/seedService');
 
 const app = express();
 
@@ -75,6 +76,7 @@ const bootstrapDatabase = async () => {
     return;
   }
   await connectDB();
+  await seedAdminUser();
 };
 
 if (require.main === module) {

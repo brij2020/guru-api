@@ -1,6 +1,12 @@
 const registerAuthRoutes = require('./v1/auth');
 const registerTaskRoutes = require('./v1/tasks');
 const registerCategoryRoutes = require('./v1/categories');
+const registerTopicRoutes = require('./v1/topics');
+const registerDifficultyRoutes = require('./v1/difficulties');
+const registerDifficultyLevelRoutes = require('./v1/difficultyLevels');
+const registerQuestionStyleRoutes = require('./v1/questionStyles');
+const registerQuestionCountRoutes = require('./v1/questionCounts');
+const registerTestAttemptRoutes = require('./v1/testAttempts');
 const registerUserRoutes = require('./v1/users');
 
 module.exports = (app) => {
@@ -8,4 +14,10 @@ module.exports = (app) => {
   registerUserRoutes(app);
   registerTaskRoutes(app);
   registerCategoryRoutes(app);
+  registerTopicRoutes(app);
+  registerDifficultyRoutes(app);
+  registerDifficultyLevelRoutes(app);
+  registerQuestionStyleRoutes(app);
+  registerQuestionCountRoutes(app);
+  registerTestAttemptRoutes(app);
 };

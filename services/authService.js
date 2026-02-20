@@ -1,6 +1,10 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const Category = require('../models/category');
+const Topic = require('../models/topic');
+const QuestionStyle = require('../models/questionStyle');
+const QuestionCount = require('../models/questionCount');
 const ApiError = require('../errors/apiError');
 const {
   jwtSecret,
@@ -10,6 +14,105 @@ const {
 } = require('../config/env');
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+const DEFAULT_AI_TEST_CATEGORY_NAME = 'AI Test';
+const DEFAULT_AI_TEST_CATEGORY_DESCRIPTION = 'Default category for AI test items';
+const DEFAULT_JAVASCRIPT_CATEGORY_NAME = 'JavaScript';
+const DEFAULT_JAVASCRIPT_CATEGORY_DESCRIPTION = 'Core JavaScript concepts and interview topics';
+const DEFAULT_JAVASCRIPT_TOPICS = [
+  'Event Loop',
+  'Event Delegation',
+  'Promise',
+];
+const DEFAULT_JAVASCRIPT_QUESTION_STYLES = [
+  'MCQ',
+  'Output Based',
+  'Problem Solving',
+];
+const DEFAULT_QUESTION_COUNTS = [5, 10, 20, 30];
+
+const ensureDefaultLearningContent = async (userId) => {
+  await Category.findOneAndUpdate(
+    { owner: userId, name: DEFAULT_AI_TEST_CATEGORY_NAME },
+    {
+      $setOnInsert: {
+        description: DEFAULT_AI_TEST_CATEGORY_DESCRIPTION,
+      },
+    },
+    {
+      upsert: true,
+      new: true,
+      setDefaultsOnInsert: true,
+    }
+  );
+
+  const javascriptCategory = await Category.findOneAndUpdate(
+    { owner: userId, name: DEFAULT_JAVASCRIPT_CATEGORY_NAME },
+    {
+      $setOnInsert: {
+        description: DEFAULT_JAVASCRIPT_CATEGORY_DESCRIPTION,
+      },
+    },
+    {
+      upsert: true,
+      new: true,
+      setDefaultsOnInsert: true,
+    }
+  );
+
+  await Promise.all(
+    DEFAULT_JAVASCRIPT_TOPICS.map((topicName) =>
+      Topic.findOneAndUpdate(
+        {
+          owner: userId,
+          category: javascriptCategory._id,
+          name: topicName,
+        },
+        {
+          $setOnInsert: {
+            description: '',
+          },
+        },
+        {
+          upsert: true,
+          setDefaultsOnInsert: true,
+        }
+      )
+    )
+  );
+
+  await Promise.all(
+    DEFAULT_JAVASCRIPT_QUESTION_STYLES.map((style) =>
+      QuestionStyle.findOneAndUpdate(
+        {
+          owner: userId,
+          category: javascriptCategory._id,
+          style,
+        },
+        { $setOnInsert: {} },
+        {
+          upsert: true,
+          setDefaultsOnInsert: true,
+        }
+      )
+    )
+  );
+
+  await Promise.all(
+    DEFAULT_QUESTION_COUNTS.map((count) =>
+      QuestionCount.findOneAndUpdate(
+        {
+          owner: userId,
+          count,
+        },
+        { $setOnInsert: {} },
+        {
+          upsert: true,
+          setDefaultsOnInsert: true,
+        }
+      )
+    )
+  );
+};
 
 const createAccessToken = (user) =>
   jwt.sign({ sub: user._id.toString(), role: user.role }, jwtSecret, {
@@ -51,6 +154,8 @@ const register = async ({ name, email, password }) => {
     email: email.toLowerCase(),
     password,
   });
+
+  await ensureDefaultLearningContent(user._id);
 
   const tokens = await issueTokens(user);
   return { user: sanitizeUser(user), ...tokens };

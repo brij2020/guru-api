@@ -1,4 +1,6 @@
 const Category = require('../models/category');
+const topicService = require('./topicService');
+const questionStyleService = require('./questionStyleService');
 
 const getAllCategories = async (userId) => {
   return Category.find({ owner: userId }).sort({ createdAt: -1 });
@@ -21,7 +23,12 @@ const updateCategory = async (id, updates, userId) => {
 };
 
 const deleteCategory = async (id, userId) => {
-  return Category.findOneAndDelete({ _id: id, owner: userId });
+  const category = await Category.findOneAndDelete({ _id: id, owner: userId });
+  if (category) {
+    await topicService.deleteTopicsByCategory(category._id, userId);
+    await questionStyleService.deleteQuestionStylesByCategory(category._id, userId);
+  }
+  return category;
 };
 
 module.exports = {

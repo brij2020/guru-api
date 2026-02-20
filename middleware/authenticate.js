@@ -11,23 +11,27 @@ const extractBearerToken = (authorization = '') => {
 };
 
 const authenticate = async (req, res, next) => {
-  const token = extractBearerToken(req.headers.authorization);
-  if (!token) {
-    return next(new ApiError(401, 'Authorization token is required'));
-  }
+  try {
+    const token = extractBearerToken(req.headers.authorization);
+    if (!token) {
+      return next(new ApiError(401, 'Authorization token is required'));
+    }
 
-  const payload = authService.verifyAccessToken(token);
-  const user = await User.findById(payload.sub);
-  if (!user) {
-    return next(new ApiError(401, 'Authenticated user no longer exists'));
-  }
+    const payload = authService.verifyAccessToken(token);
+    const user = await User.findById(payload.sub);
+    if (!user) {
+      return next(new ApiError(401, 'Authenticated user no longer exists'));
+    }
 
-  req.user = {
-    id: user._id.toString(),
-    role: user.role,
-    email: user.email,
-  };
-  return next();
+    req.user = {
+      id: user._id.toString(),
+      role: user.role,
+      email: user.email,
+    };
+    return next();
+  } catch (error) {
+    return next(error);
+  }
 };
 
 module.exports = authenticate;
