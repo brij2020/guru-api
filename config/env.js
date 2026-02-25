@@ -43,6 +43,7 @@ const corsAllowPrivateNetwork = String(
 ).toLowerCase() === 'true';
 const requestWindowMs = Number(process.env.REQUEST_WINDOW_MS) || 15 * 60 * 1000;
 const requestLimit = Number(process.env.REQUEST_LIMIT) || 200;
+const requestBodyLimit = process.env.REQUEST_BODY_LIMIT || '2mb';
 const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '15m';
 const jwtRefreshExpiresIn = process.env.JWT_REFRESH_EXPIRES_IN || '30d';
 const bcryptSaltRounds = Number(process.env.BCRYPT_SALT_ROUNDS) || 12;
@@ -52,6 +53,23 @@ const seedAdminOnBoot = String(process.env.SEED_ADMIN_ON_BOOT || 'false').toLowe
 const seedAdminName = process.env.SEED_ADMIN_NAME || '';
 const seedAdminEmail = process.env.SEED_ADMIN_EMAIL || '';
 const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD || '';
+const aiProvider = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
+const openaiApiKey = process.env.OPENAI_API_KEY || '';
+const openaiBaseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
+const openaiModel = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+const geminiApiKey = process.env.GEMINI_API_KEY || '';
+const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash-lite';
+const geminiModels = Array.from(
+  new Set(
+    [
+      geminiModel,
+      ...(process.env.GEMINI_MODELS || '')
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ].filter(Boolean)
+  )
+);
 
 module.exports = {
   nodeEnv,
@@ -66,6 +84,7 @@ module.exports = {
   mongoUri: process.env.MONGODB_URI,
   requestWindowMs,
   requestLimit,
+  requestBodyLimit,
   jwtSecret: process.env.JWT_SECRET,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   jwtExpiresIn,
@@ -77,4 +96,11 @@ module.exports = {
   seedAdminName,
   seedAdminEmail,
   seedAdminPassword,
+  aiProvider,
+  openaiApiKey,
+  openaiBaseUrl,
+  openaiModel,
+  geminiApiKey,
+  geminiModel,
+  geminiModels,
 };

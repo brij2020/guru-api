@@ -318,5 +318,44 @@ describe('Auth API', () => {
     expect(startResponse.body.data.testTitle).toBe('Heart Anatomy Quiz');
     expect(startResponse.body.data.owner).toBe(userId);
     expect(startResponse.body.data.questionCount).toBe('10');
+    expect(Array.isArray(startResponse.body.data.curatedQuestions)).toBe(true);
+    expect(startResponse.body.data.curatedQuestions).toHaveLength(10);
+    expect(startResponse.body.data.totalQuestions).toBe(10);
+  });
+
+  it('curates questions from start payload (difficulty/topic/styles/count)', async () => {
+    const payload = {
+      name: 'Curation Payload User',
+      email: 'curation.payload.user@example.com',
+      password: 'Password1',
+    };
+
+    const registerResponse = await request(app).post('/api/v1/auth/register').send(payload);
+    const accessToken = registerResponse.body.data.accessToken;
+
+    const startResponse = await request(app)
+      .post('/api/v1/test-attempts/start')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        testId: 't1',
+        testTitle: 'Heart Anatomy Quiz',
+        domain: 'Cardiology',
+        difficulty: 'basic',
+        topics: ['es-6', 'event loop'],
+        questionStyles: ['mcq', 'io', 'html'],
+        questionCount: '20',
+        totalQuestions: 0,
+        duration: 20,
+      });
+
+    expect(startResponse.status).toBe(201);
+    expect(startResponse.body.data.testId).toBe('t1');
+    expect(startResponse.body.data.questionCount).toBe('20');
+    expect(startResponse.body.data.totalQuestions).toBe(20);
+    expect(Array.isArray(startResponse.body.data.curatedQuestions)).toBe(true);
+    expect(startResponse.body.data.curatedQuestions).toHaveLength(20);
+
+    const styles = new Set(startResponse.body.data.curatedQuestions.map((item) => item.type));
+    expect(styles.has('mcq') || styles.has('output')).toBe(true);
   });
 });

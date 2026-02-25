@@ -2,6 +2,9 @@ const Joi = require('joi');
 const ApiError = require('../errors/apiError');
 
 const startTestAttemptSchema = Joi.object({
+  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai').optional(),
+  allowFallback: Joi.boolean().optional(),
+  attemptMode: Joi.string().trim().valid('practice', 'exam').default('exam'),
   testId: Joi.string().trim().allow('').max(120),
   testTitle: Joi.string().trim().max(200).required(),
   domain: Joi.string().trim().allow('').max(120),

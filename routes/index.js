@@ -7,7 +7,9 @@ const registerDifficultyLevelRoutes = require('./v1/difficultyLevels');
 const registerQuestionStyleRoutes = require('./v1/questionStyles');
 const registerQuestionCountRoutes = require('./v1/questionCounts');
 const registerTestAttemptRoutes = require('./v1/testAttempts');
+const registerAiCurationRoutes = require('./v1/aiCuration');
 const registerUserRoutes = require('./v1/users');
+const registerExamHierarchyRoutes = require('./v1/examHierarchy');
 
 module.exports = (app) => {
   registerAuthRoutes(app);
@@ -19,5 +21,7 @@ module.exports = (app) => {
   registerDifficultyLevelRoutes(app);
   registerQuestionStyleRoutes(app);
   registerQuestionCountRoutes(app);
+  registerExamHierarchyRoutes(app);
   registerTestAttemptRoutes(app);
+  registerAiCurationRoutes(app);
 };

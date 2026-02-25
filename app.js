@@ -50,8 +50,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(httpLogger);
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: config.requestBodyLimit }));
+app.use(express.urlencoded({ extended: true, limit: config.requestBodyLimit }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
