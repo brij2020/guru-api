@@ -1,5 +1,6 @@
 const TestAttempt = require('../models/testAttempt');
 const aiCurationService = require('./aiCurationService');
+const questionBankService = require('./questionBankService');
 const ApiError = require('../errors/apiError');
 
 const DEFAULT_QUESTION_COUNT = 20;
@@ -110,6 +111,19 @@ const startTestAttempt = async (payload, userId) => {
   });
 
   const savedAttempt = await attempt.save();
+
+  try {
+    await questionBankService.ingestQuestions({
+      ownerId: userId,
+      sourceAttemptId: savedAttempt._id,
+      payload,
+      provider: payload.provider || '',
+      questions: curatedQuestions,
+    });
+  } catch (error) {
+    // Question bank ingestion should not block test start flow.
+  }
+
   return {
     ...savedAttempt.toObject(),
     curatedQuestions,

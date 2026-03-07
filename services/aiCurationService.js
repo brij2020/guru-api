@@ -30,6 +30,7 @@ const ESTIMATED_MINUTES_PER_TYPE = {
 };
 const MIN_ESTIMATED_DURATION_MINUTES = 5;
 const MAX_ESTIMATED_DURATION_MINUTES = 300;
+const GOV_EXAM_CONTEXT_PATTERN = /\b(gov(?:ernment)?\s*exam|ssc|upsc|rrb|ntpc|ibps|sbi|psc|cbt|prelims|mains)\b/i;
 
 const TYPE_ALIASES = {
   coding: 'coding',
@@ -95,6 +96,9 @@ const normalizeTextList = (values) => {
   );
 };
 
+const isGovExamContext = (...values) =>
+  values.some((value) => GOV_EXAM_CONTEXT_PATTERN.test(String(value || '')));
+
 const normalizeRequestedTypes = (styles) => {
   const normalized = normalizeTextList(styles)
     .map((style) => normalizeQuestionType(style))
@@ -151,7 +155,9 @@ const buildTypePlan = (requestedTypes, questionCount) => {
 
 const normalizeInput = (input) => {
   const questionCount = normalizeQuestionCount(input.questionCount);
-  const requestedTypes = normalizeRequestedTypes(input.questionStyles);
+  const promptContext = String(input.promptContext || '').trim();
+  const govExamMode = isGovExamContext(input.testId, input.testTitle, input.domain, promptContext);
+  const requestedTypes = govExamMode ? ['mcq'] : normalizeRequestedTypes(input.questionStyles);
   const typePlan = buildTypePlan(requestedTypes, questionCount);
   const normalizedMode = String(input.attemptMode || '')
     .trim()
@@ -168,6 +174,8 @@ const normalizeInput = (input) => {
     requestedTypes,
     typePlan,
     questionCount,
+    promptContext,
+    govExamMode,
   };
 };
 
@@ -222,7 +230,65 @@ const getAttemptModeGuidance = (attemptMode) => {
   };
 };
 
+const buildGovExamCurationPrompt = (input, existingQuestions = []) => {
+  const selectedTopicsText =
+    input.topics.length > 0 ? input.topics.join(', ') : 'All core syllabus areas';
+  const exclusionText =
+    existingQuestions.length > 0
+      ? `\n- Existing questions to avoid repeating:\n${existingQuestions
+          .slice(0, 25)
+          .map((question, index) => `  ${index + 1}. ${question}`)
+          .join('\n')}`
+      : '';
+
+  return `
+Role: Create realistic government-exam MCQ questions.
+Output: strict JSON only (no markdown).
+
+Input profile:
+- Test: ${input.testTitle} (${input.testId || 'not-provided'})
+- Domain: ${input.domain || 'Government Exam'}
+- Mode: ${input.attemptMode === 'practice' ? 'Practice' : 'Exam'}
+- Difficulty: ${input.difficulty}
+- Topics: ${selectedTopicsText}
+- Count: ${input.questionCount}
+- Extra context: ${input.promptContext || 'None'}
+${exclusionText}
+
+Required JSON schema:
+{
+  "estimatedDurationMinutes": 0,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "mcq",
+      "difficulty": "easy | medium | hard",
+      "topic": "string",
+      "question": "string",
+      "options": ["string", "string", "string", "string"],
+      "answer": "string",
+      "explanation": "string"
+    }
+  ]
+}
+
+Rules:
+- Return exactly ${input.questionCount} unique questions.
+- Use only "mcq" question type.
+- Keep question and explanation concise (exam-style, not essay-style).
+- Ensure 4 plausible options per question and only one correct answer.
+- "answer" must be the exact option text from "options".
+- Match real exam feel: balanced difficulty, time pressure, elimination-friendly distractors.
+- Avoid coding/theory/open-ended formats.
+- If mode is practice, estimatedDurationMinutes = 0; otherwise return realistic integer minutes >= 5.
+`.trim();
+};
+
 const buildCurationPrompt = (input, existingQuestions = []) => {
+  if (input.govExamMode) {
+    return buildGovExamCurationPrompt(input, existingQuestions);
+  }
+
   const typePlanText = Object.entries(input.typePlan)
     .map(([type, count]) => `${type}: ${count}`)
     .join(', ');
@@ -259,6 +325,7 @@ Input profile:
 - Domain focus: ${domainFocus}
 - Difficulty guidance: ${difficultyGuidance}
 - Mode guidance: ${modeGuidance.guidance}
+- Extra context: ${input.promptContext || 'None'}
 ${exclusionText}
 
 Required JSON schema:

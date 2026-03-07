@@ -11,6 +11,7 @@ const startTestAttemptSchema = Joi.object({
   difficulty: Joi.string().trim().max(60).default('all'),
   topics: Joi.array().items(Joi.string().trim().max(120)).default([]),
   questionStyles: Joi.array().items(Joi.string().trim().max(120)).default([]),
+  promptContext: Joi.string().trim().allow('').max(4000).optional(),
   questionCount: Joi.alternatives().try(
     Joi.string().trim().max(20),
     Joi.number().integer().min(1).max(1000)
