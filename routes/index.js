@@ -11,6 +11,9 @@ const registerAiCurationRoutes = require('./v1/aiCuration');
 const registerUserRoutes = require('./v1/users');
 const registerExamHierarchyRoutes = require('./v1/examHierarchy');
 const registerQuestionBankRoutes = require('./v1/questionBank');
+const registerPaperBlueprintRoutes = require('./v1/paperBlueprints');
+const registerAiGenerationJobRoutes = require('./v1/aiGenerationJobs');
+const registerSystemRoutes = require('./v1/system');
 
 module.exports = (app) => {
   registerAuthRoutes(app);
@@ -23,6 +26,9 @@ module.exports = (app) => {
   registerQuestionStyleRoutes(app);
   registerQuestionCountRoutes(app);
   registerExamHierarchyRoutes(app);
+  registerPaperBlueprintRoutes(app);
+  registerAiGenerationJobRoutes(app);
+  registerSystemRoutes(app);
   registerQuestionBankRoutes(app);
   registerTestAttemptRoutes(app);
   registerAiCurationRoutes(app);

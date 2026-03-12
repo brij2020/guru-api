@@ -1,0 +1,24 @@
+[
+  {
+    "_id": "sbi_clerk_prelims",
+    "name": "SBI Clerk Prelims",
+    "sections": [
+      {
+        "name": "Reasoning Ability",
+        "questions": 35,
+        "time": 20
+      },
+      {
+        "name": "Quantitative Aptitude",
+        "questions": 35,
+        "time": 20
+      },
+      {
+        "name": "English Language",
+        "questions": 30,
+        "time": 20
+      }
+    ],
+    "negativeMarking": -0.25
+  }
+]

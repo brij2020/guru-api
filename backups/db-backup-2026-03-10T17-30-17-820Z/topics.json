@@ -1,0 +1,542 @@
+[
+  {
+    "_id": "6999912330de3b0ecf34bb0f",
+    "name": "Event Loop",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb14",
+    "name": "Promises",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb13",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Execution Context",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.008Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.008Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb10",
+    "name": "async / await",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb11",
+    "name": "Classes vs Prototypes",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb12",
+    "name": "this Keyword",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb15",
+    "name": "Prototype Chain",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb16",
+    "name": "Hoisting",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb17",
+    "name": "Closures",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb0e",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Scope",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb18",
+    "name": "Object Methods",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb19",
+    "name": "Shallow vs Deep Copy",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb1a",
+    "name": "First Class Functions",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb1b",
+    "name": "Higher Order Functions",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb1c",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Arrow Functions",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb1d",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Destructuring",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb1e",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Spread vs Rest",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb1f",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Modules",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb20",
+    "name": "Event Delegation",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb21",
+    "name": "Event Bubbling vs Capturing",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb22",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "LocalStorage vs SessionStorage vs Cookies",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb23",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Memoization",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb24",
+    "name": "Polyfills",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb25",
+    "name": "Deep Equality",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb26",
+    "name": "Immutability",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb27",
+    "name": "Debounce vs Throttle",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb28",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Lazy Loading",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb29",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Tree Shaking",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb2a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Design Pattern",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb2b",
+    "name": "Event loop in Node",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb2c",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Streams",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb2d",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Cluster",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb2e",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Worker Threads",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb2f",
+    "name": "Middleware flow",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb30",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Virtual DOM",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb31",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Reconciliation",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb32",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "State batching",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb33",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "SSR vs CSR",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb34",
+    "name": "Promise retry",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb35",
+    "name": "Flatten array",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb36",
+    "name": "Deep clone",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb37",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Group by",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb38",
+    "name": "Polyfill bind",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb39",
+    "name": "LRU cache",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb3a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "name": "Debounce / Throttle",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb3b",
+    "name": "Garbage Collection",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb3c",
+    "name": "Currying",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.009Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.009Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb3d",
+    "name": "Debounce & Throttle",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "6999912330de3b0ecf34bb3e",
+    "name": "Memory Leak Causes",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:04:03.010Z",
+    "description": "",
+    "updatedAt": "2026-02-21T11:04:03.010Z"
+  },
+  {
+    "_id": "699ae72b30de3b0ecf34bb4c",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699ae60ebba278ecaeb78058",
+    "name": "UP",
+    "__v": 0,
+    "createdAt": "2026-02-22T11:23:23.002Z",
+    "description": "",
+    "updatedAt": "2026-02-22T11:23:23.002Z"
+  },
+  {
+    "_id": "699ae72b30de3b0ecf34bb4d",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699ae60ebba278ecaeb78058",
+    "name": "bihar",
+    "__v": 0,
+    "createdAt": "2026-02-22T11:23:23.003Z",
+    "description": "",
+    "updatedAt": "2026-02-22T11:23:23.003Z"
+  },
+  {
+    "_id": "69ac642b0d2d69ce59a1bf26",
+    "name": "Event Loop",
+    "category": "69ac642b0d2d69ce59a1bf25",
+    "owner": "69ac642b7f9e8063cff5a3ad",
+    "__v": 0,
+    "createdAt": "2026-03-07T17:45:15.897Z",
+    "description": "",
+    "updatedAt": "2026-03-07T17:45:15.897Z"
+  },
+  {
+    "_id": "69ac642b0d2d69ce59a1bf27",
+    "name": "Promise",
+    "category": "69ac642b0d2d69ce59a1bf25",
+    "owner": "69ac642b7f9e8063cff5a3ad",
+    "__v": 0,
+    "createdAt": "2026-03-07T17:45:15.897Z",
+    "description": "",
+    "updatedAt": "2026-03-07T17:45:15.897Z"
+  },
+  {
+    "_id": "69ac642b0d2d69ce59a1bf28",
+    "name": "Event Delegation",
+    "category": "69ac642b0d2d69ce59a1bf25",
+    "owner": "69ac642b7f9e8063cff5a3ad",
+    "__v": 0,
+    "createdAt": "2026-03-07T17:45:15.897Z",
+    "description": "",
+    "updatedAt": "2026-03-07T17:45:15.897Z"
+  }
+]

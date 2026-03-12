@@ -1,0 +1,1551 @@
+[
+  {
+    "_id": "69988469e7e38efb394a82c0",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "es-6",
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "html",
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 0,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T15:57:29.418Z",
+    "createdAt": "2026-02-20T15:57:29.419Z",
+    "updatedAt": "2026-02-20T15:57:29.419Z",
+    "__v": 0
+  },
+  {
+    "_id": "699888518301ededd12a3a77",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "t1",
+    "testTitle": "Heart Anatomy Quiz",
+    "domain": "Cardiology",
+    "difficulty": "basic",
+    "topics": [
+      "es-6",
+      "event loop"
+    ],
+    "questionStyles": [
+      "mcq",
+      "io",
+      "html"
+    ],
+    "questionCount": "20",
+    "totalQuestions": 0,
+    "duration": 20,
+    "status": "started",
+    "startedAt": "2026-02-20T16:14:09.023Z",
+    "createdAt": "2026-02-20T16:14:09.027Z",
+    "updatedAt": "2026-02-20T16:14:09.027Z",
+    "__v": 0
+  },
+  {
+    "_id": "69988908b6491662c09a4e2f",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "t1",
+    "testTitle": "Heart Anatomy Quiz",
+    "domain": "Cardiology",
+    "difficulty": "hard",
+    "topics": [
+      "es-6",
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "25",
+    "totalQuestions": 25,
+    "duration": 20,
+    "status": "started",
+    "startedAt": "2026-02-20T16:17:12.364Z",
+    "createdAt": "2026-02-20T16:17:12.368Z",
+    "updatedAt": "2026-02-20T16:17:12.368Z",
+    "__v": 0
+  },
+  {
+    "_id": "69988b77b6491662c09a4e32",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [],
+    "questionStyles": [],
+    "questionCount": "100",
+    "totalQuestions": 100,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:27:35.488Z",
+    "createdAt": "2026-02-20T16:27:35.489Z",
+    "updatedAt": "2026-02-20T16:27:35.489Z",
+    "__v": 0
+  },
+  {
+    "_id": "69988bd6b6491662c09a4e47",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "es-6",
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "html",
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:29:10.746Z",
+    "createdAt": "2026-02-20T16:29:10.747Z",
+    "updatedAt": "2026-02-20T16:29:10.747Z",
+    "__v": 0
+  },
+  {
+    "_id": "69988c42b6491662c09a4e4a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "es-6",
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "html",
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:30:58.851Z",
+    "createdAt": "2026-02-20T16:30:58.851Z",
+    "updatedAt": "2026-02-20T16:30:58.851Z",
+    "__v": 0
+  },
+  {
+    "_id": "69988cc0b6491662c09a4e5d",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "promise",
+      "event loop"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:33:04.688Z",
+    "createdAt": "2026-02-20T16:33:04.688Z",
+    "updatedAt": "2026-02-20T16:33:04.688Z",
+    "__v": 0
+  },
+  {
+    "_id": "69988d4cb6491662c09a4e60",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "promise",
+      "event loop"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:35:24.757Z",
+    "createdAt": "2026-02-20T16:35:24.757Z",
+    "updatedAt": "2026-02-20T16:35:24.757Z",
+    "__v": 0
+  },
+  {
+    "_id": "69988e0eb6491662c09a4e63",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "es-6",
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "html",
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:38:38.549Z",
+    "createdAt": "2026-02-20T16:38:38.549Z",
+    "updatedAt": "2026-02-20T16:38:38.549Z",
+    "__v": 0
+  },
+  {
+    "_id": "69988fe159cf671ef87b1d28",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "es-6",
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "html",
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:46:25.993Z",
+    "createdAt": "2026-02-20T16:46:25.997Z",
+    "updatedAt": "2026-02-20T16:46:25.997Z",
+    "__v": 0
+  },
+  {
+    "_id": "699890a21decee6a1939fb33",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "es-6",
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "html",
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:49:38.288Z",
+    "createdAt": "2026-02-20T16:49:38.291Z",
+    "updatedAt": "2026-02-20T16:49:38.291Z",
+    "__v": 0
+  },
+  {
+    "_id": "699890d51decee6a1939fb54",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "es-6",
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "html",
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:50:29.573Z",
+    "createdAt": "2026-02-20T16:50:29.574Z",
+    "updatedAt": "2026-02-20T16:50:29.574Z",
+    "__v": 0
+  },
+  {
+    "_id": "699890fc1decee6a1939fb57",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "event loop",
+      "es-6",
+      "promise"
+    ],
+    "questionStyles": [
+      "io",
+      "html",
+      "mcq"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:51:08.632Z",
+    "createdAt": "2026-02-20T16:51:08.633Z",
+    "updatedAt": "2026-02-20T16:51:08.633Z",
+    "__v": 0
+  },
+  {
+    "_id": "699891702c6aafe7134e1ff3",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "event loop",
+      "es-6",
+      "promise"
+    ],
+    "questionStyles": [
+      "io",
+      "html",
+      "mcq"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:53:04.481Z",
+    "createdAt": "2026-02-20T16:53:04.484Z",
+    "updatedAt": "2026-02-20T16:53:04.484Z",
+    "__v": 0
+  },
+  {
+    "_id": "699892ce90a56e8afe3a71d2",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "event loop",
+      "es-6",
+      "promise"
+    ],
+    "questionStyles": [
+      "io",
+      "html",
+      "mcq"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T16:58:54.211Z",
+    "createdAt": "2026-02-20T16:58:54.214Z",
+    "updatedAt": "2026-02-20T16:58:54.214Z",
+    "__v": 0
+  },
+  {
+    "_id": "6998935e90a56e8afe3a71d7",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "promise",
+      "event loop"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T17:01:18.246Z",
+    "createdAt": "2026-02-20T17:01:18.247Z",
+    "updatedAt": "2026-02-20T17:01:18.247Z",
+    "__v": 0
+  },
+  {
+    "_id": "699893b090a56e8afe3a71da",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "event loop",
+      "es-6",
+      "promise"
+    ],
+    "questionStyles": [
+      "io",
+      "html",
+      "mcq"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T17:02:40.133Z",
+    "createdAt": "2026-02-20T17:02:40.134Z",
+    "updatedAt": "2026-02-20T17:02:40.134Z",
+    "__v": 0
+  },
+  {
+    "_id": "699893f537f6f5ba0f36a66a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "all",
+    "topics": [
+      "es-6",
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "html",
+      "io",
+      "mcq"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T17:03:49.598Z",
+    "createdAt": "2026-02-20T17:03:49.601Z",
+    "updatedAt": "2026-02-20T17:03:49.601Z",
+    "__v": 0
+  },
+  {
+    "_id": "6998941e37f6f5ba0f36a66d",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "all",
+    "topics": [
+      "event loop",
+      "es-6",
+      "promise"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq",
+      "html"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T17:04:30.978Z",
+    "createdAt": "2026-02-20T17:04:30.979Z",
+    "updatedAt": "2026-02-20T17:04:30.979Z",
+    "__v": 0
+  },
+  {
+    "_id": "69989548fcfd20afe8345dac",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "all",
+    "topics": [
+      "event loop",
+      "es-6",
+      "promise"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq",
+      "html"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T17:09:28.825Z",
+    "createdAt": "2026-02-20T17:09:28.829Z",
+    "updatedAt": "2026-02-20T17:09:28.829Z",
+    "__v": 0
+  },
+  {
+    "_id": "6998965dfcfd20afe8345db0",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "promise",
+      "event loop"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T17:14:05.152Z",
+    "createdAt": "2026-02-20T17:14:05.153Z",
+    "updatedAt": "2026-02-20T17:14:05.153Z",
+    "__v": 0
+  },
+  {
+    "_id": "6998966efcfd20afe8345db2",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "promise",
+      "event loop"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T17:14:22.671Z",
+    "createdAt": "2026-02-20T17:14:22.672Z",
+    "updatedAt": "2026-02-20T17:14:22.672Z",
+    "__v": 0
+  },
+  {
+    "_id": "69989690fcfd20afe8345db5",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "promise",
+      "event loop"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T17:14:56.656Z",
+    "createdAt": "2026-02-20T17:14:56.657Z",
+    "updatedAt": "2026-02-20T17:14:56.657Z",
+    "__v": 0
+  },
+  {
+    "_id": "699896fcfcfd20afe8345dba",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "promise",
+      "event loop"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-20T17:16:44.178Z",
+    "createdAt": "2026-02-20T17:16:44.179Z",
+    "updatedAt": "2026-02-20T17:16:44.179Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999817d2ff6be887b0a7ef5",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "es-6",
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "mcq",
+      "io"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-21T09:57:17.910Z",
+    "createdAt": "2026-02-21T09:57:17.912Z",
+    "updatedAt": "2026-02-21T09:57:17.912Z",
+    "__v": 0
+  },
+  {
+    "_id": "699984192ff6be887b0a7f14",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "t1",
+    "testTitle": "Heart Anatomy Quiz",
+    "domain": "Cardiology",
+    "difficulty": "hard",
+    "topics": [
+      "event loop",
+      "promise"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 20,
+    "status": "started",
+    "startedAt": "2026-02-21T10:08:25.161Z",
+    "createdAt": "2026-02-21T10:08:25.163Z",
+    "updatedAt": "2026-02-21T10:08:25.163Z",
+    "__v": 0
+  },
+  {
+    "_id": "69998dfc2ff6be887b0a7f29",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "es-6",
+      "promise"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-21T10:50:36.961Z",
+    "createdAt": "2026-02-21T10:50:36.962Z",
+    "updatedAt": "2026-02-21T10:50:36.962Z",
+    "__v": 0
+  },
+  {
+    "_id": "699991862ff6be887b0a7f7d",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "event loop",
+      "arrow functions",
+      "async / await",
+      "classes vs prototypes",
+      "streams"
+    ],
+    "questionStyles": [
+      "io",
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-21T11:05:42.126Z",
+    "createdAt": "2026-02-21T11:05:42.127Z",
+    "updatedAt": "2026-02-21T11:05:42.127Z",
+    "__v": 0
+  },
+  {
+    "_id": "699993cd2ff6be887b0a7fad",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "async / await"
+    ],
+    "questionStyles": [
+      "coding problem style",
+      "concept check style",
+      "mcq",
+      "debugging style",
+      "io based problem style"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-21T11:15:25.008Z",
+    "createdAt": "2026-02-21T11:15:25.009Z",
+    "updatedAt": "2026-02-21T11:15:25.009Z",
+    "__v": 0
+  },
+  {
+    "_id": "699994662ff6be887b0a7fc0",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "promise retry",
+      "polyfills",
+      "virtual dom",
+      "tree shaking"
+    ],
+    "questionStyles": [
+      "mcq",
+      "coding problem style",
+      "senior level"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-21T11:17:58.280Z",
+    "createdAt": "2026-02-21T11:17:58.281Z",
+    "updatedAt": "2026-02-21T11:17:58.281Z",
+    "__v": 0
+  },
+  {
+    "_id": "699995c92ff6be887b0a7fd5",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "destructuring",
+      "design pattern",
+      "event loop in node",
+      "hoisting",
+      "closures",
+      "event loop"
+    ],
+    "questionStyles": [
+      "mcq",
+      "coding problem style",
+      "io based problem style",
+      "output prediction style"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-21T11:23:53.612Z",
+    "createdAt": "2026-02-21T11:23:53.613Z",
+    "updatedAt": "2026-02-21T11:23:53.613Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999a5f1a30c06013e72b1e2",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "async / await",
+      "arrow functions",
+      "debounce / throttle",
+      "design pattern",
+      "event loop in node"
+    ],
+    "questionStyles": [
+      "mcq",
+      "mcq test style",
+      "output prediction style",
+      "senior level"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-21T12:32:49.111Z",
+    "createdAt": "2026-02-21T12:32:49.114Z",
+    "updatedAt": "2026-02-21T12:32:49.114Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999a8023e5ebc956a6a3caa",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "async / await",
+      "debounce / throttle",
+      "design pattern",
+      "scope"
+    ],
+    "questionStyles": [
+      "coding problem style",
+      "concept check style",
+      "mcq test style",
+      "debugging style"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-21T12:41:38.419Z",
+    "createdAt": "2026-02-21T12:41:38.424Z",
+    "updatedAt": "2026-02-21T12:41:38.424Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999b6b4f9a11eab41615d8e",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "classes vs prototypes",
+      "async / await",
+      "debounce & throttle"
+    ],
+    "questionStyles": [
+      "debugging style",
+      "mixed style"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-21T13:44:20.710Z",
+    "createdAt": "2026-02-21T13:44:20.713Z",
+    "updatedAt": "2026-02-21T13:44:20.713Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999b7979a54be7f71db5f14",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "async / await",
+      "debounce / throttle",
+      "design pattern"
+    ],
+    "questionStyles": [
+      "coding problem style",
+      "mcq",
+      "mcq test style",
+      "concept check style"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-21T13:48:07.465Z",
+    "createdAt": "2026-02-21T13:48:07.468Z",
+    "updatedAt": "2026-02-21T13:48:07.468Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999b8a8ec5ce8282085c2cf",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "hoisting",
+      "closures",
+      "currying",
+      "promises",
+      "async / await",
+      "arrow functions",
+      "classes vs prototypes"
+    ],
+    "questionStyles": [
+      "mcq",
+      "coding problem style",
+      "io based problem style",
+      "output prediction style"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 30,
+    "status": "started",
+    "startedAt": "2026-02-21T13:52:40.897Z",
+    "createdAt": "2026-02-21T13:52:40.902Z",
+    "updatedAt": "2026-02-21T13:52:40.902Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999bc72df7166e374f04478",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "arrow functions",
+      "async / await",
+      "classes vs prototypes",
+      "closures",
+      "event loop"
+    ],
+    "questionStyles": [
+      "mcq",
+      "mcq test style",
+      "output prediction style",
+      "real interview simulation"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-21T14:08:50.076Z",
+    "createdAt": "2026-02-21T14:08:50.077Z",
+    "updatedAt": "2026-02-21T14:08:50.077Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999bd9edf7166e374f04493",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "event loop in node",
+      "execution context",
+      "closures",
+      "debounce vs throttle",
+      "event delegation",
+      "event loop"
+    ],
+    "questionStyles": [
+      "coding problem style",
+      "mcq test style",
+      "mixed style",
+      "debugging style"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-21T14:13:50.994Z",
+    "createdAt": "2026-02-21T14:13:50.996Z",
+    "updatedAt": "2026-02-21T14:13:50.996Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999c041df7166e374f04498",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "async / await",
+      "arrow functions",
+      "debounce / throttle",
+      "design pattern",
+      "event loop in node"
+    ],
+    "questionStyles": [
+      "mcq",
+      "mcq test style",
+      "output prediction style",
+      "senior level"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 45,
+    "status": "started",
+    "startedAt": "2026-02-21T14:25:05.253Z",
+    "createdAt": "2026-02-21T14:25:05.253Z",
+    "updatedAt": "2026-02-21T14:25:05.253Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999c0eddf7166e374f044ab",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "async / await",
+      "arrow functions",
+      "debounce vs throttle",
+      "deep clone",
+      "polyfill bind",
+      "promises",
+      "prototype chain",
+      "immutability",
+      "lazy loading"
+    ],
+    "questionStyles": [
+      "coding problem style",
+      "mcq test style",
+      "mixed style",
+      "senior level"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 30,
+    "status": "started",
+    "startedAt": "2026-02-21T14:27:57.255Z",
+    "createdAt": "2026-02-21T14:27:57.256Z",
+    "updatedAt": "2026-02-21T14:27:57.256Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999c1bbdf7166e374f044be",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "async / await",
+      "debounce & throttle",
+      "arrow functions",
+      "closures"
+    ],
+    "questionStyles": [
+      "coding problem style",
+      "mcq test style",
+      "mixed style"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 30,
+    "status": "started",
+    "startedAt": "2026-02-21T14:31:23.369Z",
+    "createdAt": "2026-02-21T14:31:23.370Z",
+    "updatedAt": "2026-02-21T14:31:23.370Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999c260df7166e374f044d1",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "debounce vs throttle",
+      "event delegation",
+      "garbage collection"
+    ],
+    "questionStyles": [
+      "senior level",
+      "fill-in-the-blank style",
+      "mcq",
+      "mcq test style",
+      "mixed style",
+      "mock interview style"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 11,
+    "status": "started",
+    "startedAt": "2026-02-21T14:34:08.139Z",
+    "createdAt": "2026-02-21T14:34:08.139Z",
+    "updatedAt": "2026-02-21T14:34:08.139Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999c857e2305eba22f357ad",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "promises",
+      "prototype chain",
+      "hoisting",
+      "closures"
+    ],
+    "questionStyles": [
+      "mcq test style",
+      "mcq",
+      "real interview simulation"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-21T14:59:35.811Z",
+    "createdAt": "2026-02-21T14:59:35.813Z",
+    "updatedAt": "2026-02-21T14:59:35.813Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999c9d5a9483fe8e5aa3d1b",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "arrow functions",
+      "currying",
+      "cluster",
+      "destructuring"
+    ],
+    "questionStyles": [
+      "mcq",
+      "io based problem style"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-21T15:05:57.058Z",
+    "createdAt": "2026-02-21T15:05:57.061Z",
+    "updatedAt": "2026-02-21T15:05:57.061Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999ca32a9483fe8e5aa3d2f",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "debounce vs throttle",
+      "deep clone",
+      "event loop",
+      "hoisting",
+      "spread vs rest",
+      "scope",
+      "debounce / throttle"
+    ],
+    "questionStyles": [
+      "mcq"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-21T15:07:30.465Z",
+    "createdAt": "2026-02-21T15:07:30.466Z",
+    "updatedAt": "2026-02-21T15:07:30.466Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999ce45a9483fe8e5aa3d46",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "closures",
+      "hoisting",
+      "polyfills"
+    ],
+    "questionStyles": [
+      "mcq"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-21T15:24:53.193Z",
+    "createdAt": "2026-02-21T15:24:53.193Z",
+    "updatedAt": "2026-02-21T15:24:53.193Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999d26dfb32c149b8e2fda1",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "deep clone",
+      "currying",
+      "debounce / throttle",
+      "destructuring"
+    ],
+    "questionStyles": [
+      "mcq"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-21T15:42:37.532Z",
+    "createdAt": "2026-02-21T15:42:37.534Z",
+    "updatedAt": "2026-02-21T15:42:37.534Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999d37ffb32c149b8e2fdb5",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "basic",
+    "topics": [
+      "arrow functions",
+      "async / await",
+      "debounce & throttle",
+      "closures",
+      "debounce / throttle",
+      "destructuring",
+      "lazy loading",
+      "event loop",
+      "deep clone"
+    ],
+    "questionStyles": [
+      "coding problem style",
+      "mcq",
+      "concept check style",
+      "output prediction style",
+      "real interview simulation",
+      "mock interview style"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-21T15:47:11.527Z",
+    "createdAt": "2026-02-21T15:47:11.529Z",
+    "updatedAt": "2026-02-21T15:47:11.529Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999d477fb32c149b8e2fdc9",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "async / await",
+      "arrow functions",
+      "debounce & throttle",
+      "event bubbling vs capturing",
+      "event delegation",
+      "event loop",
+      "deep clone",
+      "closures",
+      "currying"
+    ],
+    "questionStyles": [
+      "coding problem style",
+      "mcq test style",
+      "io based problem style",
+      "real interview simulation",
+      "senior level",
+      "output prediction style"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-21T15:51:19.582Z",
+    "createdAt": "2026-02-21T15:51:19.583Z",
+    "updatedAt": "2026-02-21T15:51:19.583Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999d86bfb32c149b8e2fe08",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "arrow functions",
+      "debounce & throttle",
+      "event loop in node",
+      "prototype chain",
+      "state batching",
+      "promises"
+    ],
+    "questionStyles": [
+      "mcq test style",
+      "coding problem style",
+      "concept check style",
+      "mixed style",
+      "mcq"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 23,
+    "status": "started",
+    "startedAt": "2026-02-21T16:08:11.939Z",
+    "createdAt": "2026-02-21T16:08:11.940Z",
+    "updatedAt": "2026-02-21T16:08:11.940Z",
+    "__v": 0
+  },
+  {
+    "_id": "6999d872fb32c149b8e2fe0a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "hard",
+    "topics": [
+      "arrow functions",
+      "debounce & throttle",
+      "event loop in node",
+      "prototype chain",
+      "state batching",
+      "promises"
+    ],
+    "questionStyles": [
+      "mcq test style",
+      "coding problem style",
+      "concept check style",
+      "mixed style",
+      "mcq"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 23,
+    "status": "started",
+    "startedAt": "2026-02-21T16:08:18.662Z",
+    "createdAt": "2026-02-21T16:08:18.663Z",
+    "updatedAt": "2026-02-21T16:08:18.663Z",
+    "__v": 0
+  },
+  {
+    "_id": "699ac67ff7fab067cf2738cb",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "all",
+    "topics": [
+      "event loop in node"
+    ],
+    "questionStyles": [
+      "mcq",
+      "io based problem style",
+      "concept check style",
+      "mcq test style",
+      "output prediction style"
+    ],
+    "questionCount": "15",
+    "totalQuestions": 15,
+    "duration": 23,
+    "status": "started",
+    "startedAt": "2026-02-22T09:03:59.626Z",
+    "createdAt": "2026-02-22T09:03:59.629Z",
+    "updatedAt": "2026-02-22T09:03:59.629Z",
+    "__v": 0
+  },
+  {
+    "_id": "699acf2cbba278ecaeb7802c",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "all",
+    "topics": [
+      "design pattern"
+    ],
+    "questionStyles": [
+      "mcq"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 8,
+    "status": "started",
+    "startedAt": "2026-02-22T09:41:00.195Z",
+    "createdAt": "2026-02-22T09:41:00.197Z",
+    "updatedAt": "2026-02-22T09:41:00.197Z",
+    "__v": 0
+  },
+  {
+    "_id": "699aded4bba278ecaeb78042",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "event loop in node"
+    ],
+    "questionStyles": [
+      "mcq",
+      "coding problem style"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-22T10:47:48.625Z",
+    "createdAt": "2026-02-22T10:47:48.626Z",
+    "updatedAt": "2026-02-22T10:47:48.626Z",
+    "__v": 0
+  },
+  {
+    "_id": "69a087bef934d38814194d15",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "debounce & throttle"
+    ],
+    "questionStyles": [
+      "fill-in-the-blank style"
+    ],
+    "questionCount": "5",
+    "totalQuestions": 5,
+    "duration": 0,
+    "status": "started",
+    "startedAt": "2026-02-26T17:49:50.325Z",
+    "createdAt": "2026-02-26T17:49:50.329Z",
+    "updatedAt": "2026-02-26T17:49:50.329Z",
+    "__v": 0
+  },
+  {
+    "_id": "69a5e778ae80608011cd71b1",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "gov-ibps-po-prelims-weak-topic-practice-weak-topic-blitz",
+    "testTitle": "IBPS PO Prelims - Weak Topic Practice",
+    "domain": "Government Exam - IBPS PO",
+    "difficulty": "medium",
+    "topics": [
+      "Weak Topic Practice",
+      "Prelims",
+      "negative marking"
+    ],
+    "questionStyles": [
+      "mcq"
+    ],
+    "questionCount": "100",
+    "totalQuestions": 100,
+    "duration": 60,
+    "status": "started",
+    "startedAt": "2026-03-02T19:39:36.831Z",
+    "createdAt": "2026-03-02T19:39:36.833Z",
+    "updatedAt": "2026-03-02T19:39:36.833Z",
+    "__v": 0
+  },
+  {
+    "_id": "69a5e813ae80608011cd71c5",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "javascript-advanced",
+    "testTitle": "Advanced JavaScript",
+    "domain": "Programming",
+    "difficulty": "meduim",
+    "topics": [
+      "classes vs prototypes"
+    ],
+    "questionStyles": [
+      "output prediction style"
+    ],
+    "questionCount": "10",
+    "totalQuestions": 10,
+    "duration": 20,
+    "status": "started",
+    "startedAt": "2026-03-02T19:42:11.616Z",
+    "createdAt": "2026-03-02T19:42:11.618Z",
+    "updatedAt": "2026-03-02T19:42:11.618Z",
+    "__v": 0
+  },
+  {
+    "_id": "69a5ea73ae80608011cd71d0",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "gov-sbi-clerk-prelims-speed-test-daily-45m",
+    "testTitle": "SBI Clerk Prelims - Speed Test",
+    "domain": "Government Exam - SBI Clerk",
+    "difficulty": "medium",
+    "topics": [
+      "Speed Test",
+      "Prelims",
+      "negative marking"
+    ],
+    "questionStyles": [
+      "mcq"
+    ],
+    "questionCount": "100",
+    "totalQuestions": 100,
+    "duration": 60,
+    "status": "started",
+    "startedAt": "2026-03-02T19:52:19.514Z",
+    "createdAt": "2026-03-02T19:52:19.514Z",
+    "updatedAt": "2026-03-02T19:52:19.514Z",
+    "__v": 0
+  },
+  {
+    "_id": "69a5ebf3ae80608011cd71d5",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "testId": "gov-sbi-clerk-prelims-speed-test-daily-45m",
+    "testTitle": "SBI Clerk Prelims - Speed Test",
+    "domain": "Government Exam - SBI Clerk",
+    "difficulty": "medium",
+    "topics": [
+      "Speed Test",
+      "Prelims",
+      "negative marking"
+    ],
+    "questionStyles": [
+      "mcq"
+    ],
+    "questionCount": "100",
+    "totalQuestions": 100,
+    "duration": 60,
+    "status": "started",
+    "startedAt": "2026-03-02T19:58:43.690Z",
+    "createdAt": "2026-03-02T19:58:43.691Z",
+    "updatedAt": "2026-03-02T19:58:43.691Z",
+    "__v": 0
+  }
+]

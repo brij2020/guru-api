@@ -1,0 +1,420 @@
+[
+  {
+    "_id": "69ac53ec0d2d69ce59a1bd8d",
+    "stageSlug": "prelims",
+    "examSlug": "sbi-clerk",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-07T16:35:56.865Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "SBI Clerk Prelims Default Blueprint",
+    "sections": [
+      {
+        "key": "english-language",
+        "label": "English Language",
+        "count": 30
+      },
+      {
+        "key": "numerical-ability",
+        "label": "Numerical Ability",
+        "count": 35
+      },
+      {
+        "key": "reasoning-ability",
+        "label": "Reasoning Ability",
+        "count": 35
+      }
+    ],
+    "totalQuestions": 100,
+    "updatedAt": "2026-03-08T03:46:43.365Z"
+  },
+  {
+    "_id": "69ac5dda0d2d69ce59a1bf0a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "examSlug": "ssc-cgl",
+    "stageSlug": "tier-1",
+    "__v": 0,
+    "createdAt": "2026-03-07T17:18:18.202Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "SSC CGL Tier 1 Default Blueprint",
+    "sections": [
+      {
+        "key": "general-intelligence-reasoning",
+        "label": "General Intelligence & Reasoning",
+        "count": 25
+      },
+      {
+        "key": "general-awareness",
+        "label": "General Awareness",
+        "count": 25
+      },
+      {
+        "key": "quantitative-aptitude",
+        "label": "Quantitative Aptitude",
+        "count": 25
+      },
+      {
+        "key": "english-comprehension",
+        "label": "English Comprehension",
+        "count": 25
+      }
+    ],
+    "totalQuestions": 100,
+    "updatedAt": "2026-03-08T03:46:43.259Z"
+  },
+  {
+    "_id": "69acf1230d2d69ce59a1bf99",
+    "stageSlug": "tier-2",
+    "examSlug": "ssc-cgl",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-08T03:46:43.283Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "SSC CGL Tier 2 Default Blueprint",
+    "sections": [
+      {
+        "key": "quantitative-abilities",
+        "label": "Quantitative Abilities",
+        "count": 30
+      },
+      {
+        "key": "english-language-comprehension",
+        "label": "English Language & Comprehension",
+        "count": 30
+      },
+      {
+        "key": "general-studies-finance-economics",
+        "label": "General Studies (Finance & Economics)",
+        "count": 30
+      },
+      {
+        "key": "general-intelligence-reasoning",
+        "label": "General Intelligence & Reasoning",
+        "count": 30
+      }
+    ],
+    "totalQuestions": 120,
+    "updatedAt": "2026-03-08T03:46:43.283Z"
+  },
+  {
+    "_id": "69acf1230d2d69ce59a1bf9a",
+    "stageSlug": "prelims",
+    "examSlug": "upsc-cse",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-08T03:46:43.302Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "UPSC CSE Prelims Default Blueprint",
+    "sections": [
+      {
+        "key": "general-studies",
+        "label": "General Studies",
+        "count": 50
+      },
+      {
+        "key": "csat",
+        "label": "CSAT",
+        "count": 50
+      }
+    ],
+    "totalQuestions": 100,
+    "updatedAt": "2026-03-08T03:46:43.302Z"
+  },
+  {
+    "_id": "69acf1230d2d69ce59a1bf9b",
+    "stageSlug": "mains",
+    "examSlug": "upsc-cse",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-08T03:46:43.319Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "UPSC CSE Mains Default Blueprint",
+    "sections": [
+      {
+        "key": "essay",
+        "label": "Essay",
+        "count": 5
+      },
+      {
+        "key": "general-studies",
+        "label": "General Studies",
+        "count": 10
+      },
+      {
+        "key": "optional-subject",
+        "label": "Optional Subject",
+        "count": 5
+      }
+    ],
+    "totalQuestions": 20,
+    "updatedAt": "2026-03-08T03:46:43.319Z"
+  },
+  {
+    "_id": "69acf1230d2d69ce59a1bf9c",
+    "stageSlug": "prelims",
+    "examSlug": "ibps-po",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-08T03:46:43.335Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "IBPS PO Prelims Default Blueprint",
+    "sections": [
+      {
+        "key": "english-language",
+        "label": "English Language",
+        "count": 30
+      },
+      {
+        "key": "quantitative-aptitude",
+        "label": "Quantitative Aptitude",
+        "count": 35
+      },
+      {
+        "key": "reasoning-ability",
+        "label": "Reasoning Ability",
+        "count": 35
+      }
+    ],
+    "totalQuestions": 100,
+    "updatedAt": "2026-03-08T03:46:43.335Z"
+  },
+  {
+    "_id": "69acf1230d2d69ce59a1bf9d",
+    "stageSlug": "mains",
+    "examSlug": "ibps-po",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-08T03:46:43.350Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "IBPS PO Mains Default Blueprint",
+    "sections": [
+      {
+        "key": "reasoning-computer-aptitude",
+        "label": "Reasoning & Computer Aptitude",
+        "count": 60
+      },
+      {
+        "key": "english-language",
+        "label": "English Language",
+        "count": 35
+      },
+      {
+        "key": "data-analysis-interpretation",
+        "label": "Data Analysis & Interpretation",
+        "count": 35
+      },
+      {
+        "key": "general-economy-banking-awareness",
+        "label": "General/Economy/Banking Awareness",
+        "count": 25
+      }
+    ],
+    "totalQuestions": 155,
+    "updatedAt": "2026-03-08T03:46:43.350Z"
+  },
+  {
+    "_id": "69acf1230d2d69ce59a1bf9e",
+    "stageSlug": "mains",
+    "examSlug": "sbi-clerk",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-08T03:46:43.381Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "SBI Clerk Mains Default Blueprint",
+    "sections": [
+      {
+        "key": "general-english",
+        "label": "General English",
+        "count": 40
+      },
+      {
+        "key": "quantitative-aptitude",
+        "label": "Quantitative Aptitude",
+        "count": 50
+      },
+      {
+        "key": "reasoning-ability-computer-aptitude",
+        "label": "Reasoning Ability & Computer Aptitude",
+        "count": 50
+      },
+      {
+        "key": "general-financial-awareness",
+        "label": "General/Financial Awareness",
+        "count": 50
+      }
+    ],
+    "totalQuestions": 190,
+    "updatedAt": "2026-03-08T03:46:43.381Z"
+  },
+  {
+    "_id": "69acf1230d2d69ce59a1bf9f",
+    "stageSlug": "cbt-1",
+    "examSlug": "rrb-ntpc",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-08T03:46:43.397Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "RRB NTPC CBT 1 Default Blueprint",
+    "sections": [
+      {
+        "key": "general-awareness",
+        "label": "General Awareness",
+        "count": 40
+      },
+      {
+        "key": "mathematics",
+        "label": "Mathematics",
+        "count": 30
+      },
+      {
+        "key": "general-intelligence-reasoning",
+        "label": "General Intelligence & Reasoning",
+        "count": 30
+      }
+    ],
+    "totalQuestions": 100,
+    "updatedAt": "2026-03-08T03:46:43.397Z"
+  },
+  {
+    "_id": "69acf1230d2d69ce59a1bfa0",
+    "stageSlug": "cbt-2",
+    "examSlug": "rrb-ntpc",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-08T03:46:43.406Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "RRB NTPC CBT 2 Default Blueprint",
+    "sections": [
+      {
+        "key": "general-awareness",
+        "label": "General Awareness",
+        "count": 50
+      },
+      {
+        "key": "mathematics",
+        "label": "Mathematics",
+        "count": 35
+      },
+      {
+        "key": "general-intelligence-reasoning",
+        "label": "General Intelligence & Reasoning",
+        "count": 35
+      }
+    ],
+    "totalQuestions": 120,
+    "updatedAt": "2026-03-08T03:46:43.406Z"
+  },
+  {
+    "_id": "69acf1230d2d69ce59a1bfa1",
+    "stageSlug": "prelims",
+    "examSlug": "state-psc",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-08T03:46:43.412Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "State PSC Prelims Default Blueprint",
+    "sections": [
+      {
+        "key": "general-studies",
+        "label": "General Studies",
+        "count": 100
+      },
+      {
+        "key": "csat",
+        "label": "CSAT",
+        "count": 50
+      }
+    ],
+    "totalQuestions": 150,
+    "updatedAt": "2026-03-08T03:46:43.412Z"
+  },
+  {
+    "_id": "69acf1230d2d69ce59a1bfa2",
+    "stageSlug": "mains",
+    "examSlug": "state-psc",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-03-08T03:46:43.418Z",
+    "difficultyMix": {
+      "easy": 0.3,
+      "medium": 0.5,
+      "hard": 0.2
+    },
+    "isActive": true,
+    "name": "State PSC Mains Default Blueprint",
+    "sections": [
+      {
+        "key": "language-paper",
+        "label": "Language Paper",
+        "count": 5
+      },
+      {
+        "key": "general-studies",
+        "label": "General Studies",
+        "count": 10
+      },
+      {
+        "key": "optional-paper",
+        "label": "Optional Paper",
+        "count": 5
+      }
+    ],
+    "totalQuestions": 20,
+    "updatedAt": "2026-03-08T03:46:43.418Z"
+  }
+]

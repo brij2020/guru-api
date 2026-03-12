@@ -16,9 +16,10 @@ const registerSchema = Joi.object({
 });
 
 const loginSchema = Joi.object({
-  email: Joi.string().trim().email().required(),
+  email: Joi.string().trim().email().optional(),
+  emailId: Joi.string().trim().email().optional(),
   password: Joi.string().required(),
-});
+}).or('email', 'emailId');
 
 const refreshSchema = Joi.object({
   refreshToken: Joi.string().required(),
@@ -43,6 +44,12 @@ const validatePayload = (schema, payload) => {
 
 module.exports = {
   validateRegisterPayload: (payload) => validatePayload(registerSchema, payload),
-  validateLoginPayload: (payload) => validatePayload(loginSchema, payload),
+  validateLoginPayload: (payload) => {
+    const parsed = validatePayload(loginSchema, payload);
+    return {
+      email: String(parsed.email || parsed.emailId || '').trim().toLowerCase(),
+      password: parsed.password,
+    };
+  },
   validateRefreshPayload: (payload) => validatePayload(refreshSchema, payload),
 };

@@ -1,0 +1,20 @@
+[
+  {
+    "section": "reasoning-ability",
+    "topic": "number series",
+    "difficulty": "easy",
+    "question": "Find the next number in the series: 3, 6, 12, 24, ?",
+    "options": ["30", "36", "48", "54"],
+    "answer": "48",
+    "explanation": "Each term is multiplied by 2."
+  },
+  {
+    "section": "numerical-ability",
+    "topic": "simplification",
+    "difficulty": "medium",
+    "question": "What is 25% of 480?",
+    "options": ["100", "110", "120", "125"],
+    "answer": "120",
+    "explanation": "25% means one-fourth. 480/4 = 120."
+  }
+]

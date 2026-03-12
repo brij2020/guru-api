@@ -1,0 +1,129 @@
+{
+  "database": "guruapi",
+  "createdAt": "2026-03-10T17:30:17.842Z",
+  "collections": [
+    {
+      "name": "exams",
+      "count": 1,
+      "file": "exams.json"
+    },
+    {
+      "name": "testattempts",
+      "count": 59,
+      "file": "testattempts.json"
+    },
+    {
+      "name": "questionbankusages",
+      "count": 367,
+      "file": "questionbankusages.json"
+    },
+    {
+      "name": "examhierarchies",
+      "count": 1,
+      "file": "examhierarchies.json"
+    },
+    {
+      "name": "users",
+      "count": 3,
+      "file": "users.json"
+    },
+    {
+      "name": "questionbanks",
+      "count": 414,
+      "file": "questionbanks.json"
+    },
+    {
+      "name": "questionreviewaudits",
+      "count": 339,
+      "file": "questionreviewaudits.json"
+    },
+    {
+      "name": "aitestcategories",
+      "count": 0,
+      "file": "aitestcategories.json"
+    },
+    {
+      "name": "topics",
+      "count": 54,
+      "file": "topics.json"
+    },
+    {
+      "name": "questioncounts",
+      "count": 11,
+      "file": "questioncounts.json"
+    },
+    {
+      "name": "difficultylevels",
+      "count": 3,
+      "file": "difficultylevels.json"
+    },
+    {
+      "name": "aigenerationjobs",
+      "count": 268,
+      "file": "aigenerationjobs.json"
+    },
+    {
+      "name": "questionbanks-bkp",
+      "count": 0,
+      "file": "questionbanks-bkp.json"
+    },
+    {
+      "name": "categories",
+      "count": 8,
+      "file": "categories.json"
+    },
+    {
+      "name": "aigenerationoutputs",
+      "count": 9,
+      "file": "aigenerationoutputs.json"
+    },
+    {
+      "name": "mockpapers",
+      "count": 36,
+      "file": "mockpapers.json"
+    },
+    {
+      "name": "tasks",
+      "count": 0,
+      "file": "tasks.json"
+    },
+    {
+      "name": "questions",
+      "count": 0,
+      "file": "questions.json"
+    },
+    {
+      "name": "paperblueprints",
+      "count": 12,
+      "file": "paperblueprints.json"
+    },
+    {
+      "name": "questionstyles",
+      "count": 16,
+      "file": "questionstyles.json"
+    }
+  ],
+  "cleanPerformed": true,
+  "deletedCounts": {
+    "exams": 1,
+    "testattempts": 59,
+    "questionbankusages": 367,
+    "examhierarchies": 1,
+    "users": 3,
+    "questionbanks": 414,
+    "questionreviewaudits": 339,
+    "aitestcategories": 0,
+    "topics": 54,
+    "questioncounts": 11,
+    "difficultylevels": 3,
+    "aigenerationjobs": 268,
+    "questionbanks-bkp": 0,
+    "categories": 8,
+    "aigenerationoutputs": 9,
+    "mockpapers": 36,
+    "tasks": 0,
+    "questions": 0,
+    "paperblueprints": 12,
+    "questionstyles": 16
+  }
+}

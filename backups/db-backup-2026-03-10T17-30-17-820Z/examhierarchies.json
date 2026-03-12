@@ -1,0 +1,279 @@
+[
+  {
+    "_id": "699b408b30de3b0ecf34bb4e",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-22T17:44:43.071Z",
+    "name": "Government Exams",
+    "tree": [
+      {
+        "id": 1,
+        "title": "Government Exams",
+        "children": [
+          {
+            "id": 11,
+            "title": "Central Government",
+            "children": [
+              {
+                "id": 111,
+                "title": "SSC Exams",
+                "children": [
+                  {
+                    "id": 1,
+                    "title": "SSC CGL",
+                    "children": []
+                  },
+                  {
+                    "id": 2,
+                    "title": "SSC GD Constable",
+                    "children": []
+                  },
+                  {
+                    "id": 3,
+                    "title": "SSC CHSL",
+                    "children": []
+                  },
+                  {
+                    "id": 4,
+                    "title": "SSC MTS",
+                    "children": []
+                  },
+                  {
+                    "id": 5,
+                    "title": "SSC Selection Post",
+                    "children": []
+                  },
+                  {
+                    "id": 6,
+                    "title": "SSC CPO",
+                    "children": []
+                  },
+                  {
+                    "id": 7,
+                    "title": "Delhi Police Constable",
+                    "children": []
+                  },
+                  {
+                    "id": 8,
+                    "title": "SSC JE EE",
+                    "children": []
+                  },
+                  {
+                    "id": 9,
+                    "title": "SSC JE CE",
+                    "children": []
+                  },
+                  {
+                    "id": 10,
+                    "title": "Delhi Police Head Constable",
+                    "children": []
+                  },
+                  {
+                    "id": 11,
+                    "title": "SSC Stenographer",
+                    "children": []
+                  },
+                  {
+                    "id": 12,
+                    "title": "SSC JE ME",
+                    "children": []
+                  },
+                  {
+                    "id": 13,
+                    "title": "IB Security Assistant",
+                    "children": []
+                  },
+                  {
+                    "id": 14,
+                    "title": "SSC JE",
+                    "children": []
+                  },
+                  {
+                    "id": 15,
+                    "title": "IB MTS",
+                    "children": []
+                  },
+                  {
+                    "id": 16,
+                    "title": "SSC Head Constable AWO TPO",
+                    "children": []
+                  },
+                  {
+                    "id": 17,
+                    "title": "IB Security Assistant Motor Transport",
+                    "children": []
+                  },
+                  {
+                    "id": 18,
+                    "title": "IB ACIO",
+                    "children": []
+                  },
+                  {
+                    "id": 19,
+                    "title": "SSC JHT",
+                    "children": []
+                  },
+                  {
+                    "id": 20,
+                    "title": "CSIR ASO",
+                    "children": []
+                  },
+                  {
+                    "id": 21,
+                    "title": "SSC Scientific Assistant",
+                    "children": []
+                  },
+                  {
+                    "id": 22,
+                    "title": "Delhi Forest Guard",
+                    "children": []
+                  },
+                  {
+                    "id": 23,
+                    "title": "Supreme Court Junior Court Assistant",
+                    "children": []
+                  },
+                  {
+                    "id": 24,
+                    "title": "RSMSSB JE",
+                    "children": []
+                  },
+                  {
+                    "id": 25,
+                    "title": "CCRAS LDC",
+                    "children": []
+                  },
+                  {
+                    "id": 26,
+                    "title": "ICMR Assistant",
+                    "children": []
+                  },
+                  {
+                    "id": 27,
+                    "title": "Delhi Police MTS",
+                    "children": []
+                  },
+                  {
+                    "id": 28,
+                    "title": "NBE",
+                    "children": []
+                  },
+                  {
+                    "id": 29,
+                    "title": "SSC Havaldar",
+                    "children": []
+                  },
+                  {
+                    "id": 30,
+                    "title": "Supreme Court Law Clerk",
+                    "children": []
+                  },
+                  {
+                    "id": 31,
+                    "title": "Delhi Police Driver",
+                    "children": []
+                  },
+                  {
+                    "id": 32,
+                    "title": "NTA Delhi University NonTeaching",
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": 112,
+                "title": "Civil Services Exam (UPSC)",
+                "children": []
+              },
+              {
+                "id": 113,
+                "title": "Railways Exams",
+                "children": []
+              },
+              {
+                "id": 114,
+                "title": "Defence Exams",
+                "children": []
+              },
+              {
+                "id": 115,
+                "title": "Police Exams",
+                "children": []
+              },
+              {
+                "id": 116,
+                "title": "Nursing Exams",
+                "children": []
+              },
+              {
+                "id": 117,
+                "title": "Judiciary Exams",
+                "children": []
+              },
+              {
+                "id": 118,
+                "title": "Regulatory Body Exams",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": 12,
+            "title": "Banking & Finance",
+            "children": [
+              {
+                "id": 121,
+                "title": "Banking Exams",
+                "children": []
+              },
+              {
+                "id": 122,
+                "title": "Insurance Exams",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": 13,
+            "title": "Teaching & Education",
+            "children": [
+              {
+                "id": 131,
+                "title": "Teaching Exams",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": 14,
+            "title": "Engineering & Technical",
+            "children": [
+              {
+                "id": 141,
+                "title": "Engineering Recruitment Exams",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": 15,
+            "title": "State-Level",
+            "children": [
+              {
+                "id": 151,
+                "title": "State Govt. Exams",
+                "children": []
+              },
+              {
+                "id": 152,
+                "title": "Other Govt. Exams",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "updatedAt": "2026-02-22T17:44:43.071Z"
+  }
+]

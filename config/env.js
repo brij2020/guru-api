@@ -57,8 +57,11 @@ const aiProvider = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
 const openaiApiKey = process.env.OPENAI_API_KEY || '';
 const openaiBaseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
 const openaiModel = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+const openaiMaxTokens = Number(process.env.OPENAI_MAX_TOKENS) || 4096;
 const geminiApiKey = process.env.GEMINI_API_KEY || '';
 const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash-lite';
+const geminiMathModel = process.env.GEMINI_MATH_MODEL || 'gemini-2.0-flash';
+const geminiBulkModel = process.env.GEMINI_BULK_MODEL || 'gemini-2.0-flash-lite';
 const geminiModels = Array.from(
   new Set(
     [
@@ -68,6 +71,48 @@ const geminiModels = Array.from(
         .map((item) => item.trim())
         .filter(Boolean),
     ].filter(Boolean)
+  )
+);
+const allowedQuestionBankModes = new Set(['db_first', 'hybrid', 'ai_only']);
+const questionBankModeRaw = String(process.env.QUESTION_BANK_MODE || 'hybrid').trim().toLowerCase();
+const questionBankMode = allowedQuestionBankModes.has(questionBankModeRaw)
+  ? questionBankModeRaw
+  : 'hybrid';
+const questionBankMinValidFields = Array.from(
+  new Set(
+    String(process.env.QUESTION_BANK_MIN_VALID_FIELDS || 'question,options,answer')
+      .split(',')
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean)
+  )
+);
+const questionBankDiagnosticsEnabled = String(
+  process.env.QUESTION_BANK_DIAGNOSTICS_ENABLED || 'true'
+).toLowerCase() === 'true';
+const allowedAssemblyModes = new Set(['flex', 'strict']);
+const questionAssemblyModeRaw = String(process.env.QUESTION_ASSEMBLY_MODE || 'flex').trim().toLowerCase();
+const questionAssemblyMode = allowedAssemblyModes.has(questionAssemblyModeRaw)
+  ? questionAssemblyModeRaw
+  : 'flex';
+const questionBankRecentExcludeCount = Number(process.env.QUESTION_BANK_RECENT_EXCLUDE_COUNT) || 120;
+const aiCurationBatchSize = Number(process.env.AI_CURATION_BATCH_SIZE) || 20;
+const aiProviderFallbackEnabled = String(process.env.AI_PROVIDER_FALLBACK_ENABLED || 'true').toLowerCase() === 'true';
+const questionBankApprovedOnly = String(process.env.QUESTION_BANK_APPROVED_ONLY || 'false').toLowerCase() === 'true';
+const rateLimitEnabled = String(process.env.RATE_LIMIT_ENABLED || (nodeEnv === 'test' ? 'false' : 'true')).toLowerCase() === 'true';
+const rateLimitWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS) || 60 * 1000;
+const authRateLimitMax = Number(process.env.AUTH_RATE_LIMIT_MAX) || 120;
+const aiRateLimitMax = Number(process.env.AI_RATE_LIMIT_MAX) || 60;
+const writeRateLimitMax = Number(process.env.WRITE_RATE_LIMIT_MAX) || 180;
+const aiJobCreateRateLimitMax = Number(process.env.AI_JOB_CREATE_RATE_LIMIT_MAX) || 400;
+const workerSecret = process.env.WORKER_SECRET || '';
+const metricsSecret = process.env.METRICS_SECRET || '';
+const pdfJobAllowedBases = Array.from(
+  new Set(
+    String(process.env.PDF_JOB_ALLOWED_BASES || `${process.cwd()},${path.dirname(process.cwd())},/tmp`)
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .map((item) => path.resolve(item))
   )
 );
 
@@ -100,7 +145,27 @@ module.exports = {
   openaiApiKey,
   openaiBaseUrl,
   openaiModel,
+  openaiMaxTokens,
   geminiApiKey,
   geminiModel,
+  geminiMathModel,
+  geminiBulkModel,
   geminiModels,
+  questionBankMode,
+  questionBankMinValidFields,
+  questionBankDiagnosticsEnabled,
+  questionAssemblyMode,
+  questionBankRecentExcludeCount,
+  aiCurationBatchSize,
+  aiProviderFallbackEnabled,
+  questionBankApprovedOnly,
+  rateLimitEnabled,
+  rateLimitWindowMs,
+  authRateLimitMax,
+  aiRateLimitMax,
+  writeRateLimitMax,
+  aiJobCreateRateLimitMax,
+  workerSecret,
+  metricsSecret,
+  pdfJobAllowedBases,
 };

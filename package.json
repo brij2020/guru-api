@@ -6,7 +6,12 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "NODE_ENV=test jest --runInBand"
+    "test": "NODE_ENV=test jest --runInBand",
+    "seed:users": "node scripts/seedUsers.js",
+    "seed:gov-meta": "node scripts/seedGovMetadata.js",
+    "seed:question-bank": "node scripts/seedQuestionBank.js",
+    "import:question-bank": "node scripts/importQuestionBankJson.js",
+    "extract:pyq": "python3 pyscript/quiz.py"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

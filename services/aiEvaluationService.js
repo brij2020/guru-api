@@ -6,6 +6,7 @@ const {
   openaiModel,
   geminiApiKey,
   geminiModel,
+  geminiModels,
 } = require('../config/env');
 
 const VERDICTS = new Set(['correct', 'partial', 'incorrect', 'unattempted']);
@@ -82,41 +83,72 @@ const callGemini = async (prompt, providerModel = geminiModel) => {
     throw new ApiError(500, 'GEMINI_API_KEY is not configured');
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-    providerModel
-  )}:generateContent?key=${geminiApiKey}`;
+  const expandGeminiModelCandidates = (modelName) => {
+    const base = String(modelName || '').trim();
+    if (!base) return [];
+    const candidates = [base];
+    if (base === 'gemini-2.0-flash') {
+      candidates.push('gemini-2.0-flash-lite');
+    }
+    if (base === 'gemini-2.0-flash-lite') {
+      candidates.push('gemini-2.0-flash');
+    }
+    return candidates;
+  };
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: prompt }],
+  const modelsToTry = Array.from(
+    new Set(
+      [providerModel, ...(Array.isArray(geminiModels) ? geminiModels : [])]
+        .flatMap((name) => expandGeminiModelCandidates(name))
+        .concat(['gemini-2.0-flash-lite', 'gemini-2.0-flash'])
+        .filter(Boolean)
+    )
+  );
+  let lastErrorText = '';
+
+  for (const modelName of modelsToTry) {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+      modelName
+    )}:generateContent?key=${geminiApiKey}`;
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: prompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          responseMimeType: 'application/json',
         },
-      ],
-      generationConfig: {
-        temperature: 0.2,
-        responseMimeType: 'application/json',
-      },
-    }),
-  });
+      }),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new ApiError(502, `Gemini request failed: ${errorText.slice(0, 300)}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      lastErrorText = `model=${modelName} status=${response.status} error=${errorText.slice(0, 300)}`;
+      console.log(`===== GEMINI EVAL MODEL FAILED: ${modelName} (${response.status}) =====`);
+      continue;
+    }
+
+    const result = await response.json();
+    const content =
+      result?.candidates?.[0]?.content?.parts?.map((part) => part?.text || '').join('') || '';
+
+    if (!content) {
+      lastErrorText = `model=${modelName} returned empty content`;
+      continue;
+    }
+
+    console.log(`===== GEMINI EVAL MODEL USED: ${modelName} =====`);
+    return parseModelJson(content);
   }
 
-  const result = await response.json();
-  const content =
-    result?.candidates?.[0]?.content?.parts?.map((part) => part?.text || '').join('') || '';
-
-  if (!content) {
-    throw new ApiError(502, 'Gemini returned empty content');
-  }
-
-  return parseModelJson(content);
+  throw new ApiError(502, `Gemini request failed across models. ${lastErrorText || 'No model succeeded'}`);
 };
 
 const hasMeaningfulAnswer = (value) => {
@@ -259,4 +291,3 @@ const evaluateTest = async ({ payload, provider }) => {
 module.exports = {
   evaluateTest,
 };
-

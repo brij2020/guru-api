@@ -4,13 +4,19 @@ const {
   openaiApiKey,
   openaiBaseUrl,
   openaiModel,
+  openaiMaxTokens,
   geminiApiKey,
   geminiModel,
+  geminiMathModel,
+  geminiBulkModel,
   geminiModels,
+  aiCurationBatchSize,
+  aiProviderFallbackEnabled,
 } = require('../config/env');
 
 const DEFAULT_QUESTION_COUNT = 20;
 const MAX_QUESTION_COUNT = 100;
+const DEFAULT_CURATION_BATCH_SIZE = 20;
 const SUPPORTED_DIFFICULTIES = new Set(['easy', 'medium', 'hard']);
 const SUPPORTED_TYPES = ['coding', 'mcq', 'theory', 'output', 'scenario'];
 const OPTIONS_REQUIRED_TYPES = new Set(['mcq', 'output']);
@@ -99,6 +105,9 @@ const normalizeTextList = (values) => {
 const isGovExamContext = (...values) =>
   values.some((value) => GOV_EXAM_CONTEXT_PATTERN.test(String(value || '')));
 
+const MATH_HEAVY_PATTERN = /\b(math|mathematics|numerical|quant|arithmetic|algebra|geometry|trigonometry|data interpretation|di|number series|simplification|quadratic|profit|loss|ratio|time and work)\b/i;
+const PYQ_PATTERN = /\b(pyq|previous year|memory[-\s]?based|past paper)\b/i;
+
 const normalizeRequestedTypes = (styles) => {
   const normalized = normalizeTextList(styles)
     .map((style) => normalizeQuestionType(style))
@@ -109,6 +118,32 @@ const normalizeRequestedTypes = (styles) => {
   }
 
   return Array.from(new Set(normalized));
+};
+
+const selectGeminiModelForInput = (input) => {
+  const aggregateText = [
+    input?.testId,
+    input?.testTitle,
+    input?.domain,
+    input?.promptContext,
+    ...(Array.isArray(input?.topics) ? input.topics : []),
+  ]
+    .map((item) => String(item || ''))
+    .join(' ');
+
+  const isMathHeavy = MATH_HEAVY_PATTERN.test(aggregateText);
+  const isPyqLike = PYQ_PATTERN.test(aggregateText);
+  const count = Number(input?.questionCount || 0);
+
+  if (isMathHeavy && isPyqLike) {
+    return geminiMathModel || 'gemini-2.0-flash';
+  }
+
+  if (count >= 20) {
+    return geminiBulkModel || 'gemini-2.0-flash-lite';
+  }
+
+  return geminiModel || 'gemini-2.0-flash-lite';
 };
 
 const buildTypePlan = (requestedTypes, questionCount) => {
@@ -174,6 +209,7 @@ const normalizeInput = (input) => {
     requestedTypes,
     typePlan,
     questionCount,
+    totalTargetQuestions: Math.max(questionCount, Number(input.totalTargetQuestions || questionCount)),
     promptContext,
     govExamMode,
   };
@@ -251,7 +287,8 @@ Input profile:
 - Mode: ${input.attemptMode === 'practice' ? 'Practice' : 'Exam'}
 - Difficulty: ${input.difficulty}
 - Topics: ${selectedTopicsText}
-- Count: ${input.questionCount}
+- Batch count: ${input.questionCount}
+- Overall target: ${input.totalTargetQuestions}
 - Extra context: ${input.promptContext || 'None'}
 ${exclusionText}
 
@@ -273,7 +310,7 @@ Required JSON schema:
 }
 
 Rules:
-- Return exactly ${input.questionCount} unique questions.
+- Return exactly ${input.questionCount} unique questions for this batch chunk (overall target ${input.totalTargetQuestions}).
 - Use only "mcq" question type.
 - Keep question and explanation concise (exam-style, not essay-style).
 - Ensure 4 plausible options per question and only one correct answer.
@@ -320,7 +357,8 @@ Input profile:
 - Difficulty: ${input.difficulty}
 - Topics: ${selectedTopicsText}
 - Styles: ${selectedStylesText}
-- Count: ${input.questionCount}
+- Batch count: ${input.questionCount}
+- Overall target: ${input.totalTargetQuestions}
 - Type plan: ${typePlanText}
 - Domain focus: ${domainFocus}
 - Difficulty guidance: ${difficultyGuidance}
@@ -351,7 +389,7 @@ Required JSON schema:
 }
 
 Rules:
-- Return exactly ${input.questionCount} unique questions; follow type plan exactly: ${typePlanText}.
+- Return exactly ${input.questionCount} unique questions for this batch chunk (overall target ${input.totalTargetQuestions}); follow type plan exactly: ${typePlanText}.
 - Respect user constraints: mode=${modeGuidance.modeLabel}, difficulty=${input.difficulty}, styles=${selectedStylesText}, topics=${selectedTopicsText}.
 - Estimated time: exam mode => realistic integer minutes >= 5; practice mode => 0.
 - For "mcq" and "output" include exactly 4 options.
@@ -416,6 +454,7 @@ const callOpenAI = async (prompt, providerModel = openaiModel) => {
         { role: 'user', content: prompt },
       ],
       temperature: 0.4,
+      max_tokens: Math.max(512, Number(openaiMaxTokens || 4096)),
     }),
   });
 
@@ -442,7 +481,28 @@ const callGemini = async (prompt, providerModel = geminiModel) => {
   console.log(prompt);
   console.log('===== GEMINI CURATION PROMPT END =====');
 
-  const modelsToTry = Array.from(new Set([providerModel, ...(Array.isArray(geminiModels) ? geminiModels : [])]));
+  const expandGeminiModelCandidates = (modelName) => {
+    const base = String(modelName || '').trim();
+    if (!base) return [];
+    const candidates = [base];
+    if (base === 'gemini-2.0-flash') {
+      candidates.push('gemini-2.0-flash-lite');
+    }
+    if (base === 'gemini-2.0-flash-lite') {
+      candidates.push('gemini-2.0-flash');
+    }
+    return candidates;
+  };
+
+  const configuredModels = Array.isArray(geminiModels) ? geminiModels : [];
+  const modelsToTry = Array.from(
+    new Set(
+      [providerModel, ...configuredModels]
+        .flatMap((name) => expandGeminiModelCandidates(name))
+        .concat(['gemini-2.0-flash-lite', 'gemini-2.0-flash'])
+        .filter(Boolean)
+    )
+  );
   let lastErrorText = '';
 
   for (const modelName of modelsToTry) {
@@ -644,8 +704,28 @@ const collectUniqueQuestions = (existing, incoming, maxCount) => {
 
 const curateQuestions = async ({ payload, provider }) => {
   const selected = (provider || aiProvider || 'gemini').toLowerCase();
+  const normalizedSelected = selected === 'chatgpt' ? 'openai' : selected;
+  let providerChain = [];
+  if (normalizedSelected === 'openai') {
+    providerChain = aiProviderFallbackEnabled ? ['openai', 'gemini'] : ['openai'];
+  } else if (normalizedSelected === 'gemini') {
+    providerChain = aiProviderFallbackEnabled ? ['gemini', 'openai'] : ['gemini'];
+  } else {
+    throw new ApiError(400, `Unsupported AI provider: ${selected}`);
+  }
+  console.log('===== AI CURATION PROVIDER CONFIG =====');
+  console.log(`selected=${normalizedSelected} fallbackEnabled=${aiProviderFallbackEnabled} chain=${providerChain.join(' -> ')}`);
   const normalizedInput = normalizeInput(payload);
-  const maxAttempts = 3;
+  const batchSize = Math.max(
+    5,
+    Math.min(
+      MAX_QUESTION_COUNT,
+      Number.isFinite(Number(aiCurationBatchSize))
+        ? Math.floor(Number(aiCurationBatchSize))
+        : DEFAULT_CURATION_BATCH_SIZE
+    )
+  );
+  const maxAttempts = Math.max(3, Math.ceil(normalizedInput.questionCount / batchSize) + 2);
   let collectedQuestions = [];
   let estimatedDurationMinutes = null;
   let lastError = null;
@@ -654,8 +734,8 @@ const curateQuestions = async ({ payload, provider }) => {
     const remaining = normalizedInput.questionCount - collectedQuestions.length;
     if (remaining <= 0) break;
 
-    const overFetch = Math.min(5, remaining);
-    const requestCount = Math.min(MAX_QUESTION_COUNT, remaining + overFetch);
+    const overFetch = Math.min(3, remaining);
+    const requestCount = Math.min(MAX_QUESTION_COUNT, Math.min(batchSize, remaining + overFetch));
     const requestInput = {
       ...normalizedInput,
       questionCount: requestCount,
@@ -666,15 +746,39 @@ const curateQuestions = async ({ payload, provider }) => {
       requestInput,
       collectedQuestions.map((question) => question.question)
     );
+    const preferredGeminiModel = selectGeminiModelForInput(requestInput);
     console.log("====prompt===", prompt)
     try {
       let raw;
-      if (selected === 'chatgpt' || selected === 'openai') {
-        raw = await callOpenAI(prompt);
-      } else if (selected === 'gemini') {
-        raw = await callGemini(prompt);
-      } else {
-        throw new ApiError(400, `Unsupported AI provider: ${selected}`);
+      const providerErrors = [];
+      for (const providerName of providerChain) {
+        console.log(`===== AI PROVIDER TRY: ${providerName} =====`);
+        try {
+          if (providerName === 'openai') {
+            raw = await callOpenAI(prompt);
+          } else {
+            console.log(`===== GEMINI PREFERRED MODEL: ${preferredGeminiModel} =====`);
+            raw = await callGemini(prompt, preferredGeminiModel);
+          }
+          console.log(`===== AI PROVIDER SUCCESS: ${providerName} =====`);
+          if (providerName !== normalizedSelected) {
+            console.log(`===== AI PROVIDER FALLBACK USED: ${providerName} =====`);
+          }
+          break;
+        } catch (providerError) {
+          console.log(`===== AI PROVIDER FAILED: ${providerName} =====`);
+          providerErrors.push(
+            `${providerName}: ${providerError?.message || 'unknown provider error'}`
+          );
+          lastError = providerError;
+        }
+      }
+
+      if (!raw) {
+        throw new ApiError(
+          502,
+          `All AI providers failed (${providerErrors.join(' | ') || 'no provider response'})`
+        );
       }
 
       const normalized = normalizeCurationOutput(raw, requestInput);
@@ -709,7 +813,7 @@ const curateQuestions = async ({ payload, provider }) => {
     );
   }
 
-  return {
+  const finalCurationResult = {
     questions: collectedQuestions.slice(0, normalizedInput.questionCount),
     estimatedDurationMinutes:
       normalizedInput.attemptMode === 'practice'
@@ -717,6 +821,12 @@ const curateQuestions = async ({ payload, provider }) => {
         : estimatedDurationMinutes ||
           estimateDurationFromQuestions(collectedQuestions.slice(0, normalizedInput.questionCount)),
   };
+
+  console.log('===== FINAL QUESTION CURATION JSON START =====');
+  console.log(JSON.stringify(finalCurationResult, null, 2));
+  console.log('===== FINAL QUESTION CURATION JSON END =====');
+
+  return finalCurationResult;
 };
 
 module.exports = {

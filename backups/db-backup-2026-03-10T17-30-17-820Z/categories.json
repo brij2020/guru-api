@@ -1,0 +1,73 @@
+[
+  {
+    "_id": "69961e1fbacaec2ec3cf5e6d",
+    "name": "Information Technology",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "createdAt": "2026-02-18T20:16:31.764Z",
+    "updatedAt": "2026-02-18T20:16:31.764Z",
+    "__v": 0
+  },
+  {
+    "_id": "699708fb79f7c2513d403d99",
+    "name": "Physics",
+    "description": "",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "createdAt": "2026-02-19T12:58:35.818Z",
+    "updatedAt": "2026-02-19T12:58:35.818Z",
+    "__v": 0
+  },
+  {
+    "_id": "699721211e73d074317e3703",
+    "name": "UPSC",
+    "description": "",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "createdAt": "2026-02-19T14:41:37.966Z",
+    "updatedAt": "2026-02-19T14:41:37.966Z",
+    "__v": 0
+  },
+  {
+    "_id": "699721681e73d074317e370a",
+    "name": "JavaScrip Programming",
+    "description": "",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "createdAt": "2026-02-19T14:42:48.290Z",
+    "updatedAt": "2026-02-19T14:42:48.290Z",
+    "__v": 0
+  },
+  {
+    "_id": "699ae60ebba278ecaeb78058",
+    "name": "Police",
+    "description": "",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "createdAt": "2026-02-22T11:18:38.154Z",
+    "updatedAt": "2026-02-22T11:18:38.154Z",
+    "__v": 0
+  },
+  {
+    "_id": "699b41a8a867ad12c100867e",
+    "name": "Bihar Teacher TRE-4",
+    "description": "",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "createdAt": "2026-02-22T17:49:28.013Z",
+    "updatedAt": "2026-02-22T17:49:28.013Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ac642b0d2d69ce59a1bf24",
+    "name": "AI Test",
+    "owner": "69ac642b7f9e8063cff5a3ad",
+    "__v": 0,
+    "createdAt": "2026-03-07T17:45:15.893Z",
+    "description": "Default category for AI test items",
+    "updatedAt": "2026-03-07T17:45:15.893Z"
+  },
+  {
+    "_id": "69ac642b0d2d69ce59a1bf25",
+    "owner": "69ac642b7f9e8063cff5a3ad",
+    "name": "JavaScript",
+    "__v": 0,
+    "createdAt": "2026-03-07T17:45:15.896Z",
+    "description": "Core JavaScript concepts and interview topics",
+    "updatedAt": "2026-03-07T17:45:15.896Z"
+  }
+]

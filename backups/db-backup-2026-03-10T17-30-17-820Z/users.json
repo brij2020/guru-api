@@ -1,0 +1,38 @@
+[
+  {
+    "_id": "6996139198351f6c373c8377",
+    "name": "Johan Deo",
+    "email": "admin@yopmail.com",
+    "password": "$2a$12$Y6HGuBjS7Bkm8AOYOWBg3u8Qk8ViAt3oiEbRvf3pAROA8gWO02GI6",
+    "role": "user",
+    "refreshTokenHash": "71e58c1f60e6829fa8a20043680ba03955e9357b68b91b54fac925bbfa516d44",
+    "passwordChangedAt": "2026-02-18T19:31:29.840Z",
+    "createdAt": "2026-02-18T19:31:29.615Z",
+    "updatedAt": "2026-02-18T19:32:24.672Z",
+    "__v": 0
+  },
+  {
+    "_id": "6996175eb1eeb83ad5862e63",
+    "name": "Super Admin",
+    "email": "admin@example.com",
+    "password": "$2a$12$fQNqHn3Yzu6yNr/1702Z.eEmX2q3ft8Pdvex4KzMD8wwAw1NBWGh2",
+    "role": "admin",
+    "refreshTokenHash": "b28126329e9e48f8a688836885ee2aa2d0984db5117e77e8f9d44a641b69caf5",
+    "passwordChangedAt": "2026-02-18T19:47:42.842Z",
+    "createdAt": "2026-02-18T19:47:42.612Z",
+    "updatedAt": "2026-03-10T17:16:39.977Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ac642b7f9e8063cff5a3ad",
+    "name": "Johan Devi",
+    "email": "johan@yopmail.com",
+    "password": "$2a$12$JWJd/r7VI3rP7.qaJV1jeeIrUkq3fyKaDZYaC0GxvKsCpXTb3QcPq",
+    "role": "user",
+    "refreshTokenHash": "c5708bb723ec3839d4ae5f804d49729f22e0e897ae74c1bde6127b04b0886794",
+    "passwordChangedAt": "2026-03-07T17:45:15.888Z",
+    "createdAt": "2026-03-07T17:45:15.655Z",
+    "updatedAt": "2026-03-10T17:09:40.218Z",
+    "__v": 0
+  }
+]

@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const config = require('./config/env');
 const { logger, httpLogger } = require('./config/logger');
@@ -59,7 +60,23 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-  res.status(200).send('OK');
+  const dbStates = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting',
+  };
+
+  res.status(200).json({
+    status: 'ok',
+    service: 'guru-api',
+    environment: config.name,
+    uptimeSeconds: Math.round(process.uptime()),
+    timestamp: new Date().toISOString(),
+    database: {
+      state: dbStates[mongoose.connection.readyState] || 'unknown',
+    },
+  });
 });
 
 require('./routes')(app);

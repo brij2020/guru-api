@@ -1,0 +1,146 @@
+[
+  {
+    "_id": "699993a130de3b0ecf34bb3f",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "style": "MCQ",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb40",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "style": "Mock Interview Style",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb41",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "style": "IO Based Problem Style",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb42",
+    "style": "Debugging Style",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb43",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "style": "Output Prediction Style",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb44",
+    "style": "Fill-in-the-Blank Style",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb45",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "style": "Scenario-Based Style",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb46",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "style": "MCQ Test Style",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb47",
+    "style": "Concept Check Style",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb48",
+    "style": "Mixed Style",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb49",
+    "style": "Coding Problem Style",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb4a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "category": "699721681e73d074317e370a",
+    "style": "Senior Level",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "699993a130de3b0ecf34bb4b",
+    "style": "Real Interview Simulation",
+    "category": "699721681e73d074317e370a",
+    "owner": "6996175eb1eeb83ad5862e63",
+    "__v": 0,
+    "createdAt": "2026-02-21T11:14:41.795Z",
+    "updatedAt": "2026-02-21T11:14:41.795Z"
+  },
+  {
+    "_id": "69ac642b0d2d69ce59a1bf29",
+    "owner": "69ac642b7f9e8063cff5a3ad",
+    "category": "69ac642b0d2d69ce59a1bf25",
+    "style": "MCQ",
+    "__v": 0,
+    "createdAt": "2026-03-07T17:45:15.899Z",
+    "updatedAt": "2026-03-07T17:45:15.899Z"
+  },
+  {
+    "_id": "69ac642b0d2d69ce59a1bf2a",
+    "style": "Output Based",
+    "category": "69ac642b0d2d69ce59a1bf25",
+    "owner": "69ac642b7f9e8063cff5a3ad",
+    "__v": 0,
+    "createdAt": "2026-03-07T17:45:15.899Z",
+    "updatedAt": "2026-03-07T17:45:15.899Z"
+  },
+  {
+    "_id": "69ac642b0d2d69ce59a1bf2b",
+    "style": "Problem Solving",
+    "category": "69ac642b0d2d69ce59a1bf25",
+    "owner": "69ac642b7f9e8063cff5a3ad",
+    "__v": 0,
+    "createdAt": "2026-03-07T17:45:15.899Z",
+    "updatedAt": "2026-03-07T17:45:15.899Z"
+  }
+]

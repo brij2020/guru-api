@@ -1,0 +1,14 @@
+[
+  {
+    "_id": "69ac5aaac89dc3d572123756",
+    "name": "Seed User",
+    "email": "admin@example.com",
+    "password": "$2a$12$z5osrwTgT2.iKinQr6D0u.Uay4E5ZQ/CHoi3AXztX2EcymFpticby",
+    "role": "admin",
+    "refreshTokenHash": null,
+    "passwordChangedAt": "2026-03-07T17:04:42.746Z",
+    "createdAt": "2026-03-07T17:04:42.533Z",
+    "updatedAt": "2026-03-07T17:04:42.533Z",
+    "__v": 0
+  }
+]
