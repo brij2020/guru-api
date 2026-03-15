@@ -10,6 +10,7 @@ const {
   validateReviewQuestionUpdate,
   validateAiReviewQuestion,
   validateCoverageQuery,
+  validateBulkCreate,
 } = require('../validators/questionBankValidator');
 
 const pullSimilarQuestions = async (req, res) => {
@@ -49,6 +50,25 @@ const importJson = async (req, res) => {
 
   res.json({
     data: result,
+  });
+};
+
+const bulkCreateQuestions = async (req, res) => {
+  if (req.user?.role !== 'admin') {
+    throw new ApiError(403, 'Only admin users can create questions');
+  }
+
+  const payload = validateBulkCreate(req.body || {});
+  const result = await questionBankService.importQuestionsFromJson({
+    ownerId: req.user.id,
+    payload,
+  });
+
+  res.json({
+    data: {
+      success: true,
+      ...result,
+    },
   });
 };
 
@@ -156,6 +176,7 @@ module.exports = {
   pullSimilarQuestions,
   assemblePaper,
   importJson,
+  bulkCreateQuestions,
   listForReview,
   updateReviewStatus,
   updateReviewQuestion,

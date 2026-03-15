@@ -3,6 +3,7 @@ const {
   aiProvider,
   openaiApiKey,
   openaiBaseUrl,
+  openaiChatPath,
   openaiModel,
   geminiApiKey,
   geminiModel,
@@ -45,27 +46,49 @@ const parseModelJson = (rawText) => {
 };
 
 const callOpenAI = async (prompt, providerModel = openaiModel) => {
-  if (!openaiApiKey) {
+  const base = `${String(openaiBaseUrl || 'https://api.openai.com/v1')}`.replace(/\/$/, '');
+  const isOfficialOpenAI = /api\.openai\.com/i.test(base);
+  if (isOfficialOpenAI && !openaiApiKey) {
     throw new ApiError(500, 'OPENAI_API_KEY is not configured');
   }
+  const chatPath = String(openaiChatPath || '/chat/completions').trim() || '/chat/completions';
+  const endpoint = `${base}${chatPath.startsWith('/') ? '' : '/'}${chatPath}`;
+  const makeRequest = async (body) =>
+    fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(openaiApiKey ? { Authorization: `Bearer ${openaiApiKey}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
 
-  const endpoint = `${String(openaiBaseUrl || 'https://api.openai.com/v1').replace(/\/$/, '')}/chat/completions`;
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${openaiApiKey}`,
-    },
-    body: JSON.stringify({
-      model: providerModel,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: 'Return strict JSON only.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.2,
-    }),
+  const baseBody = {
+    ...(providerModel ? { model: providerModel } : {}),
+    messages: [
+      { role: 'system', content: 'Return strict JSON only.' },
+      { role: 'user', content: prompt },
+    ],
+    temperature: 0.2,
+  };
+
+  let response = await makeRequest({
+    ...baseBody,
+    response_format: { type: 'json_object' },
   });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    const isResponseFormatError = /response_format/i.test(errorText);
+    if (isResponseFormatError) {
+      response = await makeRequest(baseBody);
+    } else if (/model/i.test(errorText) && baseBody.model) {
+      const { model, ...withoutModel } = baseBody;
+      response = await makeRequest(withoutModel);
+    } else {
+      throw new ApiError(502, `OpenAI request failed: ${errorText.slice(0, 300)}`);
+    }
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -93,6 +116,12 @@ const callGemini = async (prompt, providerModel = geminiModel) => {
     if (base === 'gemini-2.0-flash-lite') {
       candidates.push('gemini-2.0-flash');
     }
+    if (base === 'gemini-3.1-flash') {
+      candidates.push('gemini-3.1-flash-lite');
+    }
+    if (base === 'gemini-3.1-flash-lite') {
+      candidates.push('gemini-3.1-flash');
+    }
     return candidates;
   };
 
@@ -107,6 +136,7 @@ const callGemini = async (prompt, providerModel = geminiModel) => {
   let lastErrorText = '';
 
   for (const modelName of modelsToTry) {
+  
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
       modelName
     )}:generateContent?key=${geminiApiKey}`;

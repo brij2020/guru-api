@@ -10,14 +10,16 @@ const slugSchema = Joi.string()
 const sectionSchema = Joi.object({
   key: Joi.string().trim().min(1).max(120).required(),
   label: Joi.string().trim().min(1).max(180).required(),
-  count: Joi.number().integer().min(1).max(400).required(),
+  count: Joi.number().integer().min(1).max(500).required(),
+  topics: Joi.array().items(Joi.string().trim().max(100)).default([]),
 });
 
 const upsertBlueprintSchema = Joi.object({
   examSlug: slugSchema.required(),
   stageSlug: slugSchema.required(),
   name: Joi.string().trim().max(200).allow('').optional(),
-  totalQuestions: Joi.number().integer().min(1).max(500).required(),
+  learningMode: Joi.string().trim().valid('foundation', 'intermediate', 'advanced', 'expert').default('foundation'),
+  totalQuestions: Joi.number().integer().min(1).max(2000).required(),
   sections: Joi.array().items(sectionSchema).min(1).required(),
   difficultyMix: Joi.object({
     easy: Joi.number().min(0).max(1).required(),

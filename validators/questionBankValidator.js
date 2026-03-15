@@ -38,7 +38,7 @@ const importQuestionItemSchema = Joi.object({
   groupTitle: Joi.string().trim().max(300).allow('').optional(),
   passageText: Joi.string().trim().max(12000).allow('').optional(),
   groupOrder: Joi.number().integer().min(1).max(200).allow(null).optional(),
-  questionNumber: Joi.number().integer().min(1).max(500).optional(),
+  questionNumber: Joi.number().integer().min(1).max(2000).optional(),
   hasVisual: Joi.boolean().optional(),
   assets: Joi.array()
     .items(
@@ -99,11 +99,23 @@ const importQuestionBankSchema = Joi.object({
   questions: Joi.array().items(importQuestionItemSchema).min(1).max(5000).required(),
 });
 
+const bulkCreateSchema = Joi.object({
+  examSlug: Joi.string().trim().max(80).allow('').optional(),
+  stageSlug: Joi.string().trim().max(80).allow('').optional(),
+  domain: Joi.string().trim().max(120).allow('').optional(),
+  provider: Joi.string().trim().max(32).default('manual-publisher'),
+  testId: Joi.string().trim().allow('').max(160).optional(),
+  testTitle: Joi.string().trim().allow('').max(220).optional(),
+  promptContext: Joi.string().trim().allow('').max(4000).optional(),
+  questions: Joi.array().items(importQuestionItemSchema).min(1).max(500).required(),
+});
+
 const reviewListQuerySchema = Joi.object({
   scope: Joi.string().trim().valid('owner', 'global').default('global'),
   reviewStatus: Joi.string().trim().valid('draft', 'reviewed', 'approved', 'rejected').optional(),
   examSlug: Joi.string().trim().max(80).allow('').optional(),
   stageSlug: Joi.string().trim().max(80).allow('').optional(),
+  section: Joi.string().trim().max(120).allow('').optional(),
   search: Joi.string().trim().max(120).allow('').optional(),
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(200).default(50),
@@ -143,8 +155,9 @@ const reviewQuestionUpdateSchema = Joi.object({
   groupTitle: Joi.string().trim().allow('').max(300).optional(),
   passageText: Joi.string().trim().allow('').max(12000).optional(),
   groupOrder: Joi.number().integer().min(1).max(200).allow(null).optional(),
+  applyRcToGroup: Joi.boolean().optional(),
   difficulty: Joi.string().trim().valid('easy', 'medium', 'hard').optional(),
-  questionNumber: Joi.number().integer().min(1).max(500).allow(null).optional(),
+  questionNumber: Joi.number().integer().min(1).max(2000).allow(null).optional(),
   hasVisual: Joi.boolean().optional(),
   assets: Joi.array()
     .items(
@@ -269,11 +282,13 @@ const validateCoverageQuery = (payload) => validatePayload(coverageQuerySchema, 
 const validateAiReviewQuestion = (payload) => validatePayload(aiReviewQuestionSchema, payload);
 const validateCreatePdfJob = (payload) => validatePayload(createPdfJobSchema, payload);
 const validateListPdfJobsQuery = (payload) => validatePayload(listPdfJobsQuerySchema, payload);
+const validateBulkCreate = (payload) => validatePayload(bulkCreateSchema, payload);
 
 module.exports = {
   validatePullSimilarQuestions,
   validateAssemblePaper,
   validateImportQuestionBank,
+  validateBulkCreate,
   validateReviewListQuery,
   validateReviewStatusUpdate,
   validateReviewQuestionUpdate,

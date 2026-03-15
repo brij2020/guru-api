@@ -11,6 +11,7 @@ const {
   aiProvider,
   openaiApiKey,
   openaiBaseUrl,
+  openaiChatPath,
   openaiModel,
   geminiApiKey,
   geminiModel,
@@ -152,30 +153,56 @@ const parseModelJson = (rawText) => {
 };
 
 const callOpenAIForReview = async (prompt) => {
-  if (!openaiApiKey) {
+  const base = `${String(openaiBaseUrl || 'https://api.openai.com/v1')}`.replace(/\/$/, '');
+  const isOfficialOpenAI = /api\.openai\.com/i.test(base);
+  if (isOfficialOpenAI && !openaiApiKey) {
     throw new Error('OPENAI_API_KEY is not configured');
   }
-  const endpoint = `${String(openaiBaseUrl || 'https://api.openai.com/v1').replace(/\/$/, '')}/chat/completions`;
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${openaiApiKey}`,
-    },
-    body: JSON.stringify({
-      model: openaiModel,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: 'Return strict JSON only.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.2,
-    }),
+  const chatPath = String(openaiChatPath || '/chat/completions').trim() || '/chat/completions';
+  const endpoint = `${base}${chatPath.startsWith('/') ? '' : '/'}${chatPath}`;
+  const makeRequest = async (body) =>
+    fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(openaiApiKey ? { Authorization: `Bearer ${openaiApiKey}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+
+  const baseBody = {
+    ...(openaiModel ? { model: openaiModel } : {}),
+    messages: [
+      { role: 'system', content: 'Return strict JSON only.' },
+      { role: 'user', content: prompt },
+    ],
+    temperature: 0.2,
+  };
+
+  // Some OpenAI-compatible local servers reject `response_format: { type: "json_object" }`.
+  let response = await makeRequest({
+    ...baseBody,
+    response_format: { type: 'json_object' },
   });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    const isResponseFormatError = /response_format/i.test(errorText);
+    if (isResponseFormatError) {
+      response = await makeRequest(baseBody);
+    } else if (/model/i.test(errorText) && baseBody.model) {
+      const { model, ...withoutModel } = baseBody;
+      response = await makeRequest(withoutModel);
+    } else {
+      throw new Error(`OpenAI request failed: ${errorText.slice(0, 300)}`);
+    }
+  }
+
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`OpenAI request failed: ${errorText.slice(0, 300)}`);
   }
+
   const result = await response.json();
   const content = result?.choices?.[0]?.message?.content;
   if (!content) throw new Error('OpenAI returned empty content');
@@ -197,6 +224,12 @@ const callGeminiForReview = async (prompt, providerModel = geminiModel) => {
     }
     if (base === 'gemini-2.0-flash-lite') {
       candidates.push('gemini-2.0-flash');
+    }
+    if (base === 'gemini-3.1-flash') {
+      candidates.push('gemini-3.1-flash-lite');
+    }
+    if (base === 'gemini-3.1-flash-lite') {
+      candidates.push('gemini-3.1-flash');
     }
     return candidates;
   };
@@ -1029,6 +1062,9 @@ const listQuestionsForReview = async ({ ownerId, isAdmin = false, filters = {} }
   if (filters.stageSlug) {
     query.stageSlug = normalizeText(filters.stageSlug).toLowerCase();
   }
+  if (filters.section) {
+    query.section = normalizeText(filters.section).toLowerCase();
+  }
   if (filters.search) {
     const raw = normalizeText(filters.search);
     const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -1158,6 +1194,7 @@ const updateQuestionForReview = async ({ ownerId, reviewerId, isAdmin = false, i
   const existing = await QuestionBank.findOne(query);
   if (!existing) return null;
 
+  const applyRcToGroup = Boolean(updates.applyRcToGroup);
   const nextQuestion = updates.question !== undefined ? normalizeText(updates.question) : normalizeText(existing.question);
   const nextType = normalizeQuestionType(updates.type !== undefined ? updates.type : existing.type);
 
@@ -1233,6 +1270,32 @@ const updateQuestionForReview = async ({ ownerId, reviewerId, isAdmin = false, i
   );
 
   if (!persisted) return null;
+
+  if (applyRcToGroup && rcMeta.groupType === 'rc_passage' && normalizeText(rcMeta.groupId)) {
+    const oldGroupId = normalizeText(existing.groupId || '');
+    const oldGroupType = normalizeText(existing.groupType || 'none').toLowerCase();
+    const matchGroupId = oldGroupType === 'rc_passage' && oldGroupId ? oldGroupId : normalizeText(rcMeta.groupId);
+
+    await QuestionBank.updateMany(
+      {
+        owner: existing.owner,
+        examSlug: persisted.examSlug,
+        stageSlug: persisted.stageSlug,
+        groupType: 'rc_passage',
+        groupId: matchGroupId,
+      },
+      {
+        $set: {
+          groupType: rcMeta.groupType,
+          groupId: rcMeta.groupId,
+          groupTitle: rcMeta.groupTitle,
+          passageText: rcMeta.passageText,
+          reviewedBy: reviewerId || null,
+          reviewedAt: new Date(),
+        },
+      }
+    );
+  }
 
   return {
     id: String(persisted._id),

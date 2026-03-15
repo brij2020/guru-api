@@ -18,7 +18,11 @@ const SectionSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 1,
-      max: 400,
+      max: 500,
+    },
+    topics: {
+      type: [String],
+      default: [],
     },
   },
   { _id: false }
@@ -52,11 +56,18 @@ const PaperBlueprintSchema = new mongoose.Schema(
       default: '',
       maxlength: 200,
     },
+    learningMode: {
+      type: String,
+      trim: true,
+      enum: ['foundation', 'intermediate', 'advanced', 'expert'],
+      default: 'foundation',
+      index: true,
+    },
     totalQuestions: {
       type: Number,
       required: true,
       min: 1,
-      max: 500,
+      max: 2000,
     },
     sections: {
       type: [SectionSchema],

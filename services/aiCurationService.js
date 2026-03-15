@@ -3,6 +3,7 @@ const {
   aiProvider,
   openaiApiKey,
   openaiBaseUrl,
+  openaiChatPath,
   openaiModel,
   openaiMaxTokens,
   geminiApiKey,
@@ -12,11 +13,16 @@ const {
   geminiModels,
   aiCurationBatchSize,
   aiProviderFallbackEnabled,
+  aiRequestDelayMs,
+  localLlmUrl,
+  localLlmModel,
 } = require('../config/env');
 
 const DEFAULT_QUESTION_COUNT = 20;
 const MAX_QUESTION_COUNT = 100;
 const DEFAULT_CURATION_BATCH_SIZE = 20;
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const SUPPORTED_DIFFICULTIES = new Set(['easy', 'medium', 'hard']);
 const SUPPORTED_TYPES = ['coding', 'mcq', 'theory', 'output', 'scenario'];
 const OPTIONS_REQUIRED_TYPES = new Set(['mcq', 'output']);
@@ -310,7 +316,7 @@ Required JSON schema:
 }
 
 Rules:
-- Return exactly ${input.questionCount} unique questions for this batch chunk (overall target ${input.totalTargetQuestions}).
+- Return exactly 5 unique questions for this batch chunk (overall target ${input.totalTargetQuestions}).
 - Use only "mcq" question type.
 - Keep question and explanation concise (exam-style, not essay-style).
 - Ensure 4 plausible options per question and only one correct answer.
@@ -435,28 +441,50 @@ const parseModelJson = (rawText) => {
 };
 
 const callOpenAI = async (prompt, providerModel = openaiModel) => {
-  if (!openaiApiKey) {
+  const base = `${String(openaiBaseUrl || 'https://api.openai.com/v1')}`.replace(/\/$/, '');
+  const isOfficialOpenAI = /api\.openai\.com/i.test(base);
+  if (isOfficialOpenAI && !openaiApiKey) {
     throw new ApiError(500, 'OPENAI_API_KEY is not configured');
   }
+  const chatPath = String(openaiChatPath || '/chat/completions').trim() || '/chat/completions';
+  const endpoint = `${base}${chatPath.startsWith('/') ? '' : '/'}${chatPath}`;
+  const makeRequest = async (body) =>
+    fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(openaiApiKey ? { Authorization: `Bearer ${openaiApiKey}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
 
-  const endpoint = `${String(openaiBaseUrl || 'https://api.openai.com/v1').replace(/\/$/, '')}/chat/completions`;
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${openaiApiKey}`,
-    },
-    body: JSON.stringify({
-      model: providerModel,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: 'Return strict JSON only.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.4,
-      max_tokens: Math.max(512, Number(openaiMaxTokens || 4096)),
-    }),
+  const baseBody = {
+    ...(providerModel ? { model: providerModel } : {}),
+    messages: [
+      { role: 'system', content: 'Return strict JSON only.' },
+      { role: 'user', content: prompt },
+    ],
+    temperature: 0.4,
+    max_tokens: Math.max(512, Number(openaiMaxTokens || 4096)),
+  };
+
+  let response = await makeRequest({
+    ...baseBody,
+    response_format: { type: 'json_object' },
   });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    const isResponseFormatError = /response_format/i.test(errorText);
+    if (isResponseFormatError) {
+      response = await makeRequest(baseBody);
+    } else if (/model/i.test(errorText) && baseBody.model) {
+      const { model, ...withoutModel } = baseBody;
+      response = await makeRequest(withoutModel);
+    } else {
+      throw new ApiError(502, `OpenAI request failed: ${errorText.slice(0, 300)}`);
+    }
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -468,6 +496,50 @@ const callOpenAI = async (prompt, providerModel = openaiModel) => {
   if (!content) {
     throw new ApiError(502, 'OpenAI returned empty content');
   }
+
+  return parseModelJson(content);
+};
+
+const callLocalLlm = async (prompt, providerModel = localLlmModel) => {
+  const llmUrl = String(localLlmUrl || 'http://localhost:1234').replace(/\/$/, '') + '/v1/chat/completions';
+  console.log(`===== LOCAL LLM REQUEST =====`);
+  console.log(`URL: ${llmUrl}`);
+  console.log(`Model: ${providerModel}`);
+  
+  const response = await fetch(llmUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...(providerModel ? { model: providerModel } : {}),
+      messages: [
+        { role: 'system', content: 'Return strict JSON only.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.4,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.log(`===== LOCAL LLM ERROR =====`);
+    console.log(`Status: ${response.status}`);
+    console.log(`Error: ${errorText}`);
+    throw new ApiError(502, `Local LLM request failed (${response.status}): ${errorText.slice(0, 300)}`);
+  }
+
+  const result = await response.json();
+  console.log(`===== LOCAL LLM RAW RESPONSE =====`);
+  console.log(JSON.stringify(result).slice(0, 500));
+  
+  const content = result?.choices?.[0]?.message?.content || result?.message?.content || result?.content;
+  if (!content) {
+    console.log(`===== LOCAL LLM EMPTY CONTENT =====`);
+    console.log(`Full result:`, result);
+    throw new ApiError(502, 'Local LLM returned empty content');
+  }
+
+  console.log(`===== LOCAL LLM CONTENT =====`);
+  console.log(content.slice(0, 500));
 
   return parseModelJson(content);
 };
@@ -490,6 +562,12 @@ const callGemini = async (prompt, providerModel = geminiModel) => {
     }
     if (base === 'gemini-2.0-flash-lite') {
       candidates.push('gemini-2.0-flash');
+    }
+    if (base === 'gemini-3.1-flash') {
+      candidates.push('gemini-3.1-flash-lite');
+    }
+    if (base === 'gemini-3.1-flash-lite') {
+      candidates.push('gemini-3.1-flash');
     }
     return candidates;
   };
@@ -703,7 +781,12 @@ const collectUniqueQuestions = (existing, incoming, maxCount) => {
 };
 
 const curateQuestions = async ({ payload, provider }) => {
-  const selected = (provider || aiProvider || 'gemini').toLowerCase();
+  let selected = (provider || aiProvider || 'gemini').toLowerCase();
+  
+  console.log('===== CURATE QUESTIONS PROVIDER =====');
+  console.log('provider param:', provider);
+  console.log('aiProvider config:', aiProvider);
+  console.log('selected:', selected);
   const normalizedSelected = selected === 'chatgpt' ? 'openai' : selected;
   let providerChain = [];
   if (normalizedSelected === 'openai') {
@@ -731,6 +814,12 @@ const curateQuestions = async ({ payload, provider }) => {
   let lastError = null;
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    // Add delay to respect RPM limit (default 1 RPM = 60s)
+    if (attempt > 0 && aiRequestDelayMs > 0) {
+      console.log(`===== AI REQUEST DELAY: waiting ${aiRequestDelayMs}ms (${attempt} attempt) =====`);
+      await sleep(aiRequestDelayMs);
+    }
+    
     const remaining = normalizedInput.questionCount - collectedQuestions.length;
     if (remaining <= 0) break;
 
@@ -766,7 +855,7 @@ const curateQuestions = async ({ payload, provider }) => {
           }
           break;
         } catch (providerError) {
-          console.log(`===== AI PROVIDER FAILED: ${providerName} =====`);
+          console.log(`===== AI PROVIDER FAILED: ${providerName} =====`, providerError);
           providerErrors.push(
             `${providerName}: ${providerError?.message || 'unknown provider error'}`
           );

@@ -23,6 +23,7 @@ module.exports = (app) => {
   router.post('/similar', readLimiter, asyncHandler(questionBankController.pullSimilarQuestions));
   router.post('/assemble-paper', aiLimiter, asyncHandler(questionBankController.assemblePaper));
   router.post('/import-json', readLimiter, asyncHandler(questionBankController.importJson));
+  router.post('/bulk-create', readLimiter, asyncHandler(questionBankController.bulkCreateQuestions));
   router.get('/review-list', readLimiter, asyncHandler(questionBankController.listForReview));
   router.put('/review-status', readLimiter, asyncHandler(questionBankController.updateReviewStatus));
   router.put('/review-item/:id', readLimiter, asyncHandler(questionBankController.updateReviewQuestion));

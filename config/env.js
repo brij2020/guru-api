@@ -56,6 +56,7 @@ const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD || '';
 const aiProvider = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
 const openaiApiKey = process.env.OPENAI_API_KEY || '';
 const openaiBaseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
+const openaiChatPath = process.env.OPENAI_CHAT_PATH || '/chat/completions';
 const openaiModel = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const openaiMaxTokens = Number(process.env.OPENAI_MAX_TOKENS) || 4096;
 const geminiApiKey = process.env.GEMINI_API_KEY || '';
@@ -97,6 +98,9 @@ const questionAssemblyMode = allowedAssemblyModes.has(questionAssemblyModeRaw)
 const questionBankRecentExcludeCount = Number(process.env.QUESTION_BANK_RECENT_EXCLUDE_COUNT) || 120;
 const aiCurationBatchSize = Number(process.env.AI_CURATION_BATCH_SIZE) || 20;
 const aiProviderFallbackEnabled = String(process.env.AI_PROVIDER_FALLBACK_ENABLED || 'true').toLowerCase() === 'true';
+const localLlmUrl = process.env.LOCAL_LLM_URL || 'http://localhost:1234';
+const localLlmModel = process.env.LOCAL_LLM_MODEL || 'phi-3.5-mini-instruct';
+const aiRequestDelayMs = Number(process.env.AI_REQUEST_DELAY_MS || 60000); // Default 60 seconds between requests (1 RPM)
 const questionBankApprovedOnly = String(process.env.QUESTION_BANK_APPROVED_ONLY || 'false').toLowerCase() === 'true';
 const rateLimitEnabled = String(process.env.RATE_LIMIT_ENABLED || (nodeEnv === 'test' ? 'false' : 'true')).toLowerCase() === 'true';
 const rateLimitWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS) || 60 * 1000;
@@ -144,6 +148,7 @@ module.exports = {
   aiProvider,
   openaiApiKey,
   openaiBaseUrl,
+  openaiChatPath,
   openaiModel,
   openaiMaxTokens,
   geminiApiKey,
@@ -158,6 +163,9 @@ module.exports = {
   questionBankRecentExcludeCount,
   aiCurationBatchSize,
   aiProviderFallbackEnabled,
+  aiRequestDelayMs,
+  localLlmUrl,
+  localLlmModel,
   questionBankApprovedOnly,
   rateLimitEnabled,
   rateLimitWindowMs,
