@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
+    "stg":"NODE_ENV=local node app.js",
     "test": "NODE_ENV=test jest --runInBand",
     "seed:users": "node scripts/seedUsers.js",
     "seed:gov-meta": "node scripts/seedGovMetadata.js",
