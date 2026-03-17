@@ -3,6 +3,7 @@ const ApiError = require('../errors/apiError');
 const QuestionBank = require('../models/questionBank');
 const PaperBlueprint = require('../models/paperBlueprint');
 const QuestionReviewAudit = require('../models/questionReviewAudit');
+const { callLocalLlm } = require('./aiCurationService');
 const {
   questionBankMode,
   questionBankMinValidFields,
@@ -16,6 +17,8 @@ const {
   geminiApiKey,
   geminiModel,
   geminiModels,
+  localLlmUrl,
+  localLlmModel,
 } = require('../config/env');
 
 const TYPE_ALIASES = {
@@ -1345,64 +1348,41 @@ const aiReviewQuestion = async ({
       : [];
 
   const prompt = `
-Role: You are a strict government exam question reviewer.
-Return strict JSON only.
+You are an exam question reviewer. Review and correct if needed.
 
-Review question quality for clarity, correctness, answer validity, option quality, and exam realism.
-
-Question:
-${normalizeText(item.question)}
+Question: ${normalizeText(item.question)}
 
 Options:
-${options.map((opt) => `- ${opt}`).join('\n')}
+${options.map((opt, i) => `${String.fromCharCode(65 + i)}. ${opt}`).join('\n')}
 
-Answer:
-- answer: ${normalizeText(item.answer)}
-- answerKey: ${normalizeText(item.answerKey)}
+Current Answer: ${normalizeText(item.answer)} (${normalizeText(item.answerKey)})
+Explanation: ${normalizeText(item.explanation)}
+Section: ${normalizeText(item.section)}
+Topic: ${normalizeText(item.topic)}
+Difficulty: ${normalizeText(item.difficulty)}
 
-Explanation:
-${normalizeText(item.explanation)}
-
-Passage Context:
-- groupType: ${normalizeText(item.groupType || 'none')}
-- groupId: ${normalizeText(item.groupId)}
-- groupTitle: ${normalizeText(item.groupTitle)}
-- passageText: ${normalizeText(item.passageText)}
-
-Output JSON:
+Return ONLY valid JSON:
 {
-  "score": 0,
-  "recommendedStatus": "reviewed | approved | rejected",
-  "needsUpdate": false,
-  "updatedQuestion": {
-    "question": "string",
-    "options": [{"id":"A","text":"..."},{"id":"B","text":"..."},{"id":"C","text":"..."},{"id":"D","text":"..."}],
-    "answerKey": "A | B | C | D",
-    "answer": "exact option text",
-    "explanation": "string",
-    "section": "string",
-    "topic": "string",
-    "difficulty": "easy | medium | hard"
+  "score": 85,
+  "status": "approved",
+  "fix": {
+    "question": "corrected question if needed",
+    "options": [{"id":"A","text":"..."},{"id":"B","text":"..."}],
+    "answerKey": "A",
+    "answer": "exact correct option",
+    "explanation": "brief",
+    "section": "Quant|Reasoning|English|GK",
+    "topic": "topic name",
+    "difficulty": "easy|medium|hard"
   },
-  "issues": ["string"],
-  "suggestions": ["string"],
-  "summary": "string"
+  "err": ["issues found"]
 }
-
-Rules:
-- score range: 0-100
-- If answer is clearly wrong/ambiguous -> recommendedStatus=rejected
-- If mostly good but needs human check -> reviewed
-- If high quality and exam-ready -> approved
-- Keep issues/suggestions concise.
-- Rephrase question text to concise exam-ready wording.
-- Ensure exactly one correct answer; if missing/incorrect, fix it.
-- Reorder/shuffle options and return matching answerKey + answer.
-- If needsUpdate=false, still return updatedQuestion (same as input).
 `.trim();
 
   const normalizedProvider = String(provider || aiProvider || 'gemini').trim().toLowerCase();
   const chosenProvider = normalizedProvider === 'chatgpt' ? 'openai' : normalizedProvider;
+
+  console.log(`===== AI REVIEW PROVIDER DEBUG =====`, prompt);
 
   let raw = null;
   let fallbackUsed = false;
@@ -1412,6 +1392,11 @@ Rules:
       raw = await callOpenAIForReview(prompt);
     } else if (chosenProvider === 'gemini') {
       raw = await callGeminiForReview(prompt);
+    } else if (chosenProvider === 'local') {
+      console.log('===== AI REVIEW LOCAL LLM PROMPT START =====');
+      console.log(prompt);
+      console.log('===== AI REVIEW LOCAL LLM PROMPT END =====');
+      raw = await callLocalLlm(prompt, localLlmModel);
     } else {
       throw new Error(`Unsupported AI provider: ${chosenProvider}`);
     }
@@ -1437,18 +1422,18 @@ Rules:
 
   const scoreRaw = Number(raw?.score);
   const score = Number.isFinite(scoreRaw) ? Math.max(0, Math.min(100, Math.round(scoreRaw))) : 0;
-  const recommendedStatus = normalizeReviewRecommendation(raw?.recommendedStatus);
-  const issues = Array.isArray(raw?.issues)
-    ? raw.issues.map((v) => normalizeText(v)).filter(Boolean).slice(0, 10)
+  const recommendedStatus = normalizeReviewRecommendation(raw?.recommendedStatus || raw?.status);
+  const issues = Array.isArray(raw?.issues || raw?.err)
+    ? (raw.issues || raw.err).map((v) => normalizeText(v)).filter(Boolean).slice(0, 10)
     : [];
   const suggestions = Array.isArray(raw?.suggestions)
     ? raw.suggestions.map((v) => normalizeText(v)).filter(Boolean).slice(0, 10)
     : [];
   const summary = normalizeText(raw?.summary || '');
   const needsUpdate = Boolean(raw?.needsUpdate);
-  const updatedQuestionRaw = raw?.updatedQuestion && typeof raw.updatedQuestion === 'object'
-    ? raw.updatedQuestion
-    : {};
+  
+  const fixData = raw?.fix || raw?.updatedQuestion || {};
+  const updatedQuestionRaw = (typeof fixData === 'object' && fixData !== null) ? fixData : {};
 
   const normalizedUpdatedQuestionText = normalizeText(updatedQuestionRaw?.question || item.question);
   const normalizedUpdatedSection = normalizeText(updatedQuestionRaw?.section || item.section);
@@ -1469,17 +1454,17 @@ Rules:
   const fallbackResolvedAnswer = resolvedUpdatedAnswer.answer
     ? resolvedUpdatedAnswer
     : resolveAnswerFields({
-        optionObjects: shuffledUpdatedOptionObjects,
-        answer: item.answer,
-        answerKey: item.answerKey,
-      });
+      optionObjects: shuffledUpdatedOptionObjects,
+      answer: item.answer,
+      answerKey: item.answerKey,
+    });
   const finalResolvedAnswer =
     fallbackResolvedAnswer.answer || fallbackResolvedAnswer.answerKey
       ? fallbackResolvedAnswer
       : {
-          answerKey: shuffledUpdatedOptionObjects.length > 0 ? 'A' : '',
-          answer: shuffledUpdatedOptionObjects[0]?.text || '',
-        };
+        answerKey: shuffledUpdatedOptionObjects.length > 0 ? 'A' : '',
+        answer: shuffledUpdatedOptionObjects[0]?.text || '',
+      };
   const updatedOptions = shuffledUpdatedOptionObjects.map((opt) => opt.text);
   const updatedQuestion = {
     question: normalizedUpdatedQuestionText || normalizeText(item.question),
@@ -1518,7 +1503,7 @@ Rules:
       )
     );
     console.log('===== AI REVIEW NORMALIZED END =====');
-  } catch {}
+  } catch { }
 
   let updatedReviewStatus = normalizeReviewStatus(item.reviewStatus);
   let statusChanged = false;
