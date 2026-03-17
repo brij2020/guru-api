@@ -15,7 +15,7 @@ const assemblePaperSchema = Joi.object({
   stageSlug: Joi.string().trim().max(80).required(),
   goalSlug: Joi.string().trim().max(80).optional(),
   planId: Joi.string().trim().max(120).optional(),
-  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai').optional(),
+  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai', 'local').optional(),
   testId: Joi.string().trim().max(160).allow('').optional(),
   testTitle: Joi.string().trim().max(220).allow('').optional(),
   domain: Joi.string().trim().max(120).allow('').optional(),
@@ -70,10 +70,10 @@ const importQuestionItemSchema = Joi.object({
   options: Joi.array()
     .items(
       Joi.alternatives().try(
-        Joi.string().trim().max(1000),
+        Joi.string().trim().max(5000),
         Joi.object({
           id: Joi.string().trim().max(8).allow('').optional(),
-          text: Joi.string().trim().max(1000).required(),
+          text: Joi.string().trim().max(5000).required(),
         })
       )
     )
@@ -136,10 +136,10 @@ const reviewQuestionUpdateSchema = Joi.object({
   options: Joi.array()
     .items(
       Joi.alternatives().try(
-        Joi.string().trim().max(1000),
+        Joi.string().trim().max(5000),
         Joi.object({
           id: Joi.string().trim().max(8).allow('').optional(),
-          text: Joi.string().trim().max(1000).required(),
+          text: Joi.string().trim().max(5000).required(),
         })
       )
     )
@@ -196,7 +196,7 @@ const reviewQuestionUpdateSchema = Joi.object({
 
 const aiReviewQuestionSchema = Joi.object({
   id: Joi.string().trim().pattern(/^[0-9a-fA-F]{24}$/).required(),
-  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai').optional(),
+  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai', 'local').optional(),
   applyStatus: Joi.boolean().default(false),
   applyEdits: Joi.boolean().default(false),
 });
