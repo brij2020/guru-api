@@ -505,6 +505,9 @@ const callLocalLlm = async (prompt, providerModel = localLlmModel) => {
   console.log(`===== LOCAL LLM REQUEST =====`);
   console.log(`URL: ${llmUrl}`);
   console.log(`Model: ${providerModel}`);
+  console.log('===== LOCAL LLM PROMPT START =====');
+  console.log(prompt);
+  console.log('===== LOCAL LLM PROMPT END =====');
   
   const response = await fetch(llmUrl, {
     method: 'POST',
@@ -512,10 +515,13 @@ const callLocalLlm = async (prompt, providerModel = localLlmModel) => {
     body: JSON.stringify({
       ...(providerModel ? { model: providerModel } : {}),
       messages: [
-        { role: 'system', content: 'Return strict JSON only.' },
         { role: 'user', content: prompt },
       ],
-      temperature: 0.4,
+      temperature: 0.7,
+      max_tokens: 8192,
+      top_p: 0.9,
+      frequency_penalty: 0.1,
+      presence_penalty: 0.1,
     }),
   });
 
@@ -920,6 +926,7 @@ const curateQuestions = async ({ payload, provider }) => {
 
 module.exports = {
   curateQuestions,
+  callLocalLlm,
   _internal: {
     normalizeInput,
     buildTypePlan,
