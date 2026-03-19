@@ -10,8 +10,8 @@ const slugSchema = Joi.string()
 const sectionSchema = Joi.object({
   key: Joi.string().trim().min(1).max(120).required(),
   label: Joi.string().trim().min(1).max(180).required(),
-  count: Joi.number().integer().min(1).max(500).required(),
-  topics: Joi.array().items(Joi.string().trim().max(100)).default([]),
+  count: Joi.number().integer().min(1).max(2000).required(),
+  topics: Joi.array().items(Joi.string().trim().max(100).allow('')).default([]).allow(null),
 });
 
 const upsertBlueprintSchema = Joi.object({
@@ -30,8 +30,8 @@ const upsertBlueprintSchema = Joi.object({
 });
 
 const getBlueprintQuerySchema = Joi.object({
-  examSlug: slugSchema.required(),
-  stageSlug: slugSchema.required(),
+  examSlug: slugSchema.optional().allow(''),
+  stageSlug: slugSchema.optional().allow(''),
 });
 
 const validatePayload = (schema, payload) => {

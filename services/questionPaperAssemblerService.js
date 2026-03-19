@@ -183,6 +183,38 @@ const toProjectedQuestion = (question) => ({
   explanation: question.explanation || '',
 });
 
+const bindQuestionToSection = (question, sectionLabel, sectionKey = '') => ({
+  ...question,
+  section: normalizeText(sectionKey || sectionLabel || question?.section || ''),
+  topic: normalizeText(question?.topic || sectionLabel || sectionKey || ''),
+});
+
+const bindQuestionsByBlueprintRanges = (questions = [], sections = []) => {
+  if (!Array.isArray(questions) || questions.length === 0 || !Array.isArray(sections) || sections.length === 0) {
+    return Array.isArray(questions) ? questions : [];
+  }
+
+  const ranges = [];
+  let cursor = 0;
+  for (const section of sections) {
+    const count = Math.max(0, Number(section?.count || 0));
+    if (count <= 0) continue;
+    ranges.push({
+      start: cursor,
+      end: cursor + count,
+      label: normalizeText(section?.label || section?.key || ''),
+      key: normalizeText(section?.key || ''),
+    });
+    cursor += count;
+  }
+  if (ranges.length === 0) return questions;
+
+  return questions.map((question, index) => {
+    const range = ranges.find((row) => index >= row.start && index < row.end) || ranges[ranges.length - 1];
+    return bindQuestionToSection(question, range?.label, range?.key);
+  });
+};
+
 const isRcGroupedQuestion = (question) =>
   String(question?.groupType || '').toLowerCase() === 'rc_passage' &&
   normalizeText(question?.groupId);
@@ -488,7 +520,7 @@ const topUpWithAI = async ({
     const aiQuestionsRaw = Array.isArray(curated?.questions) ? curated.questions : [];
     const aiQuestions = aiQuestionsRaw.map((item) => ({
       ...item,
-      section: sectionContext?.key || item?.section || '',
+      section: sectionContext?.key || sectionContext?.label || item?.section || '',
       topic: item?.topic || sectionContext?.label || item?.topic || '',
     }));
 
@@ -780,7 +812,12 @@ const assemblePaper = async ({ ownerId, payload }) => {
   for (const section of effectiveSections) {
     const sectionCount = Number(section.count) || 0;
     const targets = buildDifficultyTargets(sectionCount, difficultyMix);
-    const sectionRegex = new RegExp(escapeRegex(section.key), 'i');
+    const sectionPattern = [String(section.key || ''), String(section.label || '')]
+      .map((value) => normalizeText(value))
+      .filter(Boolean)
+      .map((value) => escapeRegex(value))
+      .join('|');
+    const sectionRegex = sectionPattern ? new RegExp(sectionPattern, 'i') : null;
     const sectionCollected = [];
     const tierHits = [];
 
@@ -990,11 +1027,14 @@ const assemblePaper = async ({ ownerId, payload }) => {
       }
     }
 
-    selectedQuestions.push(...finalSectionQuestions);
+    const sectionBoundQuestions = finalSectionQuestions.map((question) =>
+      bindQuestionToSection(toProjectedQuestion(question), section.label, section.key)
+    );
+    selectedQuestions.push(...sectionBoundQuestions);
     sectionPlan.push({
       section: section.label,
       targetCount: sectionCount,
-      servedCount: finalSectionQuestions.length,
+      servedCount: sectionBoundQuestions.length,
     });
     diagnostics.perSection.push({
       section: section.key,
@@ -1050,6 +1090,8 @@ const assemblePaper = async ({ ownerId, payload }) => {
       diagnostics.aiTopupError = normalizeText(error?.message || 'AI top-up failed');
     }
   }
+
+  finalQuestions = bindQuestionsByBlueprintRanges(finalQuestions, effectiveSections);
 
   await trackServedQuestions({
     ownerId,

@@ -14,6 +14,11 @@ const ensureAdmin = (req) => {
 
 const getBlueprint = async (req, res) => {
   const query = validateBlueprintQuery(req.query || {});
+  if (!query.examSlug || !query.stageSlug) {
+    const blueprints = await paperBlueprintService.listActiveBlueprints();
+    res.json({ data: blueprints || [] });
+    return;
+  }
   const blueprint = await paperBlueprintService.getActiveBlueprint(query.examSlug, query.stageSlug);
   res.json({ data: blueprint || null });
 };

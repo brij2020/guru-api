@@ -6,15 +6,18 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "stg":"NODE_ENV=local node app.js",
+    "stg": "NODE_ENV=local node app.js",
     "test": "NODE_ENV=test jest --runInBand",
+    "lint": "eslint . --ext .js,.mjs",
+    "lint:fix": "eslint . --ext .js,.mjs --fix",
     "seed:users": "node scripts/seedUsers.js",
     "seed:gov-meta": "node scripts/seedGovMetadata.js",
     "seed:question-bank": "node scripts/seedQuestionBank.js",
     "import:question-bank": "node scripts/importQuestionBankJson.js",
-    "extract:pyq": "python3 pyscript/quiz.py"
+    "extract:pyq": "python3 pyscript/quiz.js"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -26,6 +29,9 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.1",
     "jest": "^30.2.0",
     "mongodb-memory-server": "^10.1.4",
     "nodemon": "^3.0.1",

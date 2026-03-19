@@ -40,6 +40,13 @@ const QuestionBankSchema = new mongoose.Schema(
       maxlength: 120,
       index: true,
     },
+    language: {
+      type: String,
+      trim: true,
+      default: 'en',
+      maxlength: 16,
+      index: true,
+    },
     examSlug: {
       type: String,
       trim: true,
@@ -57,7 +64,7 @@ const QuestionBankSchema = new mongoose.Schema(
     section: {
       type: String,
       trim: true,
-      default: '',
+      default: 'unmapped',
       maxlength: 120,
       index: true,
     },
@@ -197,6 +204,25 @@ const QuestionBankSchema = new mongoose.Schema(
       trim: true,
       default: '',
       maxlength: 8,
+    },
+    parsedAnswerKey: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 8,
+    },
+    answerConfidence: {
+      type: String,
+      trim: true,
+      enum: ['high', 'medium', 'low', 'unknown'],
+      default: 'unknown',
+      index: true,
+    },
+    answerRawSnippet: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 4000,
     },
     hasVisual: {
       type: Boolean,

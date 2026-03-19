@@ -17,6 +17,9 @@ const getActiveBlueprint = async (examSlug, stageSlug) => {
   }).sort({ updatedAt: -1 });
 };
 
+const listActiveBlueprints = async () =>
+  PaperBlueprint.find({ isActive: true }).sort({ examSlug: 1, stageSlug: 1, updatedAt: -1 });
+
 const upsertBlueprint = async (ownerId, payload) => {
   const examSlug = normalizeSlug(payload.examSlug);
   const stageSlug = normalizeSlug(payload.stageSlug);
@@ -46,5 +49,6 @@ const upsertBlueprint = async (ownerId, payload) => {
 
 module.exports = {
   getActiveBlueprint,
+  listActiveBlueprints,
   upsertBlueprint,
 };

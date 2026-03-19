@@ -52,6 +52,11 @@ const normalizeText = (value) =>
     .trim()
     .replace(/\s+/g, ' ');
 
+const normalizeLanguage = (value) => {
+  const normalized = normalizeText(value).toLowerCase().replace(/[^a-z-]/g, '');
+  return normalized || 'en';
+};
+
 const normalizeQuestionType = (value) => {
   const key = normalizeText(value).toLowerCase().replace(/\s+/g, '-');
   return TYPE_ALIASES[key] || 'mcq';
@@ -61,6 +66,12 @@ const normalizeDifficulty = (value) => {
   const key = normalizeText(value).toLowerCase();
   if (DIFFICULTIES.has(key)) return key;
   return 'medium';
+};
+
+const normalizeAnswerConfidence = (value) => {
+  const key = normalizeText(value).toLowerCase();
+  if (key === 'high' || key === 'medium' || key === 'low') return key;
+  return 'unknown';
 };
 
 const normalizeGroupType = (value, hasPassage = false) => {
@@ -585,6 +596,7 @@ const toQuestionBankDoc = (question, payload, ownerId, sourceAttemptId, provider
     kind: question?.assetKind || question?.figureType || 'image',
   });
   const hasVisual = Boolean(question?.hasVisual) || assets.length > 0;
+  const reviewStatus = normalizeReviewStatus(question?.reviewStatus || payload?.reviewStatus || 'draft');
 
   return {
     owner: ownerId,
@@ -593,6 +605,7 @@ const toQuestionBankDoc = (question, payload, ownerId, sourceAttemptId, provider
     testId: normalizeText(payload?.testId),
     testTitle: normalizeText(payload?.testTitle),
     domain: normalizeText(payload?.domain),
+    language: normalizeLanguage(question?.language || payload?.language || 'en'),
     examSlug,
     stageSlug,
     section,
@@ -615,13 +628,22 @@ const toQuestionBankDoc = (question, payload, ownerId, sourceAttemptId, provider
     assets,
     answer: resolvedAnswer.answer,
     answerKey: resolvedAnswer.answerKey,
+    parsedAnswerKey: normalizeText(
+      question?.parsedAnswerKey || question?.parsed_answer_key || question?.answerKey || question?.correct_option || ''
+    ).toUpperCase().slice(0, 8),
+    answerConfidence: normalizeAnswerConfidence(
+      question?.answerConfidence || question?.answer_confidence || question?.confidence || ''
+    ),
+    answerRawSnippet: normalizeText(
+      question?.answerRawSnippet || question?.answer_raw_snippet || question?.rawAnswerSnippet || question?.answerSnippet || ''
+    ),
     explanation: normalizeText(question?.explanation || question?.rationale),
     inputOutput: normalizeText(question?.inputOutput),
     solutionApproach: normalizeText(question?.solutionApproach),
     sampleSolution: normalizeText(question?.sampleSolution),
     complexity: normalizeText(question?.complexity),
     keyConsiderations: normalizeList(question?.keyConsiderations),
-    reviewStatus: 'draft',
+    reviewStatus,
     reviewedBy: null,
     reviewedAt: null,
     fingerprint: buildFingerprint(questionText, type),
@@ -639,6 +661,7 @@ const ingestQuestions = async ({ ownerId, sourceAttemptId, payload, provider, qu
     .filter(Boolean);
 
   if (docs.length === 0) return { insertedOrUpdated: 0, duplicatesSkipped: 0 };
+  await enforceBlueprintSectionKeys(docs);
   const { uniqueDocs, duplicatesSkipped } = dedupeDocsByFingerprint(docs);
   if (uniqueDocs.length === 0) return { insertedOrUpdated: 0, duplicatesSkipped };
 
@@ -909,6 +932,81 @@ const normalizeSlug = (value) =>
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-');
 
+const getActiveBlueprintSections = async (examSlug, stageSlug) => {
+  const exam = normalizeSlug(examSlug || '');
+  const stage = normalizeSlug(stageSlug || '');
+  if (!exam || !stage) return [];
+  const blueprint = await PaperBlueprint.findOne({
+    examSlug: exam,
+    stageSlug: stage,
+    isActive: true,
+  })
+    .sort({ updatedAt: -1 })
+    .select('sections');
+  return Array.isArray(blueprint?.sections) ? blueprint.sections : [];
+};
+
+const normalizeSectionToken = (value) =>
+  normalizeText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const resolveSectionKeyFromBlueprint = (input, blueprintSections = []) => {
+  if (!Array.isArray(blueprintSections) || blueprintSections.length === 0) {
+    return normalizeSlug(input || '') || 'unmapped';
+  }
+
+  const normalizedSections = blueprintSections
+    .map((section) => ({
+      key: normalizeSlug(section?.key || ''),
+      label: normalizeSectionToken(section?.label || ''),
+    }))
+    .filter((section) => section.key);
+
+  if (normalizedSections.length === 0) return normalizeSlug(input || '') || 'unmapped';
+
+  const source = normalizeSectionToken(input || '');
+  if (source) {
+    const exact = normalizedSections.find((section) => section.key === normalizeSlug(source) || section.label === source);
+    if (exact) return exact.key;
+
+    const contains = normalizedSections.find(
+      (section) =>
+        (section.label && source.includes(section.label)) ||
+        (section.label && section.label.includes(source)) ||
+        source.includes(section.key)
+    );
+    if (contains) return contains.key;
+  }
+
+  return normalizedSections[0].key || 'unmapped';
+};
+
+const enforceBlueprintSectionKeys = async (docs = []) => {
+  if (!Array.isArray(docs) || docs.length === 0) return docs;
+  const cache = new Map();
+
+  for (const doc of docs) {
+    if (!doc || typeof doc !== 'object') continue;
+    const examSlug = normalizeSlug(doc.examSlug || '');
+    const stageSlug = normalizeSlug(doc.stageSlug || '');
+    const cacheKey = `${examSlug}::${stageSlug}`;
+    if (!cache.has(cacheKey)) {
+      // eslint-disable-next-line no-await-in-loop
+      cache.set(cacheKey, await getActiveBlueprintSections(examSlug, stageSlug));
+    }
+    const sections = cache.get(cacheKey) || [];
+    doc.section = resolveSectionKeyFromBlueprint(
+      [doc.section, doc.topic, doc.question].filter(Boolean).join(' '),
+      sections
+    );
+  }
+
+  return docs;
+};
+
 const buildDifficultyTargets = (count, difficultyMix) => {
   const easy = Math.floor(count * Number(difficultyMix?.easy || 0));
   const medium = Math.floor(count * Number(difficultyMix?.medium || 0));
@@ -930,9 +1028,11 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
     examSlug: normalizeSlug(payload.examSlug || ''),
     stageSlug: normalizeSlug(payload.stageSlug || ''),
     domain: normalizeText(payload.domain || ''),
+    language: normalizeLanguage(payload.language || 'en'),
     provider: normalizeText(payload.provider || 'openai-import'),
     testId: normalizeText(payload.testId || ''),
     testTitle: normalizeText(payload.testTitle || ''),
+    reviewStatus: normalizeReviewStatus(payload.reviewStatus || 'draft'),
     promptContext: normalizeText(payload.promptContext || ''),
   };
 
@@ -970,6 +1070,7 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
         kind: item?.assetKind || item?.figureType || 'image',
       });
       const hasVisual = Boolean(item?.hasVisual) || assets.length > 0;
+      const reviewStatus = normalizeReviewStatus(item?.reviewStatus || defaults.reviewStatus || 'draft');
 
       return {
         owner: ownerId,
@@ -978,6 +1079,7 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
         testId: normalizeText(item?.testId || defaults.testId || `import-${defaults.examSlug}-${defaults.stageSlug}`),
         testTitle: normalizeText(item?.testTitle || defaults.testTitle || `${defaults.examSlug} ${defaults.stageSlug} imported set`),
         domain: normalizeText(item?.domain || defaults.domain),
+        language: normalizeLanguage(item?.language || defaults.language || 'en'),
         examSlug: normalizeSlug(item?.examSlug || defaults.examSlug),
         stageSlug: normalizeSlug(item?.stageSlug || defaults.stageSlug),
         section: normalizeSlug(item?.section || ''),
@@ -1000,13 +1102,22 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
         assets,
         answer: resolvedAnswer.answer,
         answerKey: resolvedAnswer.answerKey,
+        parsedAnswerKey: normalizeText(
+          item?.parsedAnswerKey || item?.parsed_answer_key || item?.answerKey || item?.correct_option || ''
+        ).toUpperCase().slice(0, 8),
+        answerConfidence: normalizeAnswerConfidence(
+          item?.answerConfidence || item?.answer_confidence || item?.confidence || ''
+        ),
+        answerRawSnippet: normalizeText(
+          item?.answerRawSnippet || item?.answer_raw_snippet || item?.rawAnswerSnippet || item?.answerSnippet || ''
+        ),
         explanation: normalizeText(item?.explanation || ''),
         inputOutput: '',
         solutionApproach: '',
         sampleSolution: '',
         complexity: '',
         keyConsiderations: [],
-        reviewStatus: 'draft',
+        reviewStatus,
         reviewedBy: null,
         reviewedAt: null,
         fingerprint: buildFingerprint(question, type),
@@ -1016,6 +1127,7 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
     .filter(Boolean);
 
   if (docs.length === 0) return { imported: 0, inserted: 0, updated: 0, duplicatesSkipped: 0 };
+  await enforceBlueprintSectionKeys(docs);
   const { uniqueDocs, duplicatesSkipped } = dedupeDocsByFingerprint(docs);
   if (uniqueDocs.length === 0) {
     return {
@@ -1087,7 +1199,7 @@ const listQuestionsForReview = async ({ ownerId, isAdmin = false, filters = {} }
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        '_id owner examSlug stageSlug section topic difficulty type questionNumber source question options optionObjects hasVisual assets answer answerKey explanation reviewStatus updatedAt groupType groupId groupTitle passageText groupOrder'
+        '_id owner examSlug stageSlug section topic difficulty type questionNumber source question options optionObjects hasVisual assets answer answerKey parsedAnswerKey answerConfidence answerRawSnippet explanation reviewStatus updatedAt groupType groupId groupTitle passageText groupOrder'
       ),
     QuestionBank.countDocuments(query),
   ]);
@@ -1120,6 +1232,9 @@ const listQuestionsForReview = async ({ ownerId, isAdmin = false, filters = {} }
       assets: Array.isArray(item.assets) ? item.assets : [],
       answer: item.answer || '',
       answerKey: item.answerKey || '',
+      parsedAnswerKey: item.parsedAnswerKey || '',
+      answerConfidence: item.answerConfidence || 'unknown',
+      answerRawSnippet: item.answerRawSnippet || '',
       explanation: item.explanation || '',
       reviewStatus: item.reviewStatus || 'draft',
       updatedAt: item.updatedAt,
@@ -1221,7 +1336,12 @@ const updateQuestionForReview = async ({ ownerId, reviewerId, isAdmin = false, i
 
   const nextDifficulty = updates.difficulty !== undefined ? normalizeDifficulty(updates.difficulty) : normalizeDifficulty(existing.difficulty);
   const nextTopic = updates.topic !== undefined ? normalizeText(updates.topic) : normalizeText(existing.topic);
-  const nextSection = updates.section !== undefined ? normalizeText(updates.section) : normalizeText(existing.section);
+  const requestedSection = updates.section !== undefined ? normalizeText(updates.section) : normalizeText(existing.section);
+  const blueprintSections = await getActiveBlueprintSections(existing.examSlug, existing.stageSlug);
+  const nextSection = resolveSectionKeyFromBlueprint(
+    [requestedSection, updates.topic, updates.question, existing.topic, existing.question].filter(Boolean).join(' '),
+    blueprintSections
+  );
   const nextExplanation = updates.explanation !== undefined ? normalizeText(updates.explanation) : normalizeText(existing.explanation);
   const nextAssets =
     updates.assets !== undefined
@@ -1349,7 +1469,7 @@ const aiReviewQuestion = async ({
 
   const prompt = `
 You are an exam question reviewer. Review and correct if needed.
-
+make sure answer is 100% correct
 Question: ${normalizeText(item.question)}
 
 Options:
@@ -1378,11 +1498,11 @@ Return ONLY valid JSON:
   "err": ["issues found"]
 }
 `.trim();
-
+  console.log(`===== AI REVIEW PROVIDER DEBUG =====`, prompt);
   const normalizedProvider = String(provider || aiProvider || 'gemini').trim().toLowerCase();
   const chosenProvider = normalizedProvider === 'chatgpt' ? 'openai' : normalizedProvider;
 
-  console.log(`===== AI REVIEW PROVIDER DEBUG =====`, prompt);
+
 
   let raw = null;
   let fallbackUsed = false;

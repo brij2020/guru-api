@@ -18,7 +18,7 @@ const SectionSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 1,
-      max: 500,
+      max: 2000,
     },
     topics: {
       type: [String],

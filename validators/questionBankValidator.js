@@ -32,6 +32,7 @@ const importQuestionItemSchema = Joi.object({
   examSlug: Joi.string().trim().max(80).allow('').optional(),
   stageSlug: Joi.string().trim().max(80).allow('').optional(),
   domain: Joi.string().trim().max(120).allow('').optional(),
+  language: Joi.string().trim().max(16).allow('').optional(),
   section: Joi.string().trim().max(120).allow('').optional(),
   groupType: Joi.string().trim().valid('none', 'rc_passage').optional(),
   groupId: Joi.string().trim().max(120).allow('').optional(),
@@ -86,15 +87,18 @@ const importQuestionItemSchema = Joi.object({
   promptContext: Joi.string().trim().allow('').max(4000).optional(),
   testId: Joi.string().trim().allow('').max(160).optional(),
   testTitle: Joi.string().trim().allow('').max(220).optional(),
+  reviewStatus: Joi.string().trim().valid('draft', 'reviewed', 'approved', 'rejected').optional(),
 });
 
 const importQuestionBankSchema = Joi.object({
   examSlug: Joi.string().trim().max(80).allow('').optional(),
   stageSlug: Joi.string().trim().max(80).allow('').optional(),
   domain: Joi.string().trim().max(120).allow('').optional(),
+  language: Joi.string().trim().max(16).allow('').optional(),
   provider: Joi.string().trim().max(32).default('openai-import'),
   testId: Joi.string().trim().allow('').max(160).optional(),
   testTitle: Joi.string().trim().allow('').max(220).optional(),
+  reviewStatus: Joi.string().trim().valid('draft', 'reviewed', 'approved', 'rejected').optional(),
   promptContext: Joi.string().trim().allow('').max(4000).optional(),
   questions: Joi.array().items(importQuestionItemSchema).min(1).max(5000).required(),
 });
@@ -103,9 +107,11 @@ const bulkCreateSchema = Joi.object({
   examSlug: Joi.string().trim().max(80).allow('').optional(),
   stageSlug: Joi.string().trim().max(80).allow('').optional(),
   domain: Joi.string().trim().max(120).allow('').optional(),
+  language: Joi.string().trim().max(16).allow('').optional(),
   provider: Joi.string().trim().max(32).default('manual-publisher'),
   testId: Joi.string().trim().allow('').max(160).optional(),
   testTitle: Joi.string().trim().allow('').max(220).optional(),
+  reviewStatus: Joi.string().trim().valid('draft', 'reviewed', 'approved', 'rejected').optional(),
   promptContext: Joi.string().trim().allow('').max(4000).optional(),
   questions: Joi.array().items(importQuestionItemSchema).min(1).max(500).required(),
 });

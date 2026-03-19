@@ -100,7 +100,9 @@ const aiCurationBatchSize = Number(process.env.AI_CURATION_BATCH_SIZE) || 20;
 const aiProviderFallbackEnabled = String(process.env.AI_PROVIDER_FALLBACK_ENABLED || 'true').toLowerCase() === 'true';
 const localLlmUrl = process.env.LOCAL_LLM_URL || 'http://localhost:1234';
 const localLlmModel = process.env.LOCAL_LLM_MODEL || 'phi-3.5-mini-instruct';
-const aiRequestDelayMs = Number(process.env.AI_REQUEST_DELAY_MS || 60000); // Default 60 seconds between requests (1 RPM)
+const aiRequestDelayMs = Number(
+  process.env.AI_REQUEST_DELAY_MS || (nodeEnv === 'test' ? 0 : 60000)
+); // Default 60 seconds between requests (1 RPM), disabled in tests
 const questionBankApprovedOnly = String(process.env.QUESTION_BANK_APPROVED_ONLY || 'false').toLowerCase() === 'true';
 const rateLimitEnabled = String(process.env.RATE_LIMIT_ENABLED || (nodeEnv === 'test' ? 'false' : 'true')).toLowerCase() === 'true';
 const rateLimitWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS) || 60 * 1000;
