@@ -69,32 +69,66 @@ const buildFallbackQuestions = (payload) => {
 };
 
 const startTestAttempt = async (payload, userId) => {
+  console.log('[Service] startTestAttempt called with userId:', userId);
+  console.log('[Service] Payload:', JSON.stringify(payload, null, 2));
+  
   const allowFallback =
     process.env.NODE_ENV === 'test' || payload?.allowFallback === true;
+  const skipCuration = payload?.skipCuration === true;
 
   let curatedQuestions = [];
   let estimatedDurationMinutes = 0;
-  try {
-    const curated = await aiCurationService.curateQuestions({
-      payload,
-      provider: payload.provider,
-    });
-    curatedQuestions = Array.isArray(curated?.questions) ? curated.questions : [];
-    estimatedDurationMinutes = Number(curated?.estimatedDurationMinutes) > 0
-      ? Math.round(Number(curated.estimatedDurationMinutes))
-      : 0;
-  } catch (error) {
-    if (!allowFallback) {
-      throw new ApiError(
-        error?.statusCode || 502,
-        `AI curation failed: ${error?.message || 'Unable to generate questions from provider'}`
-      );
+  let curationError = null;
+  let questionBankEmptyWarning = '';
+  
+  if (!skipCuration) {
+    try {
+      const curated = await aiCurationService.curateQuestions({
+        payload,
+        provider: payload.provider,
+      });
+      curatedQuestions = Array.isArray(curated?.questions) ? curated.questions : [];
+      estimatedDurationMinutes = Number(curated?.estimatedDurationMinutes) > 0
+        ? Math.round(Number(curated.estimatedDurationMinutes))
+        : 0;
+        
+      // Check if questions were returned
+      if (curatedQuestions.length === 0) {
+        curationError = new ApiError(503, 'No questions available. Question bank is empty.');
+      }
+    } catch (error) {
+      console.error('[Service] AI curation failed:', error?.message);
+      curationError = error;
+      const errorMessage = String(error?.message || '');
+      const isQuestionBankEmpty =
+        errorMessage.includes('empty') || errorMessage.includes('Question bank');
+      
+      if (!allowFallback) {
+        if (isQuestionBankEmpty) {
+          questionBankEmptyWarning =
+            'Question bank is empty. Please add questions through the admin panel.';
+        } else {
+          throw new ApiError(
+            error?.statusCode || 502,
+            errorMessage || 'Unable to generate questions. Please try again later.'
+          );
+        }
+      }
+      if (allowFallback) {
+        curatedQuestions = buildFallbackQuestions(payload);
+      }
     }
-    curatedQuestions = buildFallbackQuestions(payload);
+  } else {
+    console.log('[Service] skipCuration=true, creating attempt without AI curation.');
   }
 
   const resolvedTotalQuestions =
     curatedQuestions.length > 0 ? curatedQuestions.length : payload.totalQuestions || 0;
+
+  // Don't create test attempt if no questions available
+  if (resolvedTotalQuestions === 0 && !allowFallback && !questionBankEmptyWarning) {
+    throw new ApiError(503, 'No questions available. Question bank is empty.');
+  }
 
   const attempt = new TestAttempt({
     owner: userId,
@@ -111,6 +145,7 @@ const startTestAttempt = async (payload, userId) => {
   });
 
   const savedAttempt = await attempt.save();
+  console.log('[Service] TestAttempt created with _id:', savedAttempt._id);
 
   try {
     await questionBankService.ingestQuestions({
@@ -121,16 +156,96 @@ const startTestAttempt = async (payload, userId) => {
       questions: curatedQuestions,
     });
   } catch (error) {
-    // Question bank ingestion should not block test start flow.
+    console.error('[Service] Question bank ingestion failed (non-blocking):', error?.message);
   }
 
-  return {
+  const result = {
     ...savedAttempt.toObject(),
     curatedQuestions,
     estimatedDurationMinutes,
+    warning: questionBankEmptyWarning || undefined,
+    curationStatus: questionBankEmptyWarning ? 'empty_question_bank' : 'ok',
+  };
+  console.log('[Service] startTestAttempt returning:', JSON.stringify(result, null, 2));
+  
+  return result;
+};
+
+const completeTestAttempt = async (attemptId, userId, resultData) => {
+  console.log('[Service] completeTestAttempt called with attemptId:', attemptId, 'userId:', userId);
+  console.log('[Service] resultData:', JSON.stringify(resultData, null, 2));
+  
+  const attempt = await TestAttempt.findOne({ _id: attemptId, owner: userId });
+  
+  if (!attempt) {
+    console.error('[Service] Test attempt not found for attemptId:', attemptId, 'userId:', userId);
+    throw new ApiError(404, 'Test attempt not found');
+  }
+  
+  console.log('[Service] Found attempt:', JSON.stringify(attempt, null, 2));
+  
+  if (attempt.status === 'completed') {
+    console.warn('[Service] Test attempt already completed:', attemptId);
+    throw new ApiError(400, 'Test attempt already completed');
+  }
+  
+  attempt.status = 'completed';
+  attempt.completedAt = new Date();
+  attempt.autoSubmitted = resultData.autoSubmitted || false;
+  
+  // Score metrics
+  attempt.score = resultData.score;
+  attempt.percentage = resultData.percentage;
+  attempt.correctCount = resultData.correctCount;
+  attempt.incorrectCount = resultData.incorrectCount;
+  attempt.unattemptedCount = resultData.unattemptedCount;
+  attempt.attemptedCount = resultData.attemptedCount;
+  
+  // Time metrics
+  attempt.timeSpent = resultData.timeSpent;
+  
+  // Breakdown data
+  if (resultData.sectionScores && resultData.sectionScores.length > 0) {
+    attempt.sectionScores = resultData.sectionScores;
+  }
+  if (resultData.difficultyBreakdown && resultData.difficultyBreakdown.length > 0) {
+    attempt.difficultyBreakdown = resultData.difficultyBreakdown;
+  }
+  if (resultData.typeBreakdown && resultData.typeBreakdown.length > 0) {
+    attempt.typeBreakdown = resultData.typeBreakdown;
+  }
+  
+  await attempt.save();
+  console.log('[Service] Test attempt saved successfully:', attempt._id);
+  
+  return attempt;
+};
+
+const getTestAttemptsByUser = async (userId, options = {}) => {
+  const { status, limit = 50, skip = 0 } = options;
+  
+  const query = { owner: userId };
+  if (status) {
+    query.status = status;
+  }
+  
+  const attempts = await TestAttempt.find(query)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+  
+  const total = await TestAttempt.countDocuments(query);
+  
+  return {
+    attempts,
+    total,
+    count: attempts.length,
   };
 };
 
 module.exports = {
   startTestAttempt,
+  completeTestAttempt,
+  getTestAttemptsByUser,
 };

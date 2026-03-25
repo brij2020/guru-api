@@ -85,6 +85,19 @@ const result = await questionBankService.listQuestionsForReview({
   res.json({ data: result });
 };
 
+const listQuestions = async (req, res) => {
+  if (req.user?.role !== 'admin') {
+    throw new ApiError(403, 'Only admin users can list question bank items');
+  }
+  const filters = req.query || {};
+  const result = await questionBankService.listQuestions({
+    ownerId: req.user.id,
+    isAdmin: true,
+    filters,
+  });
+  res.json({ data: result });
+};
+
 const updateReviewStatus = async (req, res) => {
   if (req.user?.role !== 'admin') {
     throw new ApiError(403, 'Only admin users can review question bank items');
@@ -172,14 +185,81 @@ const aiReviewQuestion = async (req, res) => {
   res.json({ data: result });
 };
 
+const getQuestionById = async (req, res) => {
+  const { id } = req.params;
+  
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new ApiError(400, 'Invalid question ID format');
+  }
+
+  const question = await questionBankService.getQuestionById(id);
+  
+  if (!question) {
+    throw new ApiError(404, 'Question not found');
+  }
+
+  res.json({ data: question });
+};
+
+const updateQuestionById = async (req, res) => {
+  if (req.user?.role !== 'admin') {
+    throw new ApiError(403, 'Only admin users can update questions');
+  }
+
+  const { id } = req.params;
+  
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new ApiError(400, 'Invalid question ID format');
+  }
+
+  const updates = req.body;
+  delete updates._id;
+  delete updates.id;
+
+  const result = await questionBankService.updateQuestionById(id, {
+    ...updates,
+    updatedBy: req.user.id,
+  });
+
+  if (!result) {
+    throw new ApiError(404, 'Question not found');
+  }
+
+  res.json({ data: result });
+};
+
+const deleteQuestionById = async (req, res) => {
+  if (req.user?.role !== 'admin') {
+    throw new ApiError(403, 'Only admin users can delete questions');
+  }
+
+  const { id } = req.params;
+  
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new ApiError(400, 'Invalid question ID format');
+  }
+
+  const result = await questionBankService.deleteQuestionById(id);
+
+  if (!result) {
+    throw new ApiError(404, 'Question not found');
+  }
+
+  res.json({ data: { deleted: true, id } });
+};
+
 module.exports = {
   pullSimilarQuestions,
   assemblePaper,
   importJson,
   bulkCreateQuestions,
   listForReview,
+  listQuestions,
   updateReviewStatus,
   updateReviewQuestion,
   aiReviewQuestion,
   getCoverage,
+  getQuestionById,
+  updateQuestionById,
+  deleteQuestionById,
 };

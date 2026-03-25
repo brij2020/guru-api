@@ -2,7 +2,7 @@ const Joi = require('joi');
 const ApiError = require('../errors/apiError');
 
 const curateQuestionsSchema = Joi.object({
-  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai').optional(),
+  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai', 'local').optional(),
   payload: Joi.object({
     testId: Joi.string().trim().allow('').max(120).optional(),
     testTitle: Joi.string().trim().max(200).required(),
@@ -18,7 +18,7 @@ const curateQuestionsSchema = Joi.object({
 }).required();
 
 const curateGovQuestionsSchema = Joi.object({
-  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai').optional(),
+  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai', 'local').optional(),
   payload: Joi.object({
     examSlug: Joi.string().trim().max(120).required(),
     examName: Joi.string().trim().max(160).required(),

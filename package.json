@@ -4,8 +4,8 @@
   "private": true,
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
+    "start": "NODE_ENV=local node app.js",
+    "dev": "NODE_ENV=local nodemon app.js",
     "stg": "NODE_ENV=local node app.js",
     "test": "NODE_ENV=test jest --runInBand",
     "lint": "eslint . --ext .js,.mjs",

@@ -25,10 +25,16 @@ module.exports = (app) => {
   router.post('/import-json', readLimiter, asyncHandler(questionBankController.importJson));
   router.post('/bulk-create', readLimiter, asyncHandler(questionBankController.bulkCreateQuestions));
   router.get('/review-list', readLimiter, asyncHandler(questionBankController.listForReview));
+  router.get('/list', readLimiter, asyncHandler(questionBankController.listQuestions));
   router.put('/review-status', readLimiter, asyncHandler(questionBankController.updateReviewStatus));
   router.put('/review-item/:id', readLimiter, asyncHandler(questionBankController.updateReviewQuestion));
   router.post('/review-item/:id/ai-review', aiLimiter, asyncHandler(questionBankController.aiReviewQuestion));
   router.get('/coverage', readLimiter, asyncHandler(questionBankController.getCoverage));
+  
+  // Single question operations
+  router.get('/:id', readLimiter, asyncHandler(questionBankController.getQuestionById));
+  router.put('/:id', readLimiter, asyncHandler(questionBankController.updateQuestionById));
+  router.delete('/:id', readLimiter, asyncHandler(questionBankController.deleteQuestionById));
   router.post('/pdf-jobs', readLimiter, asyncHandler(pdfExtractionJobController.createPdfJob));
   router.get('/pdf-jobs', readLimiter, asyncHandler(pdfExtractionJobController.listPdfJobs));
   router.get('/pdf-jobs/:id', readLimiter, asyncHandler(pdfExtractionJobController.getPdfJob));
