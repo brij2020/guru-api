@@ -1,7 +1,6 @@
 const QuestionBank = require('../models/questionBank');
 const QuestionBankUsage = require('../models/questionBankUsage');
 const MockPaper = require('../models/mockPaper');
-const mongoose = require('mongoose');
 const aiCurationService = require('./aiCurationService');
 const questionBankService = require('./questionBankService');
 const paperBlueprintService = require('./paperBlueprintService');
@@ -53,12 +52,6 @@ const normalizeText = (value) =>
   String(value || '')
     .trim()
     .replace(/\s+/g, ' ');
-
-const toObjectIdIfValid = (value) => {
-  const raw = String(value || '').trim();
-  if (!raw) return null;
-  return mongoose.Types.ObjectId.isValid(raw) ? new mongoose.Types.ObjectId(raw) : raw;
-};
 
 const normalizeQuestionKey = (value) =>
   normalizeText(value)
@@ -190,19 +183,11 @@ const toProjectedQuestion = (question) => ({
   explanation: question.explanation || '',
 });
 
-const bindQuestionToSection = (question, sectionLabel, sectionKey = '') => {
-  const existingSection = normalizeText(question?.section || '');
-  const blueprintSection = normalizeText(sectionKey || sectionLabel || '');
-  
-  const finalSection = existingSection || blueprintSection;
-  const finalTopic = normalizeText(question?.topic || sectionLabel || sectionKey || '');
-
-  return {
-    ...question,
-    section: finalSection,
-    topic: finalTopic,
-  };
-};
+const bindQuestionToSection = (question, sectionLabel, sectionKey = '') => ({
+  ...question,
+  section: normalizeText(sectionKey || sectionLabel || question?.section || ''),
+  topic: normalizeText(question?.topic || sectionLabel || sectionKey || ''),
+});
 
 const bindQuestionsByBlueprintRanges = (questions = [], sections = []) => {
   if (!Array.isArray(questions) || questions.length === 0 || !Array.isArray(sections) || sections.length === 0) {
@@ -225,14 +210,6 @@ const bindQuestionsByBlueprintRanges = (questions = [], sections = []) => {
   if (ranges.length === 0) return questions;
 
   return questions.map((question, index) => {
-    const existingSection = normalizeText(question?.section || '');
-    if (existingSection) {
-      return {
-        ...question,
-        section: existingSection,
-        topic: normalizeText(question?.topic || ''),
-      };
-    }
     const range = ranges.find((row) => index >= row.start && index < row.end) || ranges[ranges.length - 1];
     return bindQuestionToSection(question, range?.label, range?.key);
   });
@@ -377,9 +354,8 @@ const buildOwnerQueries = ({
   topicRegexes,
   difficulty,
 }) => {
-  const ownerRef = toObjectIdIfValid(ownerId);
   const base = {};
-  if (ownerRef) base.owner = ownerRef;
+  if (ownerId) base.owner = ownerId;
   if (examSlug) base.examSlug = examSlug;
   if (stageSlug) base.stageSlug = stageSlug;
 
@@ -664,11 +640,10 @@ const topUpFromDbFinalPass = async ({
     return added;
   };
 
-  const ownerRef = toObjectIdIfValid(ownerId);
   const queryTiers = [
     {
       query: {
-        owner: ownerRef,
+        owner: ownerId,
         examSlug,
         stageSlug,
         type: { $in: typeFilters },
@@ -677,7 +652,7 @@ const topUpFromDbFinalPass = async ({
     },
     {
       query: {
-        owner: ownerRef,
+        owner: ownerId,
         examSlug,
         stageSlug,
       },
@@ -762,12 +737,8 @@ const savePaperSnapshot = async ({ ownerId, payload, paper, diagnostics, sourceB
 };
 
 const assemblePaper = async ({ ownerId, payload }) => {
-  const startedAt = Date.now();
   const examSlug = normalizeText(payload.examSlug).toLowerCase();
   const stageSlug = normalizeText(payload.stageSlug).toLowerCase();
-  console.log(
-    `[assemble-paper] start owner=${String(ownerId || '')} exam=${examSlug} stage=${stageSlug} mode=${questionBankMode}`
-  );
   const dbBlueprint = await paperBlueprintService.getActiveBlueprint(examSlug, stageSlug);
   const staticBlueprint = getBlueprint(examSlug, stageSlug);
   const blueprint = dbBlueprint
@@ -820,9 +791,6 @@ const assemblePaper = async ({ ownerId, payload }) => {
   const serveStatusConstraint = buildServeStatusConstraint();
   const ownerPoolCount = await QuestionBank.countDocuments({ owner: ownerId, ...scopedBaseQuery, ...serveStatusConstraint });
   const globalPoolCount = await QuestionBank.countDocuments({ ...scopedBaseQuery, ...serveStatusConstraint });
-  console.log(
-    `[assemble-paper] db-pool ownerPool=${ownerPoolCount} globalPool=${globalPoolCount} approvedOnly=${questionBankApprovedOnly}`
-  );
   const canUseGlobalFallback =
     globalPoolCount > ownerPoolCount &&
     (questionBankMode === 'hybrid' || (questionBankMode === 'db_first' && ownerPoolCount === 0));
@@ -842,7 +810,6 @@ const assemblePaper = async ({ ownerId, payload }) => {
   for (const groupId of recentExcludedGroupIds) selectedGroupIds.add(String(groupId));
 
   for (const section of effectiveSections) {
-    const sectionStart = Date.now();
     const sectionCount = Number(section.count) || 0;
     const targets = buildDifficultyTargets(sectionCount, difficultyMix);
     const sectionPattern = [String(section.key || ''), String(section.label || '')]
@@ -1074,12 +1041,6 @@ const assemblePaper = async ({ ownerId, payload }) => {
       shortfall: Math.max(0, sectionCount - finalSectionQuestions.length),
       tierHits,
     });
-    console.log(
-      `[assemble-paper] section=${String(section.key || section.label || 'mixed')} target=${sectionCount} served=${sectionBoundQuestions.length} shortfall=${Math.max(
-        0,
-        sectionCount - sectionBoundQuestions.length
-      )} ms=${Date.now() - sectionStart}`
-    );
   }
 
   const seenFinalKeys = new Set();
@@ -1096,7 +1057,6 @@ const assemblePaper = async ({ ownerId, payload }) => {
 
   let finalDbTopupCount = 0;
   if (finalQuestions.length < totalQuestions && questionBankMode !== 'ai_only') {
-    const dbTopupStart = Date.now();
     const dbTopup = await topUpFromDbFinalPass({
       ownerId,
       examSlug,
@@ -1110,13 +1070,9 @@ const assemblePaper = async ({ ownerId, payload }) => {
     finalQuestions = dbTopup.questions;
     finalDbTopupCount = dbTopup.topupCount;
     if (dbTopup.usedGlobal) diagnostics.scope = 'global';
-    console.log(
-      `[assemble-paper] final-db-topup added=${finalDbTopupCount} usedGlobal=${dbTopup.usedGlobal} ms=${Date.now() - dbTopupStart}`
-    );
   }
 
   if ((questionBankMode === 'hybrid' || questionBankMode === 'ai_only') && finalQuestions.length < totalQuestions) {
-    const aiTopupStart = Date.now();
     const missingCount = totalQuestions - finalQuestions.length;
     try {
       const { aiQuestions, aiTopupCount: topupCount } = await topUpWithAI({
@@ -1133,9 +1089,6 @@ const assemblePaper = async ({ ownerId, payload }) => {
     } catch (error) {
       diagnostics.aiTopupError = normalizeText(error?.message || 'AI top-up failed');
     }
-    console.log(
-      `[assemble-paper] ai-topup requested=${missingCount} added=${aiTopupCount} ms=${Date.now() - aiTopupStart}`
-    );
   }
 
   finalQuestions = bindQuestionsByBlueprintRanges(finalQuestions, effectiveSections);
@@ -1173,10 +1126,6 @@ const assemblePaper = async ({ ownerId, payload }) => {
       aiTopupCount,
     },
   });
-
-  console.log(
-    `[assemble-paper] done requested=${totalQuestions} served=${finalQuestions.length} dbCount=${dbCount} aiTopup=${aiTopupCount} totalMs=${Date.now() - startedAt}`
-  );
 
   return {
     paper: {

@@ -59,7 +59,7 @@ const importQuestionItemSchema = Joi.object({
   source: Joi.object({
     exam: Joi.string().trim().max(120).allow('').optional(),
     year: Joi.number().integer().min(1900).max(2100).allow(null).optional(),
-    shift: Joi.number().integer().min(0).max(20).allow(null).optional(),
+    shift: Joi.number().integer().min(1).max(20).allow(null).optional(),
     type: Joi.string().trim().max(60).allow('').optional(),
   })
     .optional()

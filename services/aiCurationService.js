@@ -18,8 +18,6 @@ const {
   localLlmModel,
 } = require('../config/env');
 
-const questionBankService = require('./questionBankService');
-
 const DEFAULT_QUESTION_COUNT = 20;
 const MAX_QUESTION_COUNT = 100;
 const DEFAULT_CURATION_BATCH_SIZE = 20;
@@ -200,7 +198,6 @@ const normalizeInput = (input) => {
   const questionCount = normalizeQuestionCount(input.questionCount);
   const promptContext = String(input.promptContext || '').trim();
   const govExamMode = isGovExamContext(input.testId, input.testTitle, input.domain, promptContext);
-  const questionStyles = normalizeTextList(input.questionStyles);
   const requestedTypes = govExamMode ? ['mcq'] : normalizeRequestedTypes(input.questionStyles);
   const typePlan = buildTypePlan(requestedTypes, questionCount);
   const normalizedMode = String(input.attemptMode || '')
@@ -215,7 +212,6 @@ const normalizeInput = (input) => {
     attemptMode,
     difficulty: normalizeDifficulty(input.difficulty),
     topics: normalizeTextList(input.topics),
-    questionStyles,
     requestedTypes,
     typePlan,
     questionCount,
@@ -791,19 +787,23 @@ const collectUniqueQuestions = (existing, incoming, maxCount) => {
 };
 
 const curateQuestions = async ({ payload, provider }) => {
-  const selected = (provider || aiProvider || 'gemini').toLowerCase();
-  const normalizedSelected = selected;
+  let selected = (provider || aiProvider || 'gemini').toLowerCase();
   
   console.log('===== CURATE QUESTIONS PROVIDER =====');
   console.log('provider param:', provider);
   console.log('aiProvider config:', aiProvider);
   console.log('selected:', selected);
-  
-  // Skip AI - use MongoDB question bank directly
-  const providerChain = ['mongodb'];
-  const isMongoOnlyChain = providerChain.length === 1 && providerChain[0] === 'mongodb';
+  const normalizedSelected = selected === 'chatgpt' ? 'openai' : selected;
+  let providerChain = [];
+  if (normalizedSelected === 'openai') {
+    providerChain = aiProviderFallbackEnabled ? ['openai', 'gemini'] : ['openai'];
+  } else if (normalizedSelected === 'gemini') {
+    providerChain = aiProviderFallbackEnabled ? ['gemini', 'openai'] : ['gemini'];
+  } else {
+    throw new ApiError(400, `Unsupported AI provider: ${selected}`);
+  }
   console.log('===== AI CURATION PROVIDER CONFIG =====');
-  console.log(`Using MongoDB question bank only (AI disabled)`);
+  console.log(`selected=${normalizedSelected} fallbackEnabled=${aiProviderFallbackEnabled} chain=${providerChain.join(' -> ')}`);
   const normalizedInput = normalizeInput(payload);
   const batchSize = Math.max(
     5,
@@ -821,7 +821,7 @@ const curateQuestions = async ({ payload, provider }) => {
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     // Add delay to respect RPM limit (default 1 RPM = 60s)
-    if (!isMongoOnlyChain && attempt > 0 && aiRequestDelayMs > 0) {
+    if (attempt > 0 && aiRequestDelayMs > 0) {
       console.log(`===== AI REQUEST DELAY: waiting ${aiRequestDelayMs}ms (${attempt} attempt) =====`);
       await sleep(aiRequestDelayMs);
     }
@@ -851,38 +851,6 @@ const curateQuestions = async ({ payload, provider }) => {
         try {
           if (providerName === 'openai') {
             raw = await callOpenAI(prompt);
-          } else if (providerName === 'local') {
-            console.log(`===== LOCAL LM STUDIO MODEL: ${localLlmModel} =====`);
-            raw = await callLocalLlm(prompt, localLlmModel);
-          } else if (providerName === 'mongodb') {
-            // MongoDB fallback - pull questions from question bank
-            console.log('===== MONGODB FALLBACK: Pulling questions from question bank =====');
-            const dbResult = await questionBankService.pullSimilarQuestions({
-              ownerId: null, // null for global questions
-              filters: {
-                questionCount: requestInput.questionCount,
-                difficulty: requestInput.difficulty,
-                domain: requestInput.domain,
-                topics: requestInput.topics,
-                questionStyles: requestInput.questionStyles,
-              },
-            });
-            console.log(`===== MONGODB FALLBACK: Found ${dbResult.questions?.length || 0} questions =====`);
-            if (dbResult.questions && dbResult.questions.length > 0) {
-              raw = {
-                questions: dbResult.questions.map(q => ({
-                  type: q.type || 'mcq',
-                  difficulty: q.difficulty || requestInput.difficulty,
-                  topic: q.topic || '',
-                  question: q.question || q.questionText || '',
-                  options: q.options || [],
-                  answer: q.answer || q.correctAnswer || '',
-                  explanation: q.explanation || q.rationale || '',
-                })),
-              };
-            } else {
-              throw new Error('MongoDB question bank is empty');
-            }
           } else {
             console.log(`===== GEMINI PREFERRED MODEL: ${preferredGeminiModel} =====`);
             raw = await callGemini(prompt, preferredGeminiModel);
@@ -926,12 +894,6 @@ const curateQuestions = async ({ payload, provider }) => {
         }
       }
     } catch (error) {
-      if (String(error?.message || '').includes('MongoDB question bank is empty')) {
-        throw new ApiError(
-          503,
-          'Question bank is empty. Please add questions through the admin panel or enable AI question generation.'
-        );
-      }
       lastError = error;
     }
   }
@@ -940,21 +902,9 @@ const curateQuestions = async ({ payload, provider }) => {
     if (lastError instanceof ApiError && lastError.statusCode === 400) {
       throw lastError;
     }
-    
-    // Check if question bank is empty
-    const isQuestionBankEmpty = lastError?.message?.includes('MongoDB question bank is empty') 
-      || lastError?.message?.includes('question bank');
-    
-    if (isQuestionBankEmpty || collectedQuestions.length === 0) {
-      throw new ApiError(
-        503,
-        'Question bank is empty. Please add questions through the admin panel or enable AI question generation.'
-      );
-    }
-    
     throw new ApiError(
       502,
-      `Could only retrieve ${collectedQuestions.length} questions. Question bank needs ${normalizedInput.questionCount - collectedQuestions.length} more questions.`
+      `AI provider returned ${collectedQuestions.length} unique questions, expected ${normalizedInput.questionCount}. Last error: ${lastError?.message || 'none'}`
     );
   }
 

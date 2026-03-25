@@ -42,32 +42,10 @@ const TYPE_ALIASES = {
 };
 
 const DIFFICULTIES = new Set(['easy', 'medium', 'hard']);
-const GROUP_TYPES = new Set(['none', 'rc_passage', 'table', 'image_grid', 'diagram']);
+const GROUP_TYPES = new Set(['none', 'rc_passage']);
 const DEFAULT_PULL_COUNT = 20;
 const MAX_PULL_COUNT = 100;
 const REVIEW_STATUSES = new Set(['draft', 'reviewed', 'approved', 'rejected']);
-
-const stripBaseUrl = (url = '') => {
-  const str = String(url || '').trim();
-  if (!str) return '';
-  
-  const baseUrls = [
-    'http://localhost:4000',
-    'http://localhost:3000',
-    'https://localhost:4000',
-    'https://localhost:3000',
-    'http://13.203.195.153:4000',
-    'https://13.203.195.153:4000',
-  ];
-  
-  for (const base of baseUrls) {
-    if (str.toLowerCase().startsWith(base.toLowerCase())) {
-      return str.slice(base.length);
-    }
-  }
-  
-  return str;
-};
 
 const normalizeText = (value) =>
   String(value || '')
@@ -421,7 +399,7 @@ const normalizeSource = (source = {}, fallback = {}) => {
   return {
     exam: normalizeText(source?.exam || fallback?.exam || ''),
     year: Number.isInteger(year) && year >= 1900 && year <= 2100 ? year : null,
-    shift: Number.isInteger(shift) && shift >= 0 && shift <= 20 ? shift : null,
+    shift: Number.isInteger(shift) && shift >= 1 && shift <= 20 ? shift : null,
     type: normalizeText(source?.type || fallback?.type || ''),
   };
 };
@@ -474,8 +452,7 @@ const normalizeAssetsPayload = (assetsInput = [], fallback = {}) => {
     if (normalized.length >= 8) return;
     if (!item) return;
     const raw = typeof item === 'string' ? { url: item } : item;
-    const rawUrl = normalizeText(raw?.url || raw?.src || '');
-    const url = stripBaseUrl(rawUrl);
+    const url = normalizeText(raw?.url || raw?.src || '');
     const data = raw?.data && typeof raw.data === 'object' ? raw.data : null;
     if (!url && !data) return;
     const width = Number(raw?.width);
@@ -582,58 +559,6 @@ const dedupeDocsByFingerprint = (docs = []) => {
 
   return { uniqueDocs, duplicatesSkipped };
 };
-
-const normalizeComparableArray = (input) =>
-  (Array.isArray(input) ? input : [])
-    .map((item) => normalizeText(item))
-    .filter(Boolean);
-
-const normalizeComparableOptionObjects = (input) =>
-  (Array.isArray(input) ? input : [])
-    .map((item) => ({
-      id: normalizeText(item?.id || '').toUpperCase(),
-      text: normalizeText(item?.text || ''),
-    }))
-    .filter((item) => item.text);
-
-const normalizeComparableAssets = (input) =>
-  (Array.isArray(input) ? input : [])
-    .map((item) => ({
-      kind: normalizeText(item?.kind || '').toLowerCase(),
-      url: normalizeText(item?.url || ''),
-      alt: normalizeText(item?.alt || ''),
-      caption: normalizeText(item?.caption || ''),
-      width: Number(item?.width || 0) || 0,
-      height: Number(item?.height || 0) || 0,
-    }))
-    .filter((item) => item.url);
-
-const buildComparableDoc = (doc = {}) => ({
-  domain: normalizeText(doc.domain || ''),
-  language: normalizeLanguage(doc.language || ''),
-  examSlug: normalizeText(doc.examSlug || '').toLowerCase(),
-  stageSlug: normalizeText(doc.stageSlug || '').toLowerCase(),
-  section: normalizeText(doc.section || ''),
-  topic: normalizeText(doc.topic || ''),
-  difficulty: normalizeDifficulty(doc.difficulty || 'medium'),
-  type: normalizeQuestionType(doc.type || 'mcq'),
-  groupType: normalizeGroupType(doc.groupType || 'none', Boolean(doc.passageText)),
-  groupId: normalizeText(doc.groupId || ''),
-  groupTitle: normalizeText(doc.groupTitle || ''),
-  passageText: normalizeText(doc.passageText || ''),
-  groupOrder: Number.isInteger(Number(doc.groupOrder)) ? Number(doc.groupOrder) : null,
-  question: normalizeText(doc.question || ''),
-  options: normalizeComparableArray(doc.options),
-  optionObjects: normalizeComparableOptionObjects(doc.optionObjects),
-  answer: normalizeText(doc.answer || ''),
-  answerKey: normalizeText(doc.answerKey || '').toUpperCase(),
-  explanation: normalizeText(doc.explanation || ''),
-  reviewStatus: normalizeReviewStatus(doc.reviewStatus || 'draft'),
-  assets: normalizeComparableAssets(doc.assets),
-});
-
-const isEquivalentQuestionPayload = (incoming, existing) =>
-  JSON.stringify(buildComparableDoc(incoming)) === JSON.stringify(buildComparableDoc(existing));
 
 const toQuestionBankDoc = (question, payload, ownerId, sourceAttemptId, provider) => {
   const questionText = normalizeText(question?.question || question?.questionText || question?.prompt);
@@ -863,24 +788,6 @@ const pullSimilarQuestions = async ({ ownerId, filters = {} }) => {
   const topics = normalizeList(filters.topics);
   const typeFilters = buildTypeFilters(filters.questionStyles);
   const retrievalMode = questionBankMode;
-  console.log('[question-bank] pullSimilarQuestions input', {
-    ownerId: String(ownerId || ''),
-    requested: {
-      questionCount: filters.questionCount || filters.count || DEFAULT_PULL_COUNT,
-      difficulty: filters.difficulty,
-      domain: filters.domain,
-      topics: filters.topics,
-      questionStyles: filters.questionStyles,
-    },
-    normalized: {
-      count,
-      difficulty,
-      domain,
-      topics,
-      typeFilters,
-      retrievalMode,
-    },
-  });
 
   if (retrievalMode === 'ai_only') {
     const serveStatusConstraint = buildServeStatusConstraint();
@@ -908,15 +815,11 @@ const pullSimilarQuestions = async ({ ownerId, filters = {} }) => {
   const strictQuery = { ...baseQuery };
   const wideQuery = { ...baseQuery };
   const broadQuery = { ...baseQuery };
-  const hasDifficultyFilter = DIFFICULTIES.has(difficulty);
-  const hasTypeFilter = typeFilters.length > 0;
-  const hasDomainFilter = Boolean(domain);
 
   if (domain) {
     const domainRegex = new RegExp(escapeRegex(domain), 'i');
     strictQuery.domain = domainRegex;
     wideQuery.domain = domainRegex;
-    broadQuery.domain = domainRegex;
   }
 
   if (DIFFICULTIES.has(difficulty)) {
@@ -931,16 +834,12 @@ const pullSimilarQuestions = async ({ ownerId, filters = {} }) => {
   }
 
   const topicMatch = buildTopicMatch(topics);
-  const hasTopicFilter = Boolean(topicMatch);
-  const hasAnyFilter = hasDomainFilter || hasDifficultyFilter || hasTypeFilter || hasTopicFilter;
   if (topicMatch) {
     Object.assign(strictQuery, topicMatch);
     Object.assign(wideQuery, topicMatch);
   }
 
-  const queryCandidates = hasAnyFilter
-    ? [strictQuery, wideQuery, broadQuery]
-    : [strictQuery, wideQuery, broadQuery, baseQuery];
+  const queryCandidates = [strictQuery, wideQuery, broadQuery, baseQuery];
   let matches = [];
   let matchedBy = 'none';
   let scope = 'owner';
@@ -948,9 +847,7 @@ const pullSimilarQuestions = async ({ ownerId, filters = {} }) => {
 
   for (let i = 0; i < queryCandidates.length; i += 1) {
     const query = queryCandidates[i];
-    console.log(`[question-bank] owner tier ${i + 1} query`, query);
     matches = await sampleQuestions(query, count);
-    console.log(`[question-bank] owner tier ${i + 1} matched`, matches.length);
     if (matches.length > 0) {
       matchedBy = JSON.stringify(query);
       matchedTier = `owner_tier_${i + 1}`;
@@ -974,7 +871,6 @@ const pullSimilarQuestions = async ({ ownerId, filters = {} }) => {
       const domainRegex = new RegExp(escapeRegex(domain), 'i');
       globalStrictQuery.domain = domainRegex;
       globalWideQuery.domain = domainRegex;
-      globalBroadQuery.domain = domainRegex;
     }
 
     if (DIFFICULTIES.has(difficulty)) {
@@ -993,15 +889,11 @@ const pullSimilarQuestions = async ({ ownerId, filters = {} }) => {
       Object.assign(globalWideQuery, topicMatch);
     }
 
-    const globalCandidates = hasAnyFilter
-      ? [globalStrictQuery, globalWideQuery, globalBroadQuery]
-      : [globalStrictQuery, globalWideQuery, globalBroadQuery, globalBaseQuery];
+    const globalCandidates = [globalStrictQuery, globalWideQuery, globalBroadQuery, globalBaseQuery];
 
     for (let i = 0; i < globalCandidates.length; i += 1) {
       const query = globalCandidates[i];
-      console.log(`[question-bank] global tier ${i + 1} query`, query);
       matches = await sampleQuestions(query, count);
-      console.log(`[question-bank] global tier ${i + 1} matched`, matches.length);
       if (matches.length > 0) {
         matchedBy = JSON.stringify(query);
         scope = 'global';
@@ -1025,14 +917,6 @@ const pullSimilarQuestions = async ({ ownerId, filters = {} }) => {
     validFieldGate: questionBankMinValidFields,
     approvedOnly: questionBankApprovedOnly,
   };
-  console.log('[question-bank] pullSimilarQuestions result', {
-    count: matches.length,
-    scope,
-    matchedTier,
-    firstQuestionIds: matches.slice(0, 5).map((q) => String(q.id || '')),
-    firstQuestionTopics: matches.slice(0, 5).map((q) => q.topic || ''),
-    firstQuestionTypes: matches.slice(0, 5).map((q) => q.type || ''),
-  });
 
   return {
     questions: matches,
@@ -1254,41 +1138,13 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
     };
   }
 
-  const existingRows = await QuestionBank.find({
-    owner: ownerId,
-    fingerprint: { $in: uniqueDocs.map((doc) => doc.fingerprint).filter(Boolean) },
-  })
-    .select(
-      'fingerprint domain language examSlug stageSlug section topic difficulty type groupType groupId groupTitle passageText groupOrder question options optionObjects answer answerKey explanation reviewStatus assets'
-    )
-    .lean();
-  const existingByFingerprint = new Map(existingRows.map((row) => [String(row.fingerprint || ''), row]));
-
-  let duplicatesSkippedFromDb = 0;
-  const ops = [];
-  for (const doc of uniqueDocs) {
-    const existing = existingByFingerprint.get(String(doc.fingerprint || ''));
-    if (existing && isEquivalentQuestionPayload(doc, existing)) {
-      duplicatesSkippedFromDb += 1;
-      continue;
-    }
-    ops.push({
-      updateOne: {
-        filter: { owner: doc.owner, fingerprint: doc.fingerprint },
-        update: { $set: doc },
-        upsert: true,
-      },
-    });
-  }
-
-  if (ops.length === 0) {
-    return {
-      imported: docs.length,
-      inserted: 0,
-      updated: 0,
-      duplicatesSkipped: duplicatesSkipped + duplicatesSkippedFromDb,
-    };
-  }
+  const ops = uniqueDocs.map((doc) => ({
+    updateOne: {
+      filter: { owner: doc.owner, fingerprint: doc.fingerprint },
+      update: { $set: doc },
+      upsert: true,
+    },
+  }));
 
   const result = await QuestionBank.bulkWrite(ops, { ordered: false });
   const inserted = Object.keys(result?.upsertedIds || {}).length;
@@ -1298,7 +1154,7 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
     imported: docs.length,
     inserted,
     updated,
-    duplicatesSkipped: duplicatesSkipped + duplicatesSkippedFromDb,
+    duplicatesSkipped,
   };
 };
 
@@ -1859,6 +1715,7 @@ const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
   const stageSlug = normalizeText(filters.stageSlug).toLowerCase();
 
   const blueprint = await PaperBlueprint.findOne({
+    owner: ownerId,
     examSlug,
     stageSlug,
     isActive: true,
@@ -1887,6 +1744,7 @@ const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
   const aggregateRows = await QuestionBank.aggregate([
     {
       $match: {
+        owner: blueprint.owner,
         examSlug,
         stageSlug,
       },
@@ -2014,125 +1872,13 @@ const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
   };
 };
 
-const getQuestionById = async (id) => {
-  const QuestionBank = require('../models/questionBank');
-  return await QuestionBank.findById(id).lean();
-};
-
-const updateQuestionById = async (id, updates) => {
-  const QuestionBank = require('../models/questionBank');
-  return await QuestionBank.findByIdAndUpdate(
-    id,
-    { $set: updates },
-    { new: true, runValidators: true }
-  ).lean();
-};
-
-const deleteQuestionById = async (id) => {
-  const QuestionBank = require('../models/questionBank');
-  return await QuestionBank.findByIdAndDelete(id);
-};
-
-const listQuestions = async ({ ownerId, isAdmin = false, filters = {} }) => {
-  const page = Math.max(1, Number(filters.page || 1));
-  const limit = Math.min(200, Math.max(1, Number(filters.limit || 50)));
-  const scope = normalizeText(filters.scope || (isAdmin ? 'global' : 'owner')).toLowerCase();
-  const query = {};
-
-  if (!isAdmin || scope === 'owner') {
-    query.owner = ownerId;
-  }
-
-  if (filters.examSlug) {
-    query.examSlug = normalizeText(filters.examSlug).toLowerCase();
-  }
-  if (filters.stageSlug) {
-    query.stageSlug = normalizeText(filters.stageSlug).toLowerCase();
-  }
-  if (filters.section) {
-    query.section = normalizeText(filters.section).toLowerCase();
-  }
-  if (filters.difficulty) {
-    query.difficulty = normalizeText(filters.difficulty).toLowerCase();
-  }
-  if (filters.type) {
-    query.type = normalizeText(filters.type).toLowerCase();
-  }
-  if (filters.search) {
-    const raw = normalizeText(filters.search);
-    const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const flexible = escaped.replace(/[-_\s]+/g, '[-_\\s]+');
-    const pattern = new RegExp(flexible, 'i');
-    query.$or = [
-      { question: pattern },
-      { section: pattern },
-      { topic: pattern },
-      { tags: { $in: [pattern] } },
-      { explanation: pattern },
-    ];
-  }
-
-  const [items, total] = await Promise.all([
-    QuestionBank.find(query)
-      .sort({ updatedAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .select(
-        '_id owner examSlug stageSlug section topic difficulty type questionNumber source question options optionObjects hasVisual assets answer answerKey parsedAnswerKey answerConfidence answerRawSnippet explanation reviewStatus updatedAt groupType groupId groupTitle passageText groupOrder'
-      ),
-    QuestionBank.countDocuments(query),
-  ]);
-
-  return {
-    page,
-    limit,
-    total,
-    scope,
-    items: items.map((item) => ({
-      _id: String(item._id),
-      id: String(item._id),
-      ownerId: String(item.owner || ''),
-      examSlug: item.examSlug,
-      stageSlug: item.stageSlug,
-      section: item.section,
-      groupType: item.groupType || 'none',
-      groupId: item.groupId || '',
-      groupTitle: item.groupTitle || '',
-      passageText: item.passageText || '',
-      groupOrder: item.groupOrder || null,
-      topic: item.topic,
-      difficulty: item.difficulty,
-      type: item.type,
-      questionNumber: item.questionNumber || null,
-      source: item.source || {},
-      question: item.question,
-      options: item.options || [],
-      optionObjects: item.optionObjects || [],
-      hasVisual: Boolean(item.hasVisual),
-      assets: Array.isArray(item.assets) ? item.assets : [],
-      answer: item.answer || '',
-      answerKey: item.answerKey || '',
-      parsedAnswerKey: item.parsedAnswerKey || '',
-      answerConfidence: item.answerConfidence || 'unknown',
-      answerRawSnippet: item.answerRawSnippet || '',
-      explanation: item.explanation || '',
-      reviewStatus: item.reviewStatus || 'draft',
-      updatedAt: item.updatedAt,
-    })),
-  };
-};
-
 module.exports = {
   ingestQuestions,
   pullSimilarQuestions,
   importQuestionsFromJson,
   listQuestionsForReview,
-  listQuestions,
   bulkUpdateReviewStatus,
   updateQuestionForReview,
   aiReviewQuestion,
   getCoverageSnapshot,
-  getQuestionById,
-  updateQuestionById,
-  deleteQuestionById,
 };

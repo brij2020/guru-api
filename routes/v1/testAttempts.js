@@ -14,9 +14,7 @@ module.exports = (app) => {
   });
 
   router.use(authenticate);
-  router.get('/', asyncHandler(testAttemptController.getTestAttempts));
   router.post('/start', attemptLimiter, asyncHandler(testAttemptController.startTestAttempt));
-  router.post('/complete', asyncHandler(testAttemptController.completeTestAttempt));
 
   app.use('/api/v1/test-attempts', router);
 };

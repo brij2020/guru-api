@@ -4,7 +4,7 @@ const ApiError = require('../errors/apiError');
 const objectIdSchema = Joi.string().trim().pattern(/^[0-9a-fA-F]{24}$/);
 
 const createJobSchema = Joi.object({
-  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai', 'local').default('gemini'),
+  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai').default('gemini'),
   payload: Joi.object({
     testId: Joi.string().trim().allow('').max(120).optional(),
     testTitle: Joi.string().trim().max(200).required(),

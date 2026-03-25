@@ -7,7 +7,7 @@ const answerValueSchema = Joi.alternatives().try(
 );
 
 const evaluateTestSchema = Joi.object({
-  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai', 'local').optional(),
+  provider: Joi.string().trim().valid('gemini', 'chatgpt', 'openai').optional(),
   payload: Joi.object({
     testInfo: Joi.object({
       title: Joi.string().trim().max(200).allow('').default('Test'),

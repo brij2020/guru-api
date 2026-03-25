@@ -71,7 +71,7 @@ const QuestionBankSchema = new mongoose.Schema(
     groupType: {
       type: String,
       trim: true,
-      enum: ['none', 'rc_passage', 'table', 'image_grid', 'diagram'],
+      enum: ['none', 'rc_passage'],
       default: 'none',
       index: true,
     },
