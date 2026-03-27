@@ -46,6 +46,7 @@ const GROUP_TYPES = new Set(['none', 'rc_passage']);
 const DEFAULT_PULL_COUNT = 20;
 const MAX_PULL_COUNT = 100;
 const REVIEW_STATUSES = new Set(['draft', 'reviewed', 'approved', 'rejected']);
+const OPTIONS_REQUIRED_TYPES = ['mcq', 'output'];
 
 const normalizeText = (value) =>
   String(value || '')
@@ -639,6 +640,9 @@ const toQuestionBankDoc = (question, payload, ownerId, sourceAttemptId, provider
     ),
     explanation: normalizeText(question?.explanation || question?.rationale),
     inputOutput: normalizeText(question?.inputOutput),
+    code: normalizeText(question?.code),
+    expectedOutput: normalizeText(question?.expectedOutput),
+    idealSolution: normalizeText(question?.idealSolution),
     solutionApproach: normalizeText(question?.solutionApproach),
     sampleSolution: normalizeText(question?.sampleSolution),
     complexity: normalizeText(question?.complexity),
@@ -722,7 +726,15 @@ const buildValidFieldConstraint = () => {
       continue;
     }
     if (field === 'options') {
-      fieldChecks.push({ options: { $exists: true, $type: 'array', $ne: [] } });
+      fieldChecks.push({
+        $or: [
+          {
+            type: { $in: OPTIONS_REQUIRED_TYPES },
+            options: { $exists: true, $type: 'array', $ne: [] },
+          },
+          { type: { $nin: OPTIONS_REQUIRED_TYPES } },
+        ],
+      });
       continue;
     }
     if (field === 'answer') {
@@ -770,6 +782,9 @@ const sampleQuestions = async (query, count) => {
         answerKey: 1,
         explanation: 1,
         inputOutput: 1,
+        code: 1,
+        expectedOutput: 1,
+        idealSolution: 1,
         solutionApproach: 1,
         sampleSolution: 1,
         complexity: 1,
@@ -1113,6 +1128,9 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
         ),
         explanation: normalizeText(item?.explanation || ''),
         inputOutput: '',
+        code: normalizeText(item?.code || ''),
+        expectedOutput: normalizeText(item?.expectedOutput || ''),
+        idealSolution: normalizeText(item?.idealSolution || ''),
         solutionApproach: '',
         sampleSolution: '',
         complexity: '',

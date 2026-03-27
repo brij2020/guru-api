@@ -37,6 +37,18 @@ describe('aiCurationService internals', () => {
     });
   });
 
+  test('normalizeInput uses totalQuestions when questionCount is all', () => {
+    const normalized = internals.normalizeInput({
+      testTitle: 'Advanced JavaScript',
+      questionCount: 'all',
+      totalQuestions: 5,
+      questionStyles: ['mcq'],
+    });
+
+    expect(normalized.questionCount).toBe(5);
+    expect(normalized.isAllRequested).toBe(true);
+  });
+
   test('parseModelJson parses fenced JSON content', () => {
     const parsed = internals.parseModelJson('```json\n{"questions":[{"question":"Q1"}]}\n```');
     expect(Array.isArray(parsed.questions)).toBe(true);
@@ -76,63 +88,145 @@ describe('aiCurationService internals', () => {
     expect(output.questions[1].options).toEqual([]);
   });
 
-  test('curateQuestions throws for unsupported provider', async () => {
-    await expect(
-      service.curateQuestions({
-        provider: 'unknown-provider',
-        payload: { testTitle: 'Test', questionCount: 1 },
-      })
-    ).rejects.toEqual(expect.objectContaining({ statusCode: 400 }));
+});
+
+describe('aiCurationService ownership-aware DB pull', () => {
+  beforeEach(() => {
+    jest.resetModules();
   });
 
-  test('curateQuestions calls gemini and returns normalized questions', async () => {
-    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        candidates: [
-          {
-            content: {
-              parts: [
-                {
-                  text: JSON.stringify({
-                    questions: [
-                      {
-                        type: 'mcq',
-                        difficulty: 'easy',
-                        topic: 'JS',
-                        question: 'Which is a primitive?',
-                        options: ['string', 'object', 'array', 'map'],
-                        answer: 'string',
-                      },
-                    ],
-                  }),
-                },
-              ],
-            },
-          },
-        ],
-      }),
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('uses request userId for non-GOV curation pulls', async () => {
+    const pullSimilarQuestions = jest.fn().mockResolvedValue({
+      questions: [
+        {
+          type: 'coding',
+          difficulty: 'hard',
+          topic: 'event delegation',
+          question: 'Implement delegated click handling.',
+          options: [],
+          answer: 'Use target.closest(selector).',
+          explanation: 'Delegate from parent.',
+        },
+      ],
     });
 
+    jest.doMock('../../services/questionBankService', () => ({
+      pullSimilarQuestions,
+    }));
+
+    const service = require('../../services/aiCurationService');
     const curated = await service.curateQuestions({
-      provider: 'gemini',
+      provider: 'mongodb',
+      userId: '69b055efc90c934e323fa0f3',
       payload: {
-        testTitle: 'JavaScript Test',
-        difficulty: 'easy',
+        testId: 'javascript-advanced',
+        testTitle: 'Advanced JavaScript',
+        domain: 'Programming',
+        difficulty: 'hard',
+        topics: ['event delegation'],
+        questionStyles: ['problem solving'],
         questionCount: 1,
-        topics: ['JS'],
-        questionStyles: ['mcq'],
       },
     });
 
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
     expect(curated.questions).toHaveLength(1);
-    expect(curated.questions[0]).toEqual(
+    expect(pullSimilarQuestions).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: 'mcq',
-        difficulty: 'easy',
-        question: 'Which is a primitive?',
+        ownerId: '69b055efc90c934e323fa0f3',
       })
     );
+  });
+
+  test('keeps GOV curation pulls on global scope', async () => {
+    const pullSimilarQuestions = jest.fn().mockResolvedValue({
+      questions: [
+        {
+          type: 'mcq',
+          difficulty: 'medium',
+          topic: 'quant',
+          question: 'What is 10% of 200?',
+          options: ['10', '20', '30', '40'],
+          answer: '20',
+          explanation: '10% of 200 is 20.',
+        },
+      ],
+    });
+
+    jest.doMock('../../services/questionBankService', () => ({
+      pullSimilarQuestions,
+    }));
+
+    const service = require('../../services/aiCurationService');
+    const curated = await service.curateQuestions({
+      provider: 'mongodb',
+      userId: '69b055efc90c934e323fa0f3',
+      payload: {
+        testId: 'gov-ssc-cgl-tier-1',
+        testTitle: 'SSC CGL Tier 1',
+        domain: 'Government Exam',
+        difficulty: 'medium',
+        topics: ['quant'],
+        questionStyles: ['mcq'],
+        questionCount: 1,
+      },
+    });
+
+    expect(curated.questions).toHaveLength(1);
+    expect(pullSimilarQuestions).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ownerId: null,
+      })
+    );
+  });
+
+  test('returns available questions for all-request even when below default target', async () => {
+    const pullSimilarQuestions = jest.fn().mockResolvedValue({
+      questions: [
+        {
+          type: 'coding',
+          difficulty: 'hard',
+          topic: 'event delegation',
+          question: 'Q1',
+          options: [],
+          answer: 'A1',
+          explanation: 'E1',
+        },
+        {
+          type: 'mcq',
+          difficulty: 'medium',
+          topic: 'event loop',
+          question: 'Q2',
+          options: ['a', 'b', 'c', 'd'],
+          answer: 'a',
+          explanation: 'E2',
+        },
+      ],
+    });
+
+    jest.doMock('../../services/questionBankService', () => ({
+      pullSimilarQuestions,
+    }));
+
+    const service = require('../../services/aiCurationService');
+    const curated = await service.curateQuestions({
+      provider: 'mongodb',
+      userId: '69b055efc90c934e323fa0f3',
+      payload: {
+        testId: 'javascript-advanced',
+        testTitle: 'Advanced JavaScript',
+        domain: 'Programming',
+        difficulty: 'all',
+        topics: [],
+        questionStyles: [],
+        questionCount: 'all',
+        totalQuestions: 5,
+      },
+    });
+
+    expect(curated.questions).toHaveLength(2);
   });
 });

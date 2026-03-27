@@ -97,6 +97,26 @@ const normalizeQuestionCount = (value) => {
   return Math.min(Math.floor(parsed), MAX_QUESTION_COUNT);
 };
 
+const resolveRequestedQuestionCount = (input) => {
+  const rawQuestionCount = String(input?.questionCount || '')
+    .trim()
+    .toLowerCase();
+  const isAllRequested = rawQuestionCount === 'all';
+  const explicitTarget = Number(input?.totalQuestions);
+
+  if (isAllRequested && Number.isFinite(explicitTarget) && explicitTarget > 0) {
+    return {
+      questionCount: Math.min(Math.floor(explicitTarget), MAX_QUESTION_COUNT),
+      isAllRequested,
+    };
+  }
+
+  return {
+    questionCount: normalizeQuestionCount(input?.questionCount),
+    isAllRequested,
+  };
+};
+
 const normalizeTextList = (values) => {
   if (!Array.isArray(values)) return [];
   return Array.from(
@@ -195,7 +215,7 @@ const buildTypePlan = (requestedTypes, questionCount) => {
 };
 
 const normalizeInput = (input) => {
-  const questionCount = normalizeQuestionCount(input.questionCount);
+  const { questionCount, isAllRequested } = resolveRequestedQuestionCount(input);
   const promptContext = String(input.promptContext || '').trim();
   const govExamMode = isGovExamContext(input.testId, input.testTitle, input.domain, promptContext);
   const requestedTypes = govExamMode ? ['mcq'] : normalizeRequestedTypes(input.questionStyles);
@@ -215,6 +235,7 @@ const normalizeInput = (input) => {
     requestedTypes,
     typePlan,
     questionCount,
+    isAllRequested,
     totalTargetQuestions: Math.max(questionCount, Number(input.totalTargetQuestions || questionCount)),
     promptContext,
     govExamMode,
@@ -793,17 +814,26 @@ const curateQuestions = async ({ payload, provider }) => {
   console.log('provider param:', provider);
   console.log('aiProvider config:', aiProvider);
   console.log('selected:', selected);
+  
   const normalizedSelected = selected === 'chatgpt' ? 'openai' : selected;
   let providerChain = [];
-  if (normalizedSelected === 'openai') {
+  
+  // MongoDB mode - use question bank only
+  if (normalizedSelected === 'mongodb' || normalizedSelected === 'local') {
+    providerChain = ['mongodb'];
+    console.log('===== AI CURATION PROVIDER CONFIG =====');
+    console.log('Using MongoDB question bank only (AI disabled)');
+  } else if (normalizedSelected === 'openai') {
     providerChain = aiProviderFallbackEnabled ? ['openai', 'gemini'] : ['openai'];
+    console.log('===== AI CURATION PROVIDER CONFIG =====');
+    console.log(`selected=openai fallbackEnabled=${aiProviderFallbackEnabled} chain=${providerChain.join(' -> ')}`);
   } else if (normalizedSelected === 'gemini') {
     providerChain = aiProviderFallbackEnabled ? ['gemini', 'openai'] : ['gemini'];
+    console.log('===== AI CURATION PROVIDER CONFIG =====');
+    console.log(`selected=gemini fallbackEnabled=${aiProviderFallbackEnabled} chain=${providerChain.join(' -> ')}`);
   } else {
     throw new ApiError(400, `Unsupported AI provider: ${selected}`);
   }
-  console.log('===== AI CURATION PROVIDER CONFIG =====');
-  console.log(`selected=${normalizedSelected} fallbackEnabled=${aiProviderFallbackEnabled} chain=${providerChain.join(' -> ')}`);
   const normalizedInput = normalizeInput(payload);
   const batchSize = Math.max(
     5,
@@ -851,6 +881,35 @@ const curateQuestions = async ({ payload, provider }) => {
         try {
           if (providerName === 'openai') {
             raw = await callOpenAI(prompt);
+          } else if (providerName === 'mongodb') {
+            // MongoDB fallback - pull questions from question bank
+            console.log('===== MONGODB FALLBACK: Pulling questions from question bank =====');
+            const dbResult = await questionBankService.pullSimilarQuestions({
+              ownerId: null,
+              filters: {
+                questionCount: requestInput.questionCount,
+                difficulty: requestInput.difficulty,
+                domain: requestInput.domain,
+                topics: requestInput.topics,
+                questionStyles: requestInput.questionStyles,
+              },
+            });
+            console.log(`===== MONGODB FALLBACK: Found ${dbResult.questions?.length || 0} questions =====`);
+            if (dbResult.questions && dbResult.questions.length > 0) {
+              raw = {
+                questions: dbResult.questions.map(q => ({
+                  type: q.type || 'mcq',
+                  difficulty: q.difficulty || requestInput.difficulty,
+                  topic: q.topic || '',
+                  question: q.question || q.questionText || '',
+                  options: q.options || [],
+                  answer: q.answer || q.correctAnswer || '',
+                  explanation: q.explanation || q.rationale || '',
+                })),
+              };
+            } else {
+              throw new Error('MongoDB question bank is empty');
+            }
           } else {
             console.log(`===== GEMINI PREFERRED MODEL: ${preferredGeminiModel} =====`);
             raw = await callGemini(prompt, preferredGeminiModel);

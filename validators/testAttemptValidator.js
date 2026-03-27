@@ -18,6 +18,45 @@ const startTestAttemptSchema = Joi.object({
   ),
   totalQuestions: Joi.number().integer().min(0).default(0),
   duration: Joi.number().integer().min(0).default(0),
+  questions: Joi.array().items(Joi.object().unknown(true)).default([]),
+  sectionPlan: Joi.array()
+    .items(
+      Joi.object({
+        section: Joi.string().trim().allow('').default(''),
+        targetCount: Joi.number().integer().min(0).default(0),
+        servedCount: Joi.number().integer().min(0).default(0),
+      }).unknown(true)
+    )
+    .default([]),
+});
+
+const completeTestAttemptSchema = Joi.object({
+  attemptId: Joi.string().trim().required(),
+  autoSubmitted: Joi.boolean().default(false),
+  score: Joi.number().min(0).default(0),
+  percentage: Joi.number().min(0).default(0),
+  correctCount: Joi.number().integer().min(0).default(0),
+  incorrectCount: Joi.number().integer().min(0).default(0),
+  unattemptedCount: Joi.number().integer().min(0).default(0),
+  attemptedCount: Joi.number().integer().min(0).default(0),
+  timeSpent: Joi.number().min(0).default(0),
+  sectionScores: Joi.array().items(Joi.object().unknown(true)).default([]),
+  difficultyBreakdown: Joi.array().items(Joi.object().unknown(true)).default([]),
+  typeBreakdown: Joi.array().items(Joi.object().unknown(true)).default([]),
+  userAnswers: Joi.object().pattern(Joi.string(), Joi.any()).default({}),
+  questionTimeSpent: Joi.object().pattern(Joi.string(), Joi.number()).default({}),
+  questionStatus: Joi.object().pattern(Joi.string(), Joi.string()).default({}),
+  aiEvaluation: Joi.any().allow(null).default(null),
+  questions: Joi.array().items(Joi.object().unknown(true)).default([]),
+  sectionPlan: Joi.array()
+    .items(
+      Joi.object({
+        section: Joi.string().trim().allow('').default(''),
+        targetCount: Joi.number().integer().min(0).default(0),
+        servedCount: Joi.number().integer().min(0).default(0),
+      }).unknown(true)
+    )
+    .default([]),
 });
 
 const validatePayload = (schema, payload) => {
@@ -38,7 +77,9 @@ const validatePayload = (schema, payload) => {
 };
 
 const validateStartTestAttempt = (payload) => validatePayload(startTestAttemptSchema, payload);
+const validateCompleteTestAttempt = (payload) => validatePayload(completeTestAttemptSchema, payload);
 
 module.exports = {
   validateStartTestAttempt,
+  validateCompleteTestAttempt,
 };

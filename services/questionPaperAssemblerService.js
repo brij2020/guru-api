@@ -1,6 +1,7 @@
 const QuestionBank = require('../models/questionBank');
 const QuestionBankUsage = require('../models/questionBankUsage');
 const MockPaper = require('../models/mockPaper');
+const ApiError = require('../errors/apiError');
 const aiCurationService = require('./aiCurationService');
 const questionBankService = require('./questionBankService');
 const paperBlueprintService = require('./paperBlueprintService');
@@ -106,6 +107,17 @@ const normalizeQuestionType = (values) => {
 
 const getBlueprint = (examSlug, stageSlug) => BLUEPRINTS[`${examSlug}:${stageSlug}`] || null;
 
+const isGovContextPayload = (payload = {}) => {
+  const testId = normalizeText(payload.testId || '').toLowerCase();
+  const domain = normalizeText(payload.domain || '').toLowerCase();
+  const examSlug = normalizeText(payload.examSlug || '').toLowerCase();
+  return (
+    testId.startsWith('gov-') ||
+    domain.includes('government exam') ||
+    /(ssc|upsc|rrb|ibps|sbi)/.test(examSlug)
+  );
+};
+
 const buildDifficultyTargets = (count, difficultyMix) => {
   const easy = Math.floor(count * (difficultyMix.easy || 0));
   const medium = Math.floor(count * (difficultyMix.medium || 0));
@@ -181,11 +193,20 @@ const toProjectedQuestion = (question) => ({
   answer: question.answer || '',
   answerKey: question.answerKey || '',
   explanation: question.explanation || '',
+  inputOutput: question.inputOutput || '',
+  code: question.code || '',
+  expectedOutput: question.expectedOutput || '',
+  idealSolution: question.idealSolution || '',
+  solutionApproach: question.solutionApproach || '',
+  sampleSolution: question.sampleSolution || '',
+  complexity: question.complexity || '',
+  keyConsiderations: Array.isArray(question.keyConsiderations) ? question.keyConsiderations : [],
 });
 
 const bindQuestionToSection = (question, sectionLabel, sectionKey = '') => ({
   ...question,
-  section: normalizeText(sectionKey || sectionLabel || question?.section || ''),
+  // Only assign section if question doesn't already have one from DB
+  section: normalizeText(question?.section || sectionKey || sectionLabel || ''),
   topic: normalizeText(question?.topic || sectionLabel || sectionKey || ''),
 });
 
@@ -210,6 +231,9 @@ const bindQuestionsByBlueprintRanges = (questions = [], sections = []) => {
   if (ranges.length === 0) return questions;
 
   return questions.map((question, index) => {
+    if (normalizeText(question?.section || '')) {
+      return question;
+    }
     const range = ranges.find((row) => index >= row.start && index < row.end) || ranges[ranges.length - 1];
     return bindQuestionToSection(question, range?.label, range?.key);
   });
@@ -1136,8 +1160,16 @@ const assemblePaper = async ({ ownerId, payload }) => {
   };
 };
 
+const assembleItPaper = async ({ ownerId, payload }) => {
+  if (isGovContextPayload(payload)) {
+    throw new ApiError(400, 'assemble-it-paper endpoint is only for non-government tests.');
+  }
+  return assemblePaper({ ownerId, payload });
+};
+
 module.exports = {
   assemblePaper,
+  assembleItPaper,
   _internal: {
     getBlueprint,
     buildDifficultyTargets,

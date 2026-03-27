@@ -141,7 +141,7 @@ const QuestionBankSchema = new mongoose.Schema(
     type: {
       type: String,
       trim: true,
-      enum: ['coding', 'mcq', 'theory', 'output', 'scenario'],
+      enum: ['coding', 'mcq', 'theory', 'output', 'scenario','debugging'],
       default: 'mcq',
       index: true,
     },
@@ -291,6 +291,24 @@ const QuestionBankSchema = new mongoose.Schema(
       trim: true,
       default: '',
       maxlength: 8000,
+    },
+    code: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 12000,
+    },
+    expectedOutput: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 12000,
+    },
+    idealSolution: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 12000,
     },
     solutionApproach: {
       type: String,

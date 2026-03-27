@@ -1,5 +1,66 @@
 const mongoose = require('mongoose');
 
+const QuestionSnapshotSchema = new mongoose.Schema(
+  {
+    id: { type: String, trim: true, default: '' },
+    type: { type: String, trim: true, default: 'mcq' },
+    difficulty: { type: String, trim: true, default: 'medium' },
+    question: { type: String, trim: true, default: '' },
+    section: { type: String, trim: true, default: '' },
+    topic: { type: String, trim: true, default: '' },
+    groupType: { type: String, trim: true, default: 'none' },
+    groupId: { type: String, trim: true, default: '' },
+    groupTitle: { type: String, trim: true, default: '' },
+    passageText: { type: String, trim: true, default: '' },
+    groupOrder: { type: Number, default: null },
+    hasVisual: { type: Boolean, default: false },
+    assets: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    options: { type: [String], default: [] },
+    answer: { type: String, trim: true, default: '' },
+    explanation: { type: String, trim: true, default: '' },
+    inputOutput: { type: String, trim: true, default: '' },
+    solutionApproach: { type: String, trim: true, default: '' },
+    sampleSolution: { type: String, trim: true, default: '' },
+    complexity: { type: String, trim: true, default: '' },
+    code: { type: String, trim: true, default: '' },
+    expectedOutput: { type: String, trim: true, default: '' },
+    idealSolution: { type: String, trim: true, default: '' },
+    keyConsiderations: { type: [String], default: [] },
+  },
+  { _id: false }
+);
+
+const SectionPlanItemSchema = new mongoose.Schema(
+  {
+    section: { type: String, trim: true, default: '' },
+    targetCount: { type: Number, min: 0, default: 0 },
+    servedCount: { type: Number, min: 0, default: 0 },
+  },
+  { _id: false }
+);
+
+const CompletionSummarySchema = new mongoose.Schema(
+  {
+    autoSubmitted: { type: Boolean, default: false },
+    score: { type: Number, min: 0, default: 0 },
+    percentage: { type: Number, min: 0, default: 0 },
+    correctCount: { type: Number, min: 0, default: 0 },
+    incorrectCount: { type: Number, min: 0, default: 0 },
+    unattemptedCount: { type: Number, min: 0, default: 0 },
+    attemptedCount: { type: Number, min: 0, default: 0 },
+    timeSpent: { type: Number, min: 0, default: 0 },
+    sectionScores: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    difficultyBreakdown: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    typeBreakdown: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    userAnswers: { type: mongoose.Schema.Types.Mixed, default: {} },
+    questionTimeSpent: { type: mongoose.Schema.Types.Mixed, default: {} },
+    questionStatus: { type: mongoose.Schema.Types.Mixed, default: {} },
+    aiEvaluation: { type: mongoose.Schema.Types.Mixed, default: null },
+    submittedAt: { type: Date, default: null },
+  },
+  { _id: false }
+);
+
 const TestAttemptSchema = new mongoose.Schema(
   {
     owner: {
@@ -57,12 +118,28 @@ const TestAttemptSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['started'],
+      enum: ['started', 'completed'],
       default: 'started',
+    },
+    paperQuestions: {
+      type: [QuestionSnapshotSchema],
+      default: [],
+    },
+    sectionPlan: {
+      type: [SectionPlanItemSchema],
+      default: [],
+    },
+    completion: {
+      type: CompletionSummarySchema,
+      default: null,
     },
     startedAt: {
       type: Date,
       default: Date.now,
+    },
+    completedAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

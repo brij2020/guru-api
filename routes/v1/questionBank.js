@@ -22,6 +22,7 @@ module.exports = (app) => {
   router.use(authenticate);
   router.post('/similar', readLimiter, asyncHandler(questionBankController.pullSimilarQuestions));
   router.post('/assemble-paper', aiLimiter, asyncHandler(questionBankController.assemblePaper));
+  router.post('/assemble-it-paper', aiLimiter, asyncHandler(questionBankController.assembleItPaper));
   router.post('/import-json', readLimiter, asyncHandler(questionBankController.importJson));
   router.post('/bulk-create', readLimiter, asyncHandler(questionBankController.bulkCreateQuestions));
   router.get('/review-list', readLimiter, asyncHandler(questionBankController.listForReview));

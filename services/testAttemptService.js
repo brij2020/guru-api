@@ -1,101 +1,72 @@
+const mongoose = require('mongoose');
 const TestAttempt = require('../models/testAttempt');
-const aiCurationService = require('./aiCurationService');
-const questionBankService = require('./questionBankService');
 const ApiError = require('../errors/apiError');
 
-const DEFAULT_QUESTION_COUNT = 20;
-const TYPE_FALLBACK = ['mcq', 'theory', 'coding', 'output', 'scenario'];
+const toPlainObject = (value) => (value && typeof value.toObject === 'function' ? value.toObject() : value);
 
-const normalizeCount = (value) => {
-  if (String(value || '').trim().toLowerCase() === 'all') return DEFAULT_QUESTION_COUNT;
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_QUESTION_COUNT;
-  return Math.min(Math.floor(parsed), 100);
+const sanitizeQuestion = (question = {}) => ({
+  id: String(question.id || '').trim(),
+  type: String(question.type || 'mcq').trim(),
+  difficulty: String(question.difficulty || 'medium').trim(),
+  question: String(question.question || '').trim(),
+  section: String(question.section || '').trim(),
+  topic: String(question.topic || '').trim(),
+  groupType: String(question.groupType || 'none').trim(),
+  groupId: String(question.groupId || '').trim(),
+  groupTitle: String(question.groupTitle || '').trim(),
+  passageText: String(question.passageText || '').trim(),
+  groupOrder: Number.isFinite(Number(question.groupOrder)) ? Number(question.groupOrder) : null,
+  hasVisual: Boolean(question.hasVisual),
+  assets: Array.isArray(question.assets) ? question.assets : [],
+  options: Array.isArray(question.options) ? question.options.map((item) => String(item)) : [],
+  answer: String(question.answer || '').trim(),
+  explanation: String(question.explanation || '').trim(),
+  inputOutput: String(question.inputOutput || '').trim(),
+  solutionApproach: String(question.solutionApproach || '').trim(),
+  sampleSolution: String(question.sampleSolution || '').trim(),
+  complexity: String(question.complexity || '').trim(),
+  code: String(question.code || '').trim(),
+  expectedOutput: String(question.expectedOutput || '').trim(),
+  idealSolution: String(question.idealSolution || '').trim(),
+  keyConsiderations: Array.isArray(question.keyConsiderations)
+    ? question.keyConsiderations.map((item) => String(item))
+    : [],
+});
+
+const sanitizeQuestions = (questions = []) =>
+  (Array.isArray(questions) ? questions : [])
+    .map((item) => sanitizeQuestion(item))
+    .filter((item) => item.question);
+
+const sanitizeSectionPlan = (sectionPlan = []) =>
+  (Array.isArray(sectionPlan) ? sectionPlan : [])
+    .map((item) => ({
+      section: String(item?.section || '').trim(),
+      targetCount: Math.max(0, Number(item?.targetCount || 0)),
+      servedCount: Math.max(0, Number(item?.servedCount || 0)),
+    }))
+    .filter((item) => item.section);
+
+const sanitizeStoredAttempt = (attempt) => {
+  const plain = toPlainObject(attempt) || {};
+  return {
+    ...plain,
+    paperQuestions: sanitizeQuestions(plain.paperQuestions),
+    sectionPlan: sanitizeSectionPlan(plain.sectionPlan),
+  };
 };
 
-const buildFallbackQuestions = (payload) => {
-  const normalized = aiCurationService._internal.normalizeInput(payload);
-  const questionCount = normalized.questionCount || normalizeCount(payload.questionCount);
-  const topics = normalized.topics.length > 0 ? normalized.topics : ['general'];
-  const difficulties = ['easy', 'medium', 'hard'];
-  const activeTypes = Object.keys(normalized.typePlan || {});
-  const plannedTypes = activeTypes.length > 0 ? activeTypes : TYPE_FALLBACK;
-
-  const plannedSequence = [];
-  for (const type of plannedTypes) {
-    const count = normalized.typePlan?.[type] || 0;
-    for (let i = 0; i < count; i += 1) {
-      plannedSequence.push(type);
-    }
-  }
-
-  while (plannedSequence.length < questionCount) {
-    plannedSequence.push(TYPE_FALLBACK[plannedSequence.length % TYPE_FALLBACK.length]);
-  }
-
-  return plannedSequence.slice(0, questionCount).map((type, index) => {
-    const topic = topics[index % topics.length];
-    const difficulty = difficulties[index % difficulties.length];
-    const base = {
-      id: `q${index + 1}`,
-      type,
-      difficulty,
-      topic,
-      question: `[Fallback] ${normalized.testTitle || 'Mock Test'} - ${topic} - Q${index + 1}`,
-      answer: `Model answer for ${topic} (${type})`,
-      explanation: `Fallback explanation for ${type} question ${index + 1}.`,
-      options: [],
-    };
-
-    if (type === 'mcq' || type === 'output') {
-      base.options = [
-        `Option A (${topic})`,
-        `Option B (${topic})`,
-        `Option C (${topic})`,
-        `Option D (${topic})`,
-      ];
-      base.answer = base.options[0];
-    }
-
-    if (type === 'coding') {
-      base.inputOutput = `Input: ${topic}, Output: expected result`;
-      base.solutionApproach = 'Break down the problem and optimize for readability.';
-      base.sampleSolution = '// sample solution';
-      base.complexity = 'O(n)';
-    }
-
-    return base;
-  });
+const resolvedTotalQuestionsFromPayload = (payload, questions = []) => {
+  if (questions.length > 0) return questions.length;
+  if (Number(payload.totalQuestions || 0) > 0) return Number(payload.totalQuestions);
+  return String(payload.questionCount || '').trim().toLowerCase() === 'all'
+    ? 0
+    : Number(payload.questionCount || 0) || 0;
 };
 
 const startTestAttempt = async (payload, userId) => {
-  const allowFallback =
-    process.env.NODE_ENV === 'test' || payload?.allowFallback === true;
-
-  let curatedQuestions = [];
-  let estimatedDurationMinutes = 0;
-  try {
-    const curated = await aiCurationService.curateQuestions({
-      payload,
-      provider: payload.provider,
-    });
-    curatedQuestions = Array.isArray(curated?.questions) ? curated.questions : [];
-    estimatedDurationMinutes = Number(curated?.estimatedDurationMinutes) > 0
-      ? Math.round(Number(curated.estimatedDurationMinutes))
-      : 0;
-  } catch (error) {
-    if (!allowFallback) {
-      throw new ApiError(
-        error?.statusCode || 502,
-        `AI curation failed: ${error?.message || 'Unable to generate questions from provider'}`
-      );
-    }
-    curatedQuestions = buildFallbackQuestions(payload);
-  }
-
-  const resolvedTotalQuestions =
-    curatedQuestions.length > 0 ? curatedQuestions.length : payload.totalQuestions || 0;
-
+  const questions = sanitizeQuestions(payload.questions);
+  const sectionPlan = sanitizeSectionPlan(payload.sectionPlan);
   const attempt = new TestAttempt({
     owner: userId,
     testId: payload.testId || '',
@@ -105,32 +76,114 @@ const startTestAttempt = async (payload, userId) => {
     topics: payload.topics || [],
     questionStyles: payload.questionStyles || [],
     questionCount: String(payload.questionCount || 'all'),
-    totalQuestions: resolvedTotalQuestions,
-    duration: payload.duration || estimatedDurationMinutes || 0,
+    totalQuestions: resolvedTotalQuestionsFromPayload(payload, questions),
+    duration: Number(payload.duration || 0),
     status: 'started',
+    paperQuestions: questions,
+    sectionPlan,
   });
 
   const savedAttempt = await attempt.save();
+  return {
+    ...sanitizeStoredAttempt(savedAttempt),
+    curatedQuestions: questions,
+    estimatedDurationMinutes: Number(payload.duration || 0),
+    curationStatus: 'skipped',
+  };
+};
 
-  try {
-    await questionBankService.ingestQuestions({
-      ownerId: userId,
-      sourceAttemptId: savedAttempt._id,
-      payload,
-      provider: payload.provider || '',
-      questions: curatedQuestions,
-    });
-  } catch (error) {
-    // Question bank ingestion should not block test start flow.
+const getAttemptOrThrow = async (attemptId, userId) => {
+  if (!mongoose.isValidObjectId(attemptId)) {
+    throw new ApiError(400, 'Invalid attempt id');
   }
 
+  const attempt = await TestAttempt.findOne({ _id: attemptId, owner: userId });
+  if (!attempt) {
+    throw new ApiError(404, 'Test attempt not found');
+  }
+  return attempt;
+};
+
+const getTestAttempt = async (attemptId, userId) => sanitizeStoredAttempt(await getAttemptOrThrow(attemptId, userId));
+
+const completeTestAttempt = async (payload, userId) => {
+  const attempt = await getAttemptOrThrow(payload.attemptId, userId);
+  const questions = sanitizeQuestions(payload.questions);
+  const sectionPlan = sanitizeSectionPlan(payload.sectionPlan);
+  const now = new Date();
+
+  if (questions.length > 0) {
+    attempt.paperQuestions = questions;
+    attempt.totalQuestions = questions.length;
+  }
+  if (sectionPlan.length > 0) {
+    attempt.sectionPlan = sectionPlan;
+  }
+
+  attempt.status = 'completed';
+  attempt.completedAt = now;
+  attempt.completion = {
+    autoSubmitted: Boolean(payload.autoSubmitted),
+    score: Number(payload.score || 0),
+    percentage: Number(payload.percentage || 0),
+    correctCount: Number(payload.correctCount || 0),
+    incorrectCount: Number(payload.incorrectCount || 0),
+    unattemptedCount: Number(payload.unattemptedCount || 0),
+    attemptedCount: Number(payload.attemptedCount || 0),
+    timeSpent: Number(payload.timeSpent || 0),
+    sectionScores: Array.isArray(payload.sectionScores) ? payload.sectionScores : [],
+    difficultyBreakdown: Array.isArray(payload.difficultyBreakdown) ? payload.difficultyBreakdown : [],
+    typeBreakdown: Array.isArray(payload.typeBreakdown) ? payload.typeBreakdown : [],
+    userAnswers: payload.userAnswers && typeof payload.userAnswers === 'object' ? payload.userAnswers : {},
+    questionTimeSpent:
+      payload.questionTimeSpent && typeof payload.questionTimeSpent === 'object' ? payload.questionTimeSpent : {},
+    questionStatus: payload.questionStatus && typeof payload.questionStatus === 'object' ? payload.questionStatus : {},
+    aiEvaluation: payload.aiEvaluation && typeof payload.aiEvaluation === 'object' ? payload.aiEvaluation : null,
+    submittedAt: now,
+  };
+
+  const savedAttempt = await attempt.save();
+  return sanitizeStoredAttempt(savedAttempt);
+};
+
+const listTestAttempts = async (userId) => {
+  const rows = await TestAttempt.find({ owner: userId })
+    .sort({ updatedAt: -1 })
+    .lean();
+
+  const attempts = rows.map((attempt) => ({
+    _id: String(attempt._id),
+    testId: String(attempt.testId || ''),
+    testTitle: String(attempt.testTitle || ''),
+    domain: String(attempt.domain || ''),
+    difficulty: String(attempt.difficulty || ''),
+    status: String(attempt.status || 'started'),
+    totalQuestions: Number(attempt.totalQuestions || 0),
+    duration: Number(attempt.duration || 0),
+    startedAt: attempt.startedAt || null,
+    completedAt: attempt.completedAt || null,
+    updatedAt: attempt.updatedAt || null,
+    completion: attempt.completion
+      ? {
+          score: Number(attempt.completion.score || 0),
+          percentage: Number(attempt.completion.percentage || 0),
+          attemptedCount: Number(attempt.completion.attemptedCount || 0),
+          correctCount: Number(attempt.completion.correctCount || 0),
+          timeSpent: Number(attempt.completion.timeSpent || 0),
+          submittedAt: attempt.completion.submittedAt || null,
+        }
+      : null,
+  }));
+
   return {
-    ...savedAttempt.toObject(),
-    curatedQuestions,
-    estimatedDurationMinutes,
+    total: attempts.length,
+    attempts,
   };
 };
 
 module.exports = {
   startTestAttempt,
+  getTestAttempt,
+  completeTestAttempt,
+  listTestAttempts,
 };

@@ -37,6 +37,18 @@ const assemblePaper = async (req, res) => {
   });
 };
 
+const assembleItPaper = async (req, res) => {
+  const payload = validateAssemblePaper(req.body || {});
+  const result = await questionPaperAssemblerService.assembleItPaper({
+    ownerId: req.user.id,
+    payload,
+  });
+
+  res.json({
+    data: result,
+  });
+};
+
 const importJson = async (req, res) => {
   if (req.user?.role !== 'admin') {
     throw new ApiError(403, 'Only admin users can import question bank JSON');
@@ -175,6 +187,7 @@ const aiReviewQuestion = async (req, res) => {
 module.exports = {
   pullSimilarQuestions,
   assemblePaper,
+  assembleItPaper,
   importJson,
   bulkCreateQuestions,
   listForReview,
