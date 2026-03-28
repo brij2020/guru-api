@@ -15,6 +15,8 @@ const registerQuestionBankRoutes = require('./v1/questionBank');
 const registerPaperBlueprintRoutes = require('./v1/paperBlueprints');
 const registerAiGenerationJobRoutes = require('./v1/aiGenerationJobs');
 const registerSystemRoutes = require('./v1/system');
+const registerMotivationalQuoteRoutes = require('./v1/motivationalQuote');
+const registerAdminMotivationalQuoteRoutes = require('./v1/admin/motivationalQuotes');
 
 module.exports = (app) => {
   registerAuthRoutes(app);
@@ -34,4 +36,6 @@ module.exports = (app) => {
   registerQuestionBankRoutes(app);
   registerTestAttemptRoutes(app);
   registerAiCurationRoutes(app);
+  registerMotivationalQuoteRoutes(app);
+  registerAdminMotivationalQuoteRoutes(app);
 };

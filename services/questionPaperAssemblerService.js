@@ -761,7 +761,6 @@ const savePaperSnapshot = async ({ ownerId, payload, paper, diagnostics, sourceB
 };
 
 const assemblePaper = async ({ ownerId, payload }) => {
-  if (!ownerId) ownerId = "000000000000000000000000";
   const examSlug = normalizeText(payload.examSlug).toLowerCase();
   const stageSlug = normalizeText(payload.stageSlug).toLowerCase();
   const dbBlueprint = await paperBlueprintService.getActiveBlueprint(examSlug, stageSlug);

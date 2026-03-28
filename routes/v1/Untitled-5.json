@@ -1,0 +1,40 @@
+[
+  {
+    "domain": "SSC CGL",
+    "language": "en",
+    "reviewStatus": "approved",
+    "examSlug": "ssc-cgl",
+    "stageSlug": "tier-1",
+    "section": "Quantitative Aptitude",
+    "groupType": "data_interpretation",
+    "groupId": "di_9_aug_2017_s2_q72",
+    "groupTitle": "Data Interpretation",
+    "passageText": "The following table shows the percentage of literate people in 6 cities and the ratio of males to females among those literate people.",
+    "groupOrder": 4,
+    "questionNumber": 72,
+    "hasVisual": false,
+    "assets": [],
+    "source": {
+      "exam": "SSC CGL",
+      "year": 2017,
+      "shift": "Shift-2",
+      "type": "official-pyq"
+    },
+    "topic": "Data Interpretation",
+    "difficulty": "medium",
+    "type": "mcq",
+    "question": "If the total population of City 4 is 6,00,000, then how many literate people are there in City 4?",
+    "options": [
+      "4,80,000",
+      "3,78,000",
+      "4,68,000",
+      "3,48,000"
+    ],
+    "answer": "3,78,000",
+    "answerKey": "2",
+    "explanation": "Literate people in City 4 = 63% of Total Population. Total Population = 6,00,000. So, 6,00,000 * (63/100) = 6,000 * 63 = 3,78,000.",
+    "promptContext": "Generated from 9 Aug 2017 S2 PDF",
+    "testId": "import--9-aug-2017-s2",
+    "testTitle": "SSC CGL 9 Aug 2017 Shift 2"
+  }
+]

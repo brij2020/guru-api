@@ -69,6 +69,11 @@ const examSchema = new mongoose.Schema({
     default: '',
     trim: true,
   },
+  icon: {
+    type: String,
+    default: '',
+    trim: true,
+  },
   stages: {
     type: [stageSchema],
     default: [],
