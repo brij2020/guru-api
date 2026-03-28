@@ -28,7 +28,7 @@ const pullSimilarQuestions = async (req, res) => {
 const assemblePaper = async (req, res) => {
   const payload = validateAssemblePaper(req.body || {});
   const result = await questionPaperAssemblerService.assemblePaper({
-    ownerId: req.user.id,
+    ownerId: req.user?.id || null,
     payload,
   });
 

@@ -748,8 +748,8 @@ const savePaperSnapshot = async ({ ownerId, payload, paper, diagnostics, sourceB
     goalSlug: normalizeText(payload.goalSlug).toLowerCase(),
     planId: normalizeText(payload.planId).toLowerCase(),
     title: normalizeText(payload.testTitle) || `${normalizeText(payload.examSlug)} ${normalizeText(payload.stageSlug)} Mock`,
-    requestedQuestions: Number(paper.requestedQuestions || 0),
-    servedQuestions: Number(paper.totalQuestions || 0),
+    requestedQuestions: Number(paper.totalQuestions || 0),
+    servedQuestions: Number(paper.servedQuestions || 0),
     sectionPlan: Array.isArray(paper.sectionPlan) ? paper.sectionPlan : [],
     questionIds: Array.isArray(paper.questions) ? paper.questions.map((q) => String(q.id || '')).filter(Boolean) : [],
     sourceBreakdown,
@@ -767,6 +767,7 @@ const assemblePaper = async ({ ownerId, payload }) => {
   const staticBlueprint = getBlueprint(examSlug, stageSlug);
   const blueprint = dbBlueprint
     ? {
+        examStageQuestions: dbBlueprint.examStageQuestions,
         totalQuestions: dbBlueprint.totalQuestions,
         sections: dbBlueprint.sections,
         difficultyMix: dbBlueprint.difficultyMix,
@@ -1134,8 +1135,9 @@ const assemblePaper = async ({ ownerId, payload }) => {
   const paper = {
     examSlug,
     stageSlug,
-    totalQuestions: finalQuestions.length,
-    requestedQuestions: totalQuestions,
+    examStageQuestions: blueprint.examStageQuestions || null,
+    totalQuestions: totalQuestions,
+    servedQuestions: finalQuestions.length,
     sectionPlan,
     questions: finalQuestions,
   };

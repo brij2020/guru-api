@@ -1872,6 +1872,7 @@ const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
     blueprint: {
       id: String(blueprint._id),
       name: blueprint.name || '',
+      examStageQuestions: blueprint.examStageQuestions,
       totalQuestions: totalTarget,
       sections: blueprintSections,
       difficultyMix,

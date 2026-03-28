@@ -63,11 +63,20 @@ const PaperBlueprintSchema = new mongoose.Schema(
       default: 'foundation',
       index: true,
     },
+    durationMinutes: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    examStageQuestions: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
     totalQuestions: {
       type: Number,
       required: true,
       min: 1,
-      max: 2000,
     },
     sections: {
       type: [SectionSchema],

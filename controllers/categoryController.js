@@ -7,12 +7,14 @@ const {
 } = require('../validators/categoryValidator');
 
 const listCategories = async (req, res) => {
-  const categories = await categoryService.getAllCategories(req.user.id);
+  const userId = req.user?.id;
+  const categories = await categoryService.getAllCategories(userId);
   res.json({ data: categories });
 };
 
 const getCategory = async (req, res) => {
-  const category = await categoryService.getCategory(req.params.id, req.user.id);
+  const userId = req.user?.id;
+  const category = await categoryService.getCategory(req.params.id, userId);
   if (!category) {
     throw new ApiError(404, 'Category not found');
   }
