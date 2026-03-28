@@ -20,7 +20,7 @@ module.exports = (app) => {
   });
 
   router.post('/similar', readLimiter, authenticate, asyncHandler(questionBankController.pullSimilarQuestions));
-  router.post('/assemble-paper', aiLimiter, asyncHandler(questionBankController.assemblePaper));
+  router.post('/assemble-paper', aiLimiter, authenticate, asyncHandler(questionBankController.assemblePaper));
   router.post('/assemble-it-paper', aiLimiter, asyncHandler(questionBankController.assembleItPaper));
   router.post('/import-json', readLimiter, asyncHandler(questionBankController.importJson));
   router.post('/bulk-create', readLimiter, asyncHandler(questionBankController.bulkCreateQuestions));
