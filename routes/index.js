@@ -17,6 +17,8 @@ const registerAiGenerationJobRoutes = require('./v1/aiGenerationJobs');
 const registerSystemRoutes = require('./v1/system');
 const registerMotivationalQuoteRoutes = require('./v1/motivationalQuote');
 const registerAdminMotivationalQuoteRoutes = require('./v1/admin/motivationalQuotes');
+const registerAnalyticsRoutes = require('./v1/analytics');
+const registerEngagementAnalyticsRoutes = require('./v1/engagementAnalytics');
 
 module.exports = (app) => {
   registerAuthRoutes(app);
@@ -33,6 +35,8 @@ module.exports = (app) => {
   registerPaperBlueprintRoutes(app);
   registerAiGenerationJobRoutes(app);
   registerSystemRoutes(app);
+  registerAnalyticsRoutes(app);
+  registerEngagementAnalyticsRoutes(app);
   registerQuestionBankRoutes(app);
   registerTestAttemptRoutes(app);
   registerAiCurationRoutes(app);
