@@ -184,6 +184,12 @@ const aiReviewQuestion = async (req, res) => {
   res.json({ data: result });
 };
 
+const getTodaysQuestionsBySection = async (req, res) => {
+  const sections = req.query.sections ? JSON.parse(req.query.sections) : [];
+  const result = await questionBankService.getTodaysQuestionsBySection({ sections });
+  res.json({ data: result });
+};
+
 module.exports = {
   pullSimilarQuestions,
   assemblePaper,
@@ -195,4 +201,5 @@ module.exports = {
   updateReviewQuestion,
   aiReviewQuestion,
   getCoverage,
+  getTodaysQuestionsBySection,
 };

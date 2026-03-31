@@ -53,6 +53,32 @@ const normalizeText = (value) =>
     .trim()
     .replace(/\s+/g, ' ');
 
+const normalizeQuestionTextForFingerprint = (text) => {
+  if (!text) return '';
+  
+  let normalized = String(text)
+    .trim()
+    .toLowerCase();
+  
+  normalized = normalized.replace(/^(q\.?\s*\d*\.?\s*question:?\s*)/i, '');
+  normalized = normalized.replace(/^(question:?\s*)/i, '');
+  normalized = normalized.replace(/^(que\.?\s*)/i, '');
+  normalized = normalized.replace(/^(q\.?\s*\d+\.?\s*)/i, '');
+  
+  normalized = normalized.replace(/(\s*options?\s*:?\s*)$/i, '');
+  normalized = normalized.replace(/(\s*answer\s*:?\s*)$/i, '');
+  normalized = normalized.replace(/(\s*solution\s*:?\s*)$/i, '');
+  
+  normalized = normalized.replace(/\s+/g, ' ');
+  
+  normalized = normalized.replace(/\bper\s+cent\b/gi, 'percent');
+  normalized = normalized.replace(/[{}[\]()]/g, '');
+  
+  normalized = normalized.replace(/\s+/g, ' ').trim();
+  
+  return normalized;
+};
+
 const normalizeLanguage = (value) => {
   const normalized = normalizeText(value).toLowerCase().replace(/[^a-z-]/g, '');
   return normalized || 'en';
@@ -538,7 +564,7 @@ const parseGovTestId = (testId) => {
 };
 
 const buildFingerprint = (questionText, type) => {
-  const normalized = `${normalizeQuestionType(type)}::${normalizeText(questionText).toLowerCase()}`;
+  const normalized = `${normalizeQuestionType(type)}::${normalizeQuestionTextForFingerprint(questionText)}`;
   return crypto.createHash('sha1').update(normalized).digest('hex');
 };
 
@@ -549,7 +575,7 @@ const dedupeDocsByFingerprint = (docs = []) => {
 
   for (const doc of docs) {
     if (!doc) continue;
-    const key = `${String(doc.owner || '')}::${String(doc.fingerprint || '')}`;
+    const key = String(doc.fingerprint || '');
     if (!doc.fingerprint || seen.has(key)) {
       duplicatesSkipped += 1;
       continue;
@@ -671,7 +697,7 @@ const ingestQuestions = async ({ ownerId, sourceAttemptId, payload, provider, qu
 
   const operations = uniqueDocs.map((doc) => ({
     updateOne: {
-      filter: { owner: doc.owner, fingerprint: doc.fingerprint },
+      filter: { fingerprint: doc.fingerprint },
       update: {
         $set: {
           ...doc,
@@ -1158,7 +1184,7 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
 
   const ops = uniqueDocs.map((doc) => ({
     updateOne: {
-      filter: { owner: doc.owner, fingerprint: doc.fingerprint },
+      filter: { fingerprint: doc.fingerprint },
       update: { $set: doc },
       upsert: true,
     },
@@ -1891,6 +1917,59 @@ const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
   };
 };
 
+const getTodaysQuestionsBySection = async ({ sections = [] }) => {
+  if (!Array.isArray(sections) || sections.length === 0) {
+    return { sections: [], total: 0 };
+  }
+
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const sectionKeys = sections.map((s) => String(s.key || s.section || '').toLowerCase());
+
+  const results = [];
+
+  for (const sectionKey of sectionKeys) {
+    const questions = await QuestionBank.find({
+      section: { $regex: new RegExp(`^${sectionKey}$`, 'i') },
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
+    })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('_id question options answerKey explanation difficulty topic');
+
+    const normalizedKey = sectionKey.replace(/\s+/g, '-').toLowerCase();
+    const sectionLabel = sections.find(
+      (s) => String(s.key || s.section || '').toLowerCase() === sectionKey
+    )?.label || sectionKey;
+
+    results.push({
+      key: normalizedKey,
+      label: sectionLabel,
+      questions: questions.map((q) => ({
+        id: String(q._id),
+        question: q.question,
+        options: q.options || [],
+        answerKey: q.answerKey,
+        explanation: q.explanation,
+        difficulty: q.difficulty,
+        topic: q.topic,
+      })),
+    });
+  }
+
+  const totalQuestions = results.reduce((sum, s) => sum + s.questions.length, 0);
+
+  return {
+    sections: results,
+    total: totalQuestions,
+    date: new Date().toISOString().split('T')[0],
+  };
+};
+
 module.exports = {
   ingestQuestions,
   pullSimilarQuestions,
@@ -1900,4 +1979,5 @@ module.exports = {
   updateQuestionForReview,
   aiReviewQuestion,
   getCoverageSnapshot,
+  getTodaysQuestionsBySection,
 };

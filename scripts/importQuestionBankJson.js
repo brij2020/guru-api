@@ -152,7 +152,7 @@ const run = async () => {
 
   const ops = docs.map((doc) => ({
     updateOne: {
-      filter: { owner: doc.owner, fingerprint: doc.fingerprint },
+      filter: { fingerprint: doc.fingerprint },
       update: { $set: doc },
       upsert: true,
     },

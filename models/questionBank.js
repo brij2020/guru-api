@@ -353,7 +353,6 @@ const QuestionBankSchema = new mongoose.Schema(
       type: String,
       required: true,
       maxlength: 80,
-      index: true,
     },
     timesSeen: {
       type: Number,
@@ -369,7 +368,7 @@ const QuestionBankSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-QuestionBankSchema.index({ owner: 1, fingerprint: 1 }, { unique: true });
+QuestionBankSchema.index({ fingerprint: 1 }, { unique: true });
 QuestionBankSchema.index({ owner: 1, domain: 1, type: 1, difficulty: 1, topic: 1 });
 QuestionBankSchema.index({ owner: 1, examSlug: 1, stageSlug: 1, section: 1, difficulty: 1, type: 1 });
 QuestionBankSchema.index({ owner: 1, examSlug: 1, stageSlug: 1, groupType: 1, groupId: 1, groupOrder: 1 });
