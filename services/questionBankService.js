@@ -1917,39 +1917,36 @@ const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
   };
 };
 
-const getTodaysQuestionsBySection = async ({ sections = [] }) => {
-  if (!Array.isArray(sections) || sections.length === 0) {
-    return { sections: [], total: 0 };
-  }
+const SECTION_KEYS = [
+  { key: 'general-intelligence-reasoning', label: 'General Intelligence & Reasoning' },
+  { key: 'english-comprehension', label: 'English Comprehension' },
+  { key: 'quantitative-aptitude', label: 'Quantitative Aptitude' },
+  { key: 'general-awareness', label: 'General Awareness' },
+];
 
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
+const getTodaysQuestionsBySection = async () => {
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
 
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999);
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfDay = new Date(startOfDay.getTime() + 24*60*60*1000);
 
-  const sectionKeys = sections.map((s) => String(s.key || s.section || '').toLowerCase());
+  const questions = await QuestionBank.find({
+    createdAt: { $gte: startOfDay, $lt: endOfDay },
+  })
+    .sort({ section: 1, createdAt: -1 })
+    .select('_id question options answerKey explanation difficulty topic section')
+    .lean();
 
-  const results = [];
+  const grouped = {};
+  SECTION_KEYS.forEach(s => {
+    grouped[s.key] = { key: s.key, label: s.label, questions: [] };
+  });
 
-  for (const sectionKey of sectionKeys) {
-    const questions = await QuestionBank.find({
-      section: { $regex: new RegExp(`^${sectionKey}$`, 'i') },
-      createdAt: { $gte: startOfDay, $lte: endOfDay },
-    })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select('_id question options answerKey explanation difficulty topic');
-
-    const normalizedKey = sectionKey.replace(/\s+/g, '-').toLowerCase();
-    const sectionLabel = sections.find(
-      (s) => String(s.key || s.section || '').toLowerCase() === sectionKey
-    )?.label || sectionKey;
-
-    results.push({
-      key: normalizedKey,
-      label: sectionLabel,
-      questions: questions.map((q) => ({
+  questions.forEach(q => {
+    const sectionKey = q.section?.toLowerCase().replace(/\s+/g, '-');
+    if (grouped[sectionKey] && grouped[sectionKey].questions.length < 5) {
+      grouped[sectionKey].questions.push({
         id: String(q._id),
         question: q.question,
         options: q.options || [],
@@ -1957,16 +1954,17 @@ const getTodaysQuestionsBySection = async ({ sections = [] }) => {
         explanation: q.explanation,
         difficulty: q.difficulty,
         topic: q.topic,
-      })),
-    });
-  }
+      });
+    }
+  });
 
-  const totalQuestions = results.reduce((sum, s) => sum + s.questions.length, 0);
+  const sections = Object.values(grouped);
+  const totalQuestions = sections.reduce((sum, s) => sum + s.questions.length, 0);
 
   return {
-    sections: results,
+    sections,
     total: totalQuestions,
-    date: new Date().toISOString().split('T')[0],
+    date: today,
   };
 };
 

@@ -39,7 +39,7 @@ const getCategoryPerformance = async ({ days, limit = DEFAULT_LIMIT }) => {
   const safeLimit = Math.min(MAX_LIMIT, Math.max(1, limit || DEFAULT_LIMIT));
 
   const result = await AnalyticsEvent.aggregate([
-    { $match: { createdAt: { $gte: from }, categorySlug: { $exists: true, $ne: null, $ne: '' } } },
+    { $match: { createdAt: { $gte: from }, categorySlug: { $exists: true, $nin: [null, ''] } } },
     { $limit: 50000 },
     {
       $group: {
@@ -100,7 +100,7 @@ const getContentPerformance = async ({ days, limit = DEFAULT_LIMIT }) => {
 
   const [examStats, wishlistStats, shareStats, searchStats] = await Promise.all([
     AnalyticsEvent.aggregate([
-      { $match: { createdAt: { $gte: from }, examSlug: { $exists: true, $ne: null, $ne: '' } } },
+      { $match: { createdAt: { $gte: from }, examSlug: { $exists: true, $nin: [null, ''] } } },
       { $limit: 50000 },
       {
         $group: {
@@ -133,14 +133,14 @@ const getContentPerformance = async ({ days, limit = DEFAULT_LIMIT }) => {
     ], { allowDiskUse: true }),
 
     AnalyticsEvent.aggregate([
-      { $match: { createdAt: { $gte: from }, eventType: 'wishlist_add', examSlug: { $exists: true, $ne: null, $ne: '' } } },
+      { $match: { createdAt: { $gte: from }, eventType: 'wishlist_add', examSlug: { $exists: true, $nin: [null, ''] } } },
       { $group: { _id: '$examSlug', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: safeLimit },
     ], { allowDiskUse: true }),
 
     AnalyticsEvent.aggregate([
-      { $match: { createdAt: { $gte: from }, eventType: 'share', examSlug: { $exists: true, $ne: null, $ne: '' } } },
+      { $match: { createdAt: { $gte: from }, eventType: 'share', examSlug: { $exists: true, $nin: [null, ''] } } },
       { $group: { _id: '$examSlug', count: { $sum: 1 }, methods: { $addToSet: '$metadata.method' } } },
       { $sort: { count: -1 } },
       { $limit: safeLimit },
@@ -202,7 +202,7 @@ const getUserJourneys = async ({ days }) => {
     ], { allowDiskUse: true }),
 
     UserJourney.aggregate([
-      { $match: { startedAt: { $gte: from }, exitPage: { $exists: true, $ne: null, $ne: '' } } },
+      { $match: { startedAt: { $gte: from }, exitPage: { $exists: true, $nin: [null, ''] } } },
       { $limit: 50000 },
       { $group: { _id: '$exitPage', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
@@ -287,14 +287,14 @@ const getRealTimeEngagement = async () => {
     ], { allowDiskUse: true }),
 
     AnalyticsEvent.aggregate([
-      { $match: { createdAt: { $gte: activeWindow }, examSlug: { $exists: true, $ne: null, $ne: '' } } },
+      { $match: { createdAt: { $gte: activeWindow }, examSlug: { $exists: true, $nin: [null, ''] } } },
       { $group: { _id: '$examSlug', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 5 },
     ], { allowDiskUse: true }),
 
     AnalyticsEvent.aggregate([
-      { $match: { createdAt: { $gte: activeWindow }, categorySlug: { $exists: true, $ne: null, $ne: '' } } },
+      { $match: { createdAt: { $gte: activeWindow }, categorySlug: { $exists: true, $nin: [null, ''] } } },
       { $group: { _id: '$categorySlug', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 5 },

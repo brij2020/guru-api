@@ -77,6 +77,25 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.get('/api/ready', (req, res) => {
+  const requiredConfig = ['MONGODB_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
+  const missingConfig = requiredConfig.filter((key) => !process.env[key]);
+  const dbConnected = mongoose.connection.readyState === 1;
+  const isReady = dbConnected && missingConfig.length === 0;
+
+  res.status(isReady ? 200 : 503).json({
+    status: isReady ? 'ready' : 'not_ready',
+    service: 'guru-api',
+    environment: config.name,
+    timestamp: new Date().toISOString(),
+    checks: {
+      database: dbConnected ? 'ok' : 'not_connected',
+      config: missingConfig.length === 0 ? 'ok' : 'missing_required_env',
+    },
+    missingConfig,
+  });
+});
+
 require('./routes')(app);
 
 app.use((req, res, next) => {
@@ -104,7 +123,6 @@ if (require.main === module) {
           `🚀 Server started successfully on ${config.host}:${config.port} in ${config.name} mode`
         );
         logger.info(`📊 Environment: ${String(config.name).toUpperCase()}`);
-        logger.info(`🗄️  Database URL: ${config.mongoUri}`);
         logger.info(`🔗 API URL: ${config.apiUrl}`);
         logger.info(`📱 Frontend URL: ${config.frontendUrl}`);
         logger.info('########################################');

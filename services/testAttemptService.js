@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const TestAttempt = require('../models/testAttempt');
 const ApiError = require('../errors/apiError');
+const aiCurationService = require('./aiCurationService');
 
 const toPlainObject = (value) => (value && typeof value.toObject === 'function' ? value.toObject() : value);
 
@@ -65,8 +66,38 @@ const resolvedTotalQuestionsFromPayload = (payload, questions = []) => {
 };
 
 const startTestAttempt = async (payload, userId) => {
-  const questions = sanitizeQuestions(payload.questions);
+  let questions = sanitizeQuestions(payload.questions);
   const sectionPlan = sanitizeSectionPlan(payload.sectionPlan);
+  let estimatedDurationMinutes = Number(payload.duration || 0);
+  let curationStatus = 'skipped';
+
+  if (questions.length === 0) {
+    try {
+      const curated = await aiCurationService.curateQuestions({
+        payload: {
+          testId: payload.testId || '',
+          testTitle: payload.testTitle,
+          domain: payload.domain || '',
+          difficulty: payload.difficulty || 'all',
+          topics: payload.topics || [],
+          questionStyles: payload.questionStyles || [],
+          questionCount: payload.questionCount || 'all',
+          totalQuestions: Number(payload.totalQuestions || 0),
+          attemptMode: payload.attemptMode || 'exam',
+          promptContext: payload.promptContext || '',
+        },
+        provider: payload.provider,
+        userId,
+      });
+
+      questions = sanitizeQuestions(curated?.questions || []);
+      estimatedDurationMinutes = Number(curated?.estimatedDurationMinutes || estimatedDurationMinutes);
+      curationStatus = 'completed';
+    } catch (error) {
+      curationStatus = 'failed';
+    }
+  }
+
   const attempt = new TestAttempt({
     owner: userId,
     testId: payload.testId || '',
@@ -87,8 +118,8 @@ const startTestAttempt = async (payload, userId) => {
   return {
     ...sanitizeStoredAttempt(savedAttempt),
     curatedQuestions: questions,
-    estimatedDurationMinutes: Number(payload.duration || 0),
-    curationStatus: 'skipped',
+    estimatedDurationMinutes,
+    curationStatus,
   };
 };
 

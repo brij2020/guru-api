@@ -6,7 +6,10 @@ const { validateEvaluateTestRequest } = require('../validators/aiEvaluationValid
 
 const curateQuestions = async (req, res) => {
   const validated = validateCurateQuestionsRequest(req.body);
-  const curated = await aiCurationService.curateQuestions(validated);
+  const curated = await aiCurationService.curateQuestions({
+    ...validated,
+    userId: req.user?.id || null,
+  });
 
   logger.info('Questions curated by AI provider', {
     userId: req.user.id,

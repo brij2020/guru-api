@@ -12,7 +12,7 @@ describe('Paper Blueprints API', () => {
   let adminToken;
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
+    mongoServer = await MongoMemoryServer.create({ instance: { ip: '127.0.0.1' } });
     await mongoose.connect(mongoServer.getUri());
   });
 

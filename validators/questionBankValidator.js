@@ -28,6 +28,23 @@ const assemblePaperSchema = Joi.object({
   recentExclusionCount: Joi.number().integer().min(0).max(1000).optional(),
 });
 
+const normalizeTopicValue = (value) => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item || '').trim())
+      .find(Boolean) || '';
+  }
+  return String(value || '').trim();
+};
+
+const topicFieldSchema = Joi.alternatives()
+  .try(
+    Joi.string().trim().max(160).allow(''),
+    Joi.array().items(Joi.string().trim().max(160).allow('')).max(20)
+  )
+  .custom((value) => normalizeTopicValue(value), 'topic normalization')
+  .optional();
+
 const importQuestionItemSchema = Joi.object({
   examSlug: Joi.string().trim().max(80).allow('').optional(),
   stageSlug: Joi.string().trim().max(80).allow('').optional(),
@@ -64,7 +81,7 @@ const importQuestionItemSchema = Joi.object({
   })
     .optional()
     .default({}),
-  topic: Joi.string().trim().max(160).allow('').optional(),
+  topic: topicFieldSchema,
   difficulty: Joi.string().trim().max(40).allow('').optional(),
   type: Joi.string().trim().max(60).allow('').optional(),
   question: Joi.string().trim().max(6000).required(),
@@ -154,7 +171,7 @@ const reviewQuestionUpdateSchema = Joi.object({
   answer: Joi.string().trim().allow('').max(2000).optional(),
   answerKey: Joi.string().trim().allow('').max(8).optional(),
   explanation: Joi.string().trim().allow('').max(6000).optional(),
-  topic: Joi.string().trim().allow('').max(160).optional(),
+  topic: topicFieldSchema,
   section: Joi.string().trim().allow('').max(120).optional(),
   groupType: Joi.string().trim().valid('none', 'rc_passage').optional(),
   groupId: Joi.string().trim().allow('').max(120).optional(),

@@ -19,8 +19,8 @@ const upsertBlueprintSchema = Joi.object({
   stageSlug: slugSchema.required(),
   name: Joi.string().trim().max(200).allow('').optional(),
   learningMode: Joi.string().trim().valid('foundation', 'intermediate', 'advanced', 'expert').default('foundation'),
-  durationMinutes: Joi.number().integer().min(1).required(),
-  examStageQuestions: Joi.number().integer().min(1).required(),
+  durationMinutes: Joi.number().integer().min(1).default(60),
+  examStageQuestions: Joi.number().integer().min(1).default(Joi.ref('totalQuestions')),
   totalQuestions: Joi.number().integer().min(1).required(),
   sections: Joi.array().items(sectionSchema).min(1).required(),
   difficultyMix: Joi.object({

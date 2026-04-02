@@ -387,6 +387,7 @@ const processJob = async (ownerId, explicitJobId = '') => {
     const curated = await aiCurationService.curateQuestions({
       payload: curationPayload,
       provider: job.provider,
+      userId: ownerId,
     });
 
     const questions = Array.isArray(curated?.questions) ? curated.questions : [];

@@ -67,11 +67,15 @@ const PaperBlueprintSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 1,
+      default: 60,
     },
     examStageQuestions: {
       type: Number,
       required: true,
       min: 1,
+      default() {
+        return Number(this.totalQuestions || 1);
+      },
     },
     totalQuestions: {
       type: Number,

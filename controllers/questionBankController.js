@@ -185,8 +185,7 @@ const aiReviewQuestion = async (req, res) => {
 };
 
 const getTodaysQuestionsBySection = async (req, res) => {
-  const sections = req.query.sections ? JSON.parse(req.query.sections) : [];
-  const result = await questionBankService.getTodaysQuestionsBySection({ sections });
+  const result = await questionBankService.getTodaysQuestionsBySection();
   res.json({ data: result });
 };
 

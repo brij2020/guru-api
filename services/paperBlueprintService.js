@@ -23,15 +23,18 @@ const listActiveBlueprints = async () =>
 const upsertBlueprint = async (ownerId, payload) => {
   const examSlug = normalizeSlug(payload.examSlug);
   const stageSlug = normalizeSlug(payload.stageSlug);
+  const totalQuestions = Number(payload.totalQuestions || 0);
+  const durationMinutes = Number(payload.durationMinutes || 60);
+  const examStageQuestions = Number(payload.examStageQuestions || totalQuestions || 1);
 
   return PaperBlueprint.findOneAndUpdate(
     { owner: ownerId, examSlug, stageSlug },
     {
       $set: {
         name: payload.name || '',
-        durationMinutes: payload.durationMinutes,
-        examStageQuestions: payload.examStageQuestions,
-        totalQuestions: payload.totalQuestions,
+        durationMinutes,
+        examStageQuestions,
+        totalQuestions,
         sections: payload.sections,
         difficultyMix: payload.difficultyMix,
         isActive: payload.isActive !== false,

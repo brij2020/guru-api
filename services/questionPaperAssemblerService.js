@@ -539,6 +539,7 @@ const topUpWithAI = async ({
     const curated = await aiCurationService.curateQuestions({
       payload: aiPayload,
       provider: payload.provider || 'openai',
+      userId: ownerId,
     });
 
     const aiQuestionsRaw = Array.isArray(curated?.questions) ? curated.questions : [];

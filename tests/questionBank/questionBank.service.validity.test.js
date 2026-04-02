@@ -12,7 +12,7 @@ describe('questionBankService valid field gating', () => {
     process.env.QUESTION_BANK_MIN_VALID_FIELDS = 'question,options,answer';
     QuestionBank = require('../../models/questionBank');
     service = require('../../services/questionBankService');
-    mongoServer = await MongoMemoryServer.create();
+    mongoServer = await MongoMemoryServer.create({ instance: { ip: '127.0.0.1' } });
     await mongoose.connect(mongoServer.getUri());
   });
 

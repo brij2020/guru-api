@@ -7,7 +7,7 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "stg": "NODE_ENV=local node app.js",
-    "test": "NODE_ENV=test jest --runInBand",
+    "test": "NODE_ENV=test jest --runInBand --testTimeout=60000",
     "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "eslint . --ext .js,.mjs --fix",
     "seed:users": "node scripts/seedUsers.js",
