@@ -39,6 +39,24 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    referralCode: {
+      type: String,
+      default: null,
+      unique: true,
+      sparse: true,
+    },
+    referredBy: {
+      type: String,
+      default: null,
+    },
+    referralStats: {
+      totalShares: { type: Number, default: 0 },
+      coinsFromShares: { type: Number, default: 0 },
+      totalReferrals: { type: Number, default: 0 },
+      registeredReferrals: { type: Number, default: 0 },
+      subscribedReferrals: { type: Number, default: 0 },
+      coinsFromReferrals: { type: Number, default: 0 },
+    },
   },
   { timestamps: true }
 );

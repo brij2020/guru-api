@@ -39,6 +39,37 @@ const SectionPlanItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const AttemptQuestionRefSchema = new mongoose.Schema(
+  {
+    sourceQuestionId: { type: String, trim: true },
+    id: { type: String, trim: true },
+    type: { type: String, trim: true },
+    difficulty: { type: String, trim: true },
+    question: { type: String, trim: true, maxlength: 6000 },
+    section: { type: String, trim: true, maxlength: 120 },
+    topic: { type: String, trim: true, maxlength: 160 },
+    groupType: { type: String, trim: true, maxlength: 32 },
+    groupId: { type: String, trim: true, maxlength: 120 },
+    groupTitle: { type: String, trim: true, maxlength: 300 },
+    passageText: { type: String, trim: true, maxlength: 12000 },
+    groupOrder: { type: Number, min: 1, max: 200, default: null },
+    hasVisual: { type: Boolean },
+    assets: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    options: { type: [String], default: [] },
+    answer: { type: String, trim: true, maxlength: 2000 },
+    explanation: { type: String, trim: true, maxlength: 12000 },
+    inputOutput: { type: String, trim: true, maxlength: 12000 },
+    solutionApproach: { type: String, trim: true, maxlength: 12000 },
+    sampleSolution: { type: String, trim: true, maxlength: 12000 },
+    complexity: { type: String, trim: true, maxlength: 12000 },
+    code: { type: String, trim: true, maxlength: 12000 },
+    expectedOutput: { type: String, trim: true, maxlength: 12000 },
+    idealSolution: { type: String, trim: true, maxlength: 12000 },
+    keyConsiderations: { type: [String], default: [] },
+  },
+  { _id: false }
+);
+
 const CompletionSummarySchema = new mongoose.Schema(
   {
     autoSubmitted: { type: Boolean, default: false },
@@ -123,6 +154,10 @@ const TestAttemptSchema = new mongoose.Schema(
     },
     paperQuestions: {
       type: [QuestionSnapshotSchema],
+      default: [],
+    },
+    questionRefs: {
+      type: [AttemptQuestionRefSchema],
       default: [],
     },
     sectionPlan: {

@@ -20,7 +20,8 @@ const completeTestAttempt = async (req, res) => {
 };
 
 const getTestAttempt = async (req, res) => {
-  const attempt = await testAttemptService.getTestAttempt(req.params.id, req.user.id);
+  const hydrate = String(req.query?.hydrate || 'true').trim().toLowerCase() !== 'false';
+  const attempt = await testAttemptService.getTestAttempt(req.params.id, req.user.id, { hydrate });
   res.json({ data: attempt });
 };
 

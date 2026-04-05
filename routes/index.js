@@ -21,6 +21,11 @@ const registerAdminSarkariJobUpdateRoutes = require('./v1/admin/sarkariJobUpdate
 const registerSarkariJobUpdateRoutes = require('./v1/sarkariJobUpdates');
 const registerAnalyticsRoutes = require('./v1/analytics');
 const registerEngagementAnalyticsRoutes = require('./v1/engagementAnalytics');
+const registerSubscriptionPlanRoutes = require('./v1/subscriptionPlans');
+const registerUserSubscriptionRoutes = require('./v1/userSubscriptions');
+const registerPaytmRoutes = require('./v1/paytm');
+const registerReferralRoutes = require('./v1/referrals');
+const registerAdminReferralRoutes = require('./v1/admin/referrals');
 
 module.exports = (app) => {
   registerAuthRoutes(app);
@@ -46,4 +51,9 @@ module.exports = (app) => {
   registerAdminMotivationalQuoteRoutes(app);
   registerAdminSarkariJobUpdateRoutes(app);
   registerSarkariJobUpdateRoutes(app);
+  registerSubscriptionPlanRoutes(app);
+  registerUserSubscriptionRoutes(app);
+  registerPaytmRoutes(app);
+  registerReferralRoutes(app);
+  registerAdminReferralRoutes(app);
 };
