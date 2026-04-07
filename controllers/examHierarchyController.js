@@ -3,8 +3,10 @@ const { logger } = require('../config/logger');
 const examHierarchyService = require('../services/examHierarchyService');
 const { validateExamHierarchyUpsert } = require('../validators/examHierarchyValidator');
 
+const isAdmin = (role) => ['admin', 'super_admin'].includes(role);
+
 const ensureAdmin = (req) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Only admin users can manage exam hierarchy');
   }
 };

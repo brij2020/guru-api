@@ -13,6 +13,21 @@ const {
   validateBulkCreate,
 } = require('../validators/questionBankValidator');
 
+const isAdmin = (role) => ['admin', 'super_admin', 'editor', 'reviewer'].includes(role);
+
+const listQuestions = async (req, res) => {
+  const filters = {
+    page: req.query.page,
+    limit: req.query.limit,
+    examSlug: req.query.examSlug,
+    stageSlug: req.query.stageSlug,
+    section: req.query.section,
+    search: req.query.search,
+  };
+  const result = await questionBankService.listQuestions({ filters });
+  res.json({ data: result });
+};
+
 const pullSimilarQuestions = async (req, res) => {
   const filters = validatePullSimilarQuestions(req.body || {});
   const result = await questionBankService.pullSimilarQuestions({
@@ -50,7 +65,7 @@ const assembleItPaper = async (req, res) => {
 };
 
 const importJson = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Only admin users can import question bank JSON');
   }
 
@@ -66,7 +81,7 @@ const importJson = async (req, res) => {
 };
 
 const bulkCreateQuestions = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Only admin users can create questions');
   }
 
@@ -85,11 +100,11 @@ const bulkCreateQuestions = async (req, res) => {
 };
 
 const listForReview = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Only admin users can review question bank items');
   }
   const filters = validateReviewListQuery(req.query || {});
-const result = await questionBankService.listQuestionsForReview({
+  const result = await questionBankService.listQuestionsForReview({
     ownerId: req.user.id,
     isAdmin: true,
     filters,
@@ -98,7 +113,7 @@ const result = await questionBankService.listQuestionsForReview({
 };
 
 const updateReviewStatus = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Only admin users can review question bank items');
   }
   const payload = validateReviewStatusUpdate(req.body || {});
@@ -113,7 +128,7 @@ const updateReviewStatus = async (req, res) => {
 };
 
 const updateReviewQuestion = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Only admin users can edit question bank items');
   }
 
@@ -145,7 +160,7 @@ const updateReviewQuestion = async (req, res) => {
 };
 
 const getCoverage = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Only admin users can view question coverage');
   }
 
@@ -158,7 +173,7 @@ const getCoverage = async (req, res) => {
 };
 
 const aiReviewQuestion = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Only admin users can run AI review for question bank items');
   }
 
@@ -169,27 +184,29 @@ const aiReviewQuestion = async (req, res) => {
 
   const result = await questionBankService.aiReviewQuestion({
     ownerId: req.user.id,
-    reviewerId: req.user.id,
-    isAdmin: true,
     id: payload.id,
-    provider: payload.provider,
-    applyStatus: payload.applyStatus,
-    applyEdits: payload.applyEdits,
   });
-
-  if (!result) {
-    throw new ApiError(404, 'Question not found');
-  }
 
   res.json({ data: result });
 };
 
-const getTodaysQuestionsBySection = async (req, res) => {
-  const result = await questionBankService.getTodaysQuestionsBySection();
-  res.json({ data: result });
+const bulkImport = async (req, res) => {
+  if (!isAdmin(req.user?.role)) {
+    throw new ApiError(403, 'Only admin users can import questions');
+  }
+
+  const result = await questionBankService.bulkImport({
+    ownerId: req.user.id,
+    payload: req.body || {},
+  });
+
+  res.json({
+    data: result,
+  });
 };
 
 module.exports = {
+  listQuestions,
   pullSimilarQuestions,
   assemblePaper,
   assembleItPaper,
@@ -198,7 +215,7 @@ module.exports = {
   listForReview,
   updateReviewStatus,
   updateReviewQuestion,
-  aiReviewQuestion,
   getCoverage,
-  getTodaysQuestionsBySection,
+  aiReviewQuestion,
+  bulkImport,
 };

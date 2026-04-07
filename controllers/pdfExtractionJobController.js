@@ -5,8 +5,10 @@ const {
   validateListPdfJobsQuery,
 } = require('../validators/questionBankValidator');
 
+const isAdmin = (role) => ['admin', 'super_admin'].includes(role);
+
 const assertAdmin = (user) => {
-  if (user?.role !== 'admin') {
+  if (!isAdmin(user?.role)) {
     throw new ApiError(403, 'Only admin users can manage PDF extraction jobs');
   }
 };

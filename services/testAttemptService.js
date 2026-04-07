@@ -74,7 +74,7 @@ const sanitizeQuestionRef = (question = {}) => {
     groupId: String(question.groupId || '').trim(),
     groupTitle: String(question.groupTitle || '').trim(),
     passageText: keepFallbackContent ? String(question.passageText || '').trim() : '',
-    groupOrder: Number.isFinite(Number(question.groupOrder)) ? Number(question.groupOrder) : null,
+groupOrder: (Number.isFinite(Number(question.groupOrder)) && Number(question.groupOrder) >= 1) ? Number(question.groupOrder) : null,
     hasVisual: Boolean(question.hasVisual),
     assets: keepFallbackContent ? sanitizeAssetsForRef(question.assets) : [],
     options: Array.isArray(question.options) ? question.options.map((item) => String(item)).slice(0, 5) : [],

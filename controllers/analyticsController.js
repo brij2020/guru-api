@@ -7,6 +7,8 @@ const {
   validateAnalyticsQuery,
 } = require('../validators/analyticsValidator');
 
+const isAdmin = (role) => ['admin', 'super_admin'].includes(role);
+
 const startSession = async (req, res) => {
   const payload = validateAnalyticsSessionStart(req.body || {});
   const session = await analyticsService.trackSessionStart(payload, req.user);
@@ -37,7 +39,7 @@ const endSession = async (req, res) => {
 };
 
 const getOverview = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Admin access required');
   }
   const query = validateAnalyticsQuery(req.query || {});
@@ -46,7 +48,7 @@ const getOverview = async (req, res) => {
 };
 
 const getPageAnalytics = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Admin access required');
   }
   const query = validateAnalyticsQuery(req.query || {});
@@ -55,7 +57,7 @@ const getPageAnalytics = async (req, res) => {
 };
 
 const getExamAnalytics = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Admin access required');
   }
   const query = validateAnalyticsQuery(req.query || {});
@@ -64,7 +66,7 @@ const getExamAnalytics = async (req, res) => {
 };
 
 const getUserEngagement = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Admin access required');
   }
   const query = validateAnalyticsQuery(req.query || {});
@@ -73,7 +75,7 @@ const getUserEngagement = async (req, res) => {
 };
 
 const getRealTime = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Admin access required');
   }
   const data = await analyticsService.getRealTimeAnalytics();
@@ -81,7 +83,7 @@ const getRealTime = async (req, res) => {
 };
 
 const getSummary = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Admin access required');
   }
   const query = validateAnalyticsQuery(req.query || {});

@@ -1193,12 +1193,14 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
   const result = await QuestionBank.bulkWrite(ops, { ordered: false });
   const inserted = Object.keys(result?.upsertedIds || {}).length;
   const updated = Number(result?.modifiedCount || 0);
+  const insertedIds = Object.values(result?.upsertedIds || {}).map(id => String(id));
 
   return {
     imported: docs.length,
     inserted,
     updated,
     duplicatesSkipped,
+    insertedIds,
   };
 };
 
@@ -1968,10 +1970,87 @@ const getTodaysQuestionsBySection = async () => {
   };
 };
 
+const listQuestions = async ({ filters = {} }) => {
+  const page = Math.max(1, Number(filters.page || 1));
+  const limit = Math.min(200, Math.max(1, Number(filters.limit || 50)));
+  const query = {};
+
+  if (filters.examSlug) {
+    query.examSlug = normalizeText(filters.examSlug).toLowerCase();
+  }
+  if (filters.stageSlug) {
+    query.stageSlug = normalizeText(filters.stageSlug).toLowerCase();
+  }
+  if (filters.section) {
+    query.section = normalizeText(filters.section).toLowerCase();
+  }
+  if (filters.search) {
+    let raw = normalizeText(filters.search);
+    let pattern;
+    
+    const regexMatch = raw.match(/^\/(.+?)\/([a-z]*)$/i);
+    if (regexMatch) {
+      try {
+        pattern = new RegExp(regexMatch[1], regexMatch[2] || 'i');
+      } catch {
+        const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        pattern = new RegExp(escaped, 'i');
+      }
+    } else {
+      raw = raw.replace(/^\/|\/[a-z]*$/gi, '').trim();
+      if (raw.length >= 2) {
+        const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        pattern = new RegExp(escaped, 'i');
+      }
+    }
+    
+    if (pattern) {
+      query.$or = [
+        { question: pattern },
+        { section: pattern },
+        { topic: pattern },
+      ];
+    }
+  }
+
+  query.reviewStatus = 'approved';
+
+  const [items, total] = await Promise.all([
+    QuestionBank.find(query)
+      .sort({ updatedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .select('_id examSlug stageSlug section topic difficulty type question questionNumber options explanation reviewStatus updatedAt'),
+    QuestionBank.countDocuments(query),
+  ]);
+
+  return {
+    page,
+    limit,
+    total,
+    items: items.map((item) => ({
+      id: String(item._id),
+      examSlug: item.examSlug,
+      stageSlug: item.stageSlug,
+      section: item.section,
+      topic: item.topic,
+      difficulty: item.difficulty,
+      type: item.type,
+      questionNumber: item.questionNumber || null,
+      question: item.question,
+      options: item.options || [],
+      explanation: item.explanation || '',
+      reviewStatus: item.reviewStatus,
+      updatedAt: item.updatedAt,
+    })),
+  };
+};
+
 module.exports = {
   ingestQuestions,
   pullSimilarQuestions,
   importQuestionsFromJson,
+  listQuestions,
   listQuestionsForReview,
   bulkUpdateReviewStatus,
   updateQuestionForReview,

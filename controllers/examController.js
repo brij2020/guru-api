@@ -1,5 +1,7 @@
 const examService = require('../services/examService');
 
+const isAdmin = (role) => ['admin', 'super_admin'].includes(role);
+
 const listExams = async (req, res) => {
   const { active, search } = req.query;
   const filter = {};
@@ -8,7 +10,7 @@ const listExams = async (req, res) => {
     filter.isActive = true;
   } else if (active === 'false') {
     filter.isActive = false;
-  } else if (req.user && req.user.role !== 'admin') {
+  } else if (req.user && !isAdmin(req.user.role)) {
     filter.isActive = true;
   }
   
@@ -29,7 +31,7 @@ const getExam = async (req, res) => {
 };
 
 const createExam = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     return res.status(403).json({ error: 'Only admin users can create exams' });
   }
   const exam = await examService.createExam(req.body);
@@ -37,7 +39,7 @@ const createExam = async (req, res) => {
 };
 
 const updateExam = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     return res.status(403).json({ error: 'Only admin users can update exams' });
   }
   const exam = await examService.updateExam(req.params.slug, req.body);
@@ -48,7 +50,7 @@ const updateExam = async (req, res) => {
 };
 
 const deleteExam = async (req, res) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     return res.status(403).json({ error: 'Only admin users can delete exams' });
   }
   const deleted = await examService.deleteExam(req.params.slug);

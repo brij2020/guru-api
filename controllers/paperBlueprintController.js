@@ -7,7 +7,8 @@ const {
 } = require('../validators/paperBlueprintValidator');
 
 const ensureAdmin = (req) => {
-  if (req.user?.role !== 'admin') {
+  const adminRoles = ['admin', 'super_admin'];
+  if (!adminRoles.includes(req.user?.role)) {
     throw new ApiError(403, 'Only admin users can manage paper blueprints');
   }
 };

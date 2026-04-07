@@ -70,6 +70,12 @@ const AttemptQuestionRefSchema = new mongoose.Schema(
   { _id: false }
 );
 
+AttemptQuestionRefSchema.pre("save", function() {
+  if (this.groupOrder !== undefined && this.groupOrder !== null && this.groupOrder < 1) {
+    this.groupOrder = null;
+  }
+});
+
 const CompletionSummarySchema = new mongoose.Schema(
   {
     autoSubmitted: { type: Boolean, default: false },

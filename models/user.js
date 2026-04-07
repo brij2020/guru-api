@@ -27,8 +27,18 @@ const UserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'admin'],
+      enum: ['user', 'admin', 'editor', 'reviewer'],
       default: 'user',
+    },
+    actualRole: {
+      type: String,
+      enum: ['user', 'editor', 'reviewer', 'admin', 'super_admin'],
+      default: 'user',
+    },
+    adminPermissions: {
+      type: Map,
+      of: String,
+      default: () => new Map(),
     },
     refreshTokenHash: {
       type: String,
@@ -73,6 +83,20 @@ UserSchema.pre('save', async function hashPassword(next) {
 
 UserSchema.methods.comparePassword = function comparePassword(password) {
   return bcrypt.compare(password, this.password);
+};
+
+UserSchema.methods.hasPermission = function hasPermission(section, requiredLevel = 'read') {
+  const levelMap = { none: 0, read: 1, write: 2, manage: 3 };
+  const required = levelMap[requiredLevel] || 0;
+  
+  if (this.role === 'super_admin') return true;
+  
+  const permissions = this.adminPermissions instanceof Map 
+    ? this.adminPermissions 
+    : new Map(Object.entries(this.adminPermissions || {}));
+  
+  const userLevel = levelMap[permissions.get(section)] || 0;
+  return userLevel >= required;
 };
 
 module.exports = mongoose.model('User', UserSchema);

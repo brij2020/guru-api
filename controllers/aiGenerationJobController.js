@@ -9,8 +9,10 @@ const {
   validateWorkerRunPayload,
 } = require('../validators/aiGenerationJobValidator');
 
+const isAdmin = (role) => ['admin', 'super_admin'].includes(role);
+
 const ensureAdmin = (req) => {
-  if (req.user?.role !== 'admin') {
+  if (!isAdmin(req.user?.role)) {
     throw new ApiError(403, 'Only admin users can manage AI generation jobs');
   }
 };
