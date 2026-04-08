@@ -18,5 +18,11 @@ module.exports = (app) => {
   router.get('/realtime', authenticate, asyncHandler(analyticsController.getRealTime));
   router.get('/summary', authenticate, asyncHandler(analyticsController.getSummary));
 
+  router.post('/track', optionalAuthenticate, asyncHandler(async (req, res) => {
+    const { event, path, pageTitle, pageType, lang, examSlug, timestamp } = req.body;
+    console.log('[Analytics Track]', { event, path, pageTitle, pageType, lang, examSlug, timestamp });
+    res.json({ success: true });
+  }));
+
   app.use('/api/v1/analytics', router);
 };

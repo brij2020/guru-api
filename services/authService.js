@@ -124,14 +124,26 @@ const createRefreshToken = (user) =>
     expiresIn: jwtRefreshExpiresIn,
   });
 
-const sanitizeUser = (user) => ({
-  id: user._id,
-  name: user.name,
-  email: user.email,
-  role: user.role,
-  createdAt: user.createdAt,
-  updatedAt: user.updatedAt,
-});
+const sanitizeUser = (user) => {
+  let adminPerms = {};
+  if (user.adminPermissions) {
+    if (user.adminPermissions instanceof Map) {
+      adminPerms = Object.fromEntries(user.adminPermissions.entries());
+    } else if (typeof user.adminPermissions === 'object') {
+      adminPerms = { ...user.adminPermissions };
+    }
+  }
+  
+  return {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    adminPermissions: adminPerms,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+};
 
 const issueTokens = async (user) => {
   const accessToken = createAccessToken(user);
@@ -171,6 +183,13 @@ const login = async ({ email, password }) => {
   if (!valid) {
     throw new ApiError(401, 'Invalid email or password');
   }
+
+  // Fetch adminPermissions separately using raw MongoDB query
+  const dbUser = await mongoose.connection.db.collection('users').findOne(
+    { _id: user._id },
+    { projection: { adminPermissions: 1 } }
+  );
+  user.adminPermissions = dbUser?.adminPermissions || {};
 
   const tokens = await issueTokens(user);
   return { user: sanitizeUser(user), ...tokens };

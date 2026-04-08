@@ -27,6 +27,7 @@ const registerPaytmRoutes = require('./v1/paytm');
 const registerReferralRoutes = require('./v1/referrals');
 const registerAdminReferralRoutes = require('./v1/admin/referrals');
 const registerAdminPermissionRoutes = require('./v1/admin/permissions');
+const registerAdminLogsRoutes = require('./v1/adminLogs');
 
 module.exports = (app) => {
   registerAuthRoutes(app);
@@ -58,4 +59,5 @@ module.exports = (app) => {
   registerReferralRoutes(app);
   registerAdminReferralRoutes(app);
   registerAdminPermissionRoutes(app);
+  registerAdminLogsRoutes(app);
 };
