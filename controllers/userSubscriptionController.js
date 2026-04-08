@@ -208,7 +208,7 @@ const checkMockTestAccess = async (req, res) => {
     if (!access.allowed) {
       let message = '';
       if (access.reason === 'weekly_limit') {
-        message = `Weekly limit reached. Resets in ${Math.ceil((7 - new Date().getDay()))} days`;
+        message = `Weekly limit reached. Resets in ${Math.ceil(7 - new Date().getDay())} days`;
       } else if (access.reason === 'monthly_limit') {
         message = 'Monthly limit reached. Resets next month';
       }

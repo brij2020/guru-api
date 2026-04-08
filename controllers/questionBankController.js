@@ -1,88 +1,42 @@
 const questionBankService = require('../services/questionBankService');
-const questionPaperAssemblerService = require('../services/questionPaperAssemblerService');
-const ApiError = require('../errors/apiError');
+const { assemblePaper, assembleItPaper } = require('../services/questionPaperAssemblerService');
 const {
-  validatePullSimilarQuestions,
-  validateAssemblePaper,
-  validateImportQuestionBank,
+  validateBulkCreate,
   validateReviewListQuery,
   validateReviewStatusUpdate,
   validateReviewQuestionUpdate,
-  validateAiReviewQuestion,
   validateCoverageQuery,
-  validateBulkCreate,
 } = require('../validators/questionBankValidator');
+const ApiError = require('../errors/apiError');
 
-const isAdmin = (role) => ['admin', 'super_admin', 'editor', 'reviewer'].includes(role);
+const requirePermission = (user, permission) => {
+  if (user?.role === 'admin') return true;
+  return user?.adminPermissions?.[permission] === 'write' || user?.adminPermissions?.[permission] === 'read';
+};
 
-const listQuestions = async (req, res) => {
-  const filters = {
-    page: req.query.page,
-    limit: req.query.limit,
-    examSlug: req.query.examSlug,
-    stageSlug: req.query.stageSlug,
-    section: req.query.section,
-    search: req.query.search,
-  };
-  const result = await questionBankService.listQuestions({ filters });
-  res.json({ data: result });
+const requireWritePermission = (user, permission) => {
+  if (user?.role === 'admin') return true;
+  return user?.adminPermissions?.[permission] === 'write';
 };
 
 const pullSimilarQuestions = async (req, res) => {
-  const filters = validatePullSimilarQuestions(req.body || {});
-  const result = await questionBankService.pullSimilarQuestions({
-    ownerId: req.user.id,
-    filters,
-  });
-
-  res.json({
-    data: result,
-  });
+  const result = await questionBankService.pullSimilarQuestions(req.body);
+  res.json({ data: result });
 };
 
-const assemblePaper = async (req, res) => {
-  const payload = validateAssemblePaper(req.body || {});
-  const result = await questionPaperAssemblerService.assemblePaper({
-    ownerId: req.user?.id || null,
-    payload,
-  });
-
-  res.json({
-    data: result,
-  });
+const assemblePaperHandler = async (req, res) => {
+  const result = await assemblePaper({ ownerId: req.user.id, payload: req.body });
+  res.json({ data: result });
 };
 
-const assembleItPaper = async (req, res) => {
-  const payload = validateAssemblePaper(req.body || {});
-  const result = await questionPaperAssemblerService.assembleItPaper({
-    ownerId: req.user.id,
-    payload,
-  });
-
-  res.json({
-    data: result,
-  });
+const assembleItPaperHandler = async (req, res) => {
+  const result = await assembleItPaper({ ownerId: req.user.id, payload: req.body });
+  res.json({ data: result });
 };
 
 const importJson = async (req, res) => {
-  if (!isAdmin(req.user?.role)) {
-    throw new ApiError(403, 'Only admin users can import question bank JSON');
-  }
-
-  const payload = validateImportQuestionBank(req.body || {});
-  const result = await questionBankService.importQuestionsFromJson({
-    ownerId: req.user.id,
-    payload,
-  });
-
-  res.json({
-    data: result,
-  });
-};
-
-const bulkCreateQuestions = async (req, res) => {
-  if (!isAdmin(req.user?.role)) {
-    throw new ApiError(403, 'Only admin users can create questions');
+  if (!requireWritePermission(req.user, 'questionImport')) {
+    throw new ApiError(403, 'You do not have permission to import questions');
   }
 
   const payload = validateBulkCreate(req.body || {});
@@ -91,131 +45,98 @@ const bulkCreateQuestions = async (req, res) => {
     payload,
   });
 
-  res.json({
-    data: {
-      success: true,
-      ...result,
-    },
+  res.json({ data: { success: true, ...result } });
+};
+
+const bulkCreateQuestions = async (req, res) => {
+  if (!requireWritePermission(req.user, 'questionPublisher')) {
+    throw new ApiError(403, 'You do not have permission to create questions');
+  }
+
+  const payload = validateBulkCreate(req.body || {});
+  const result = await questionBankService.importQuestionsFromJson({
+    ownerId: req.user.id,
+    payload,
   });
+
+  res.json({ data: { success: true, ...result } });
 };
 
 const listForReview = async (req, res) => {
-  if (!isAdmin(req.user?.role)) {
-    throw new ApiError(403, 'Only admin users can review question bank items');
+  if (!requirePermission(req.user, 'questionReview')) {
+    throw new ApiError(403, 'You do not have permission to review questions');
   }
+
   const filters = validateReviewListQuery(req.query || {});
   const result = await questionBankService.listQuestionsForReview({
     ownerId: req.user.id,
-    isAdmin: true,
+    isAdmin: req.user.role === 'admin',
     filters,
   });
   res.json({ data: result });
 };
 
 const updateReviewStatus = async (req, res) => {
-  if (!isAdmin(req.user?.role)) {
-    throw new ApiError(403, 'Only admin users can review question bank items');
+  if (!requireWritePermission(req.user, 'questionReview')) {
+    throw new ApiError(403, 'You do not have permission to review questions');
   }
-  const payload = validateReviewStatusUpdate(req.body || {});
+
+  const { id, status } = validateReviewStatusUpdate(req.body || {});
   const result = await questionBankService.bulkUpdateReviewStatus({
-    ownerId: req.user.id,
+    id,
+    status,
     reviewerId: req.user.id,
-    isAdmin: true,
-    ids: payload.ids,
-    reviewStatus: payload.reviewStatus,
   });
+
   res.json({ data: result });
 };
 
 const updateReviewQuestion = async (req, res) => {
-  if (!isAdmin(req.user?.role)) {
-    throw new ApiError(403, 'Only admin users can edit question bank items');
+  if (!requireWritePermission(req.user, 'questionEditor')) {
+    throw new ApiError(403, 'You do not have permission to edit questions');
   }
 
-  const payload = validateReviewQuestionUpdate({
-    ...(req.body || {}),
-    id: req.params?.id,
+  const { id, ...updates } = validateReviewQuestionUpdate(req.body || {});
+  const result = await questionBankService.updateQuestionForReview({
+    id,
+    ...updates,
+    editorId: req.user.id,
   });
 
-  try {
-    const result = await questionBankService.updateQuestionForReview({
-      ownerId: req.user.id,
-      reviewerId: req.user.id,
-      isAdmin: true,
-      id: payload.id,
-      updates: payload,
-    });
+  res.json({ data: result });
+};
 
-    if (!result) {
-      throw new ApiError(404, 'Question not found');
-    }
-
-    res.json({ data: result });
-  } catch (error) {
-    if (error?.code === 11000) {
-      throw new ApiError(409, 'Duplicate question detected after edit. Please adjust wording.');
-    }
-    throw error;
+const aiReviewQuestion = async (req, res) => {
+  if (!requirePermission(req.user, 'questionReview')) {
+    throw new ApiError(403, 'You do not have permission to run AI review');
   }
+
+  const { id } = req.params;
+  const result = await questionBankService.aiReviewQuestion({ id });
+
+  res.json({ data: result });
 };
 
 const getCoverage = async (req, res) => {
-  if (!isAdmin(req.user?.role)) {
-    throw new ApiError(403, 'Only admin users can view question coverage');
+  if (!requirePermission(req.user, 'questionCoverage')) {
+    throw new ApiError(403, 'You do not have permission to view coverage');
   }
 
   const filters = validateCoverageQuery(req.query || {});
-  const result = await questionBankService.getCoverageSnapshot({
-    ownerId: req.user.id,
-    filters,
-  });
-  res.json({ data: result });
-};
-
-const aiReviewQuestion = async (req, res) => {
-  if (!isAdmin(req.user?.role)) {
-    throw new ApiError(403, 'Only admin users can run AI review for question bank items');
-  }
-
-  const payload = validateAiReviewQuestion({
-    ...(req.body || {}),
-    id: req.params?.id,
-  });
-
-  const result = await questionBankService.aiReviewQuestion({
-    ownerId: req.user.id,
-    id: payload.id,
-  });
+  const result = await questionBankService.getCoverageSnapshot({ filters });
 
   res.json({ data: result });
-};
-
-const bulkImport = async (req, res) => {
-  if (!isAdmin(req.user?.role)) {
-    throw new ApiError(403, 'Only admin users can import questions');
-  }
-
-  const result = await questionBankService.bulkImport({
-    ownerId: req.user.id,
-    payload: req.body || {},
-  });
-
-  res.json({
-    data: result,
-  });
 };
 
 module.exports = {
-  listQuestions,
   pullSimilarQuestions,
-  assemblePaper,
-  assembleItPaper,
+  assemblePaper: assemblePaperHandler,
+  assembleItPaper: assembleItPaperHandler,
   importJson,
   bulkCreateQuestions,
   listForReview,
   updateReviewStatus,
   updateReviewQuestion,
-  getCoverage,
   aiReviewQuestion,
-  bulkImport,
+  getCoverage,
 };

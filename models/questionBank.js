@@ -47,6 +47,13 @@ const QuestionBankSchema = new mongoose.Schema(
       maxlength: 16,
       index: true,
     },
+    primaryLanguage: {
+      type: String,
+      trim: true,
+      default: 'en',
+      maxlength: 16,
+      enum: ['en', 'hi', 'bilingual'],
+    },
     examSlug: {
       type: String,
       trim: true,
@@ -89,6 +96,12 @@ const QuestionBankSchema = new mongoose.Schema(
       maxlength: 300,
     },
     passageText: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 12000,
+    },
+    passageText_hi: {
       type: String,
       trim: true,
       default: '',
@@ -169,11 +182,41 @@ const QuestionBankSchema = new mongoose.Schema(
       required: true,
       maxlength: 6000,
     },
+    question_hi: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 6000,
+    },
     options: {
       type: [String],
       default: [],
     },
+    options_hi: {
+      type: [String],
+      default: [],
+    },
     optionObjects: {
+      type: [
+        {
+          _id: false,
+          id: {
+            type: String,
+            trim: true,
+            default: '',
+            maxlength: 8,
+          },
+          text: {
+            type: String,
+            trim: true,
+            default: '',
+            maxlength: 1000,
+          },
+        },
+      ],
+      default: [],
+    },
+    optionObjects_hi: {
       type: [
         {
           _id: false,
@@ -281,6 +324,12 @@ const QuestionBankSchema = new mongoose.Schema(
       default: [],
     },
     explanation: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 6000,
+    },
+    explanation_hi: {
       type: String,
       trim: true,
       default: '',

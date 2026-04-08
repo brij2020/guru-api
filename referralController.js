@@ -1,9 +1,8 @@
-const config = require('../config/env');
 const User = require('../models/user');
 const Referral = require('../models/referral');
 
 const REFERRAL_CONFIG = {
-  shareCoins: 10,
+  shareCoins: 5,
   signupReferrerCoins: 50,
   signupReferrerDays: 0,
   signupReferredCoins: 25,
@@ -29,26 +28,22 @@ const createReferralCode = async (userId) => {
 const getReferralCode = async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log('getReferralCode called for user:', userId);
     const user = await User.findById(userId);
-    console.log('User found:', user ? user.email : 'null', 'existing code:', user ? user.referralCode : 'null');
     
     if (!user) {
       return res.status(404).json({ success: false, error: 'User not found' });
     }
 
     if (!user.referralCode) {
-      console.log('Generating new code for user:', userId);
       user.referralCode = await createReferralCode(userId);
       await user.save();
-      console.log('New code generated:', user.referralCode);
     }
 
     res.json({
       success: true,
       data: {
         referralCode: user.referralCode,
-        referralUrl: `${config.frontendUrl}/en/auth/signUp?ref=${user.referralCode}`
+        referralUrl: `${process.env.FRONTEND_URL || 'http://13.203.195.153:3000'}/signup?ref=${user.referralCode}`,
       },
     });
   } catch (error) {

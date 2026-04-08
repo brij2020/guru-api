@@ -134,7 +134,10 @@ subscriptionPlanSchema.methods.toPublic = function() {
       } : null,
     },
     limits: this.limits,
+    billing: this.billing,
+    isActive: this.isActive,
     isFeatured: this.isFeatured,
+    sortOrder: this.sortOrder,
   };
 };
 

@@ -81,40 +81,7 @@ const normalizeQuestionTextForFingerprint = (text) => {
 
 const normalizeLanguage = (value) => {
   const normalized = normalizeText(value).toLowerCase().replace(/[^a-z-]/g, '');
-  if (['en', 'hi', 'bilingual'].includes(normalized)) return normalized;
-  return 'en';
-};
-
-const detectPrimaryLanguage = (question, question_hi) => {
-  if (question_hi && question_hi.trim()) return 'bilingual';
-  return 'en';
-};
-
-const normalizeOptionsPayloadHi = (options) => {
-  if (!Array.isArray(options)) return [];
-  return options.map((opt, idx) => {
-    if (typeof opt === 'string') return normalizeText(opt);
-    if (typeof opt === 'object' && opt !== null) {
-      return normalizeText(opt.text || opt.option || opt.value || '');
-    }
-    return '';
-  }).filter(Boolean);
-};
-
-const normalizeOptionObjectsHi = (options) => {
-  if (!Array.isArray(options)) return [];
-  return options.map((opt, idx) => {
-    if (typeof opt === 'string') {
-      return { id: String.fromCharCode(65 + idx), text: normalizeText(opt) };
-    }
-    if (typeof opt === 'object' && opt !== null) {
-      return {
-        id: normalizeText(opt.id || opt.option || String.fromCharCode(65 + idx)),
-        text: normalizeText(opt.text || opt.option || opt.value || ''),
-      };
-    }
-    return null;
-  }).filter(Boolean);
+  return normalized || 'en';
 };
 
 const normalizeQuestionType = (value) => {
@@ -672,9 +639,8 @@ const toQuestionBankDoc = (question, payload, ownerId, sourceAttemptId, provider
     groupType: rcMeta.groupType,
     groupId: rcMeta.groupId,
     groupTitle: rcMeta.groupTitle,
-        passageText: rcMeta.passageText,
-        passageText_hi: rcMeta.passageText_hi || normalizeText(item?.passageText_hi || ''),
-        groupOrder: rcMeta.groupOrder,
+    passageText: rcMeta.passageText,
+    groupOrder: rcMeta.groupOrder,
     questionNumber: Number.isInteger(questionNumber) && questionNumber > 0 ? questionNumber : null,
     source,
     difficulty,
@@ -829,23 +795,18 @@ const sampleQuestions = async (query, count) => {
         groupId: 1,
         groupTitle: 1,
         passageText: 1,
-        passageText_hi: 1,
         groupOrder: 1,
         topic: 1,
         questionNumber: 1,
         source: 1,
         question: 1,
-        question_hi: 1,
         options: 1,
-        options_hi: 1,
         optionObjects: 1,
-        optionObjects_hi: 1,
         hasVisual: 1,
         assets: 1,
         answer: 1,
         answerKey: 1,
         explanation: 1,
-        explanation_hi: 1,
         inputOutput: 1,
         code: 1,
         expectedOutput: 1,
@@ -855,7 +816,6 @@ const sampleQuestions = async (query, count) => {
         complexity: 1,
         keyConsiderations: 1,
         reviewStatus: 1,
-        primaryLanguage: 1,
       },
     },
   ]);
@@ -1127,11 +1087,7 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
       const options = Array.isArray(item?.options)
         ? item.options
         : [];
-      const options_hi = Array.isArray(item?.options_hi)
-        ? item.options_hi
-        : normalizeOptionsPayloadHi(item?.options_hi_str || []);
       const { optionObjects, options: normalizedOptions } = normalizeOptionsPayload(options);
-      const optionObjects_hi = normalizeOptionObjectsHi(options_hi);
       const resolvedAnswer = resolveAnswerFields({
         optionObjects,
         answer: item?.answer || item?.correctAnswer,
@@ -1148,7 +1104,6 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
         groupId: item?.groupId || item?.passageId || '',
         groupTitle: item?.groupTitle || item?.passageTitle || '',
         passageText: item?.passageText || item?.passage || item?.comprehensionText || '',
-        passageText_hi: item?.passageText_hi || item?.passage_hi || '',
         groupOrder: item?.groupOrder,
       });
       const assets = normalizeAssetsPayload(item?.assets, {
@@ -1166,7 +1121,6 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
         testTitle: normalizeText(item?.testTitle || defaults.testTitle || `${defaults.examSlug} ${defaults.stageSlug} imported set`),
         domain: normalizeText(item?.domain || defaults.domain),
         language: normalizeLanguage(item?.language || defaults.language || 'en'),
-        primaryLanguage: detectPrimaryLanguage(question, item?.question_hi),
         examSlug: normalizeSlug(item?.examSlug || defaults.examSlug),
         stageSlug: normalizeSlug(item?.stageSlug || defaults.stageSlug),
         section: normalizeSlug(item?.section || ''),
@@ -1174,7 +1128,6 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
         groupId: rcMeta.groupId,
         groupTitle: rcMeta.groupTitle,
         passageText: rcMeta.passageText,
-        passageText_hi: normalizeText(item?.passageText_hi || ''),
         groupOrder: rcMeta.groupOrder,
         questionNumber: Number.isInteger(questionNumber) && questionNumber > 0 ? questionNumber : null,
         source,
@@ -1184,11 +1137,8 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
         tags: normalizeList([item?.topic, item?.section, 'imported']),
         promptContext: normalizeText(item?.promptContext || defaults.promptContext || 'Imported from admin JSON'),
         question,
-        question_hi: normalizeText(item?.question_hi || ''),
         options: normalizedOptions,
-        options_hi: normalizeOptionsPayloadHi(item?.options_hi || item?.options_hi_str || []),
         optionObjects,
-        optionObjects_hi,
         hasVisual,
         assets,
         answer: resolvedAnswer.answer,
@@ -1203,7 +1153,6 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
           item?.answerRawSnippet || item?.answer_raw_snippet || item?.rawAnswerSnippet || item?.answerSnippet || ''
         ),
         explanation: normalizeText(item?.explanation || ''),
-        explanation_hi: normalizeText(item?.explanation_hi || ''),
         inputOutput: '',
         code: normalizeText(item?.code || ''),
         expectedOutput: normalizeText(item?.expectedOutput || ''),
@@ -1244,14 +1193,12 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
   const result = await QuestionBank.bulkWrite(ops, { ordered: false });
   const inserted = Object.keys(result?.upsertedIds || {}).length;
   const updated = Number(result?.modifiedCount || 0);
-  const insertedIds = Object.values(result?.upsertedIds || {}).map(id => String(id));
 
   return {
     imported: docs.length,
     inserted,
     updated,
     duplicatesSkipped,
-    insertedIds,
   };
 };
 
@@ -1296,7 +1243,7 @@ const listQuestionsForReview = async ({ ownerId, isAdmin = false, filters = {} }
       .skip((page - 1) * limit)
       .limit(limit)
       .select(
-        '_id owner examSlug stageSlug section topic difficulty type questionNumber source question question_hi options options_hi optionObjects optionObjects_hi hasVisual assets answer answerKey parsedAnswerKey answerConfidence answerRawSnippet explanation explanation_hi reviewStatus updatedAt groupType groupId groupTitle passageText passageText_hi groupOrder primaryLanguage'
+        '_id owner examSlug stageSlug section topic difficulty type questionNumber source question options optionObjects hasVisual assets answer answerKey parsedAnswerKey answerConfidence answerRawSnippet explanation reviewStatus updatedAt groupType groupId groupTitle passageText groupOrder'
       ),
     QuestionBank.countDocuments(query),
   ]);
@@ -1316,7 +1263,6 @@ const listQuestionsForReview = async ({ ownerId, isAdmin = false, filters = {} }
       groupId: item.groupId || '',
       groupTitle: item.groupTitle || '',
       passageText: item.passageText || '',
-      passageText_hi: item.passageText_hi || '',
       groupOrder: item.groupOrder || null,
       topic: item.topic,
       difficulty: item.difficulty,
@@ -1324,11 +1270,8 @@ const listQuestionsForReview = async ({ ownerId, isAdmin = false, filters = {} }
       questionNumber: item.questionNumber || null,
       source: item.source || {},
       question: item.question,
-      question_hi: item.question_hi || '',
       options: item.options || [],
-      options_hi: item.options_hi || [],
       optionObjects: item.optionObjects || [],
-      optionObjects_hi: item.optionObjects_hi || [],
       hasVisual: Boolean(item.hasVisual),
       assets: Array.isArray(item.assets) ? item.assets : [],
       answer: item.answer || '',
@@ -1337,10 +1280,8 @@ const listQuestionsForReview = async ({ ownerId, isAdmin = false, filters = {} }
       answerConfidence: item.answerConfidence || 'unknown',
       answerRawSnippet: item.answerRawSnippet || '',
       explanation: item.explanation || '',
-      explanation_hi: item.explanation_hi || '',
       reviewStatus: item.reviewStatus || 'draft',
       updatedAt: item.updatedAt,
-      primaryLanguage: item.primaryLanguage || 'en',
     })),
   };
 };
@@ -1976,6 +1917,9 @@ const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
   };
 };
 
+let cachedTodaysQuestions = null;
+let cachedDate = null;
+
 const SECTION_KEYS = [
   { key: 'general-intelligence-reasoning', label: 'General Intelligence & Reasoning' },
   { key: 'english-comprehension', label: 'English Comprehension' },
@@ -1984,14 +1928,23 @@ const SECTION_KEYS = [
 ];
 
 const getTodaysQuestionsBySection = async () => {
-  const now = new Date();
-  const today = now.toISOString().split('T')[0];
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const istNow = new Date(Date.now() + istOffset);
+  const today = istNow.toISOString().split('T')[0];
 
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const endOfDay = new Date(startOfDay.getTime() + 24*60*60*1000);
+  if (cachedTodaysQuestions && cachedDate === today) {
+    return cachedTodaysQuestions;
+  }
+
+  cachedTodaysQuestions = null;
+  cachedDate = null;
+
+  const istStart = new Date(Date.UTC(istNow.getFullYear(), istNow.getMonth(), istNow.getDate()));
+  const utcStart = new Date(istStart.getTime() - istOffset);
+  const utcEnd = new Date(istStart.getTime() + 24*60*60*1000 - istOffset);
 
   const questions = await QuestionBank.find({
-    createdAt: { $gte: startOfDay, $lt: endOfDay },
+    createdAt: { $gte: utcStart, $lt: utcEnd },
   })
     .sort({ section: 1, createdAt: -1 })
     .select('_id question options answerKey explanation difficulty topic section')
@@ -2020,94 +1973,20 @@ const getTodaysQuestionsBySection = async () => {
   const sections = Object.values(grouped);
   const totalQuestions = sections.reduce((sum, s) => sum + s.questions.length, 0);
 
-  return {
+  cachedTodaysQuestions = {
     sections,
     total: totalQuestions,
     date: today,
   };
-};
+  cachedDate = today;
 
-const listQuestions = async ({ filters = {} }) => {
-  const page = Math.max(1, Number(filters.page || 1));
-  const limit = Math.min(200, Math.max(1, Number(filters.limit || 50)));
-  const query = {};
-
-  if (filters.examSlug) {
-    query.examSlug = normalizeText(filters.examSlug).toLowerCase();
-  }
-  if (filters.stageSlug) {
-    query.stageSlug = normalizeText(filters.stageSlug).toLowerCase();
-  }
-  if (filters.section) {
-    query.section = normalizeText(filters.section).toLowerCase();
-  }
-  if (filters.search) {
-    let raw = normalizeText(filters.search);
-    let pattern;
-    
-    const regexMatch = raw.match(/^\/(.+?)\/([a-z]*)$/i);
-    if (regexMatch) {
-      try {
-        pattern = new RegExp(regexMatch[1], regexMatch[2] || 'i');
-      } catch {
-        const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        pattern = new RegExp(escaped, 'i');
-      }
-    } else {
-      raw = raw.replace(/^\/|\/[a-z]*$/gi, '').trim();
-      if (raw.length >= 2) {
-        const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        pattern = new RegExp(escaped, 'i');
-      }
-    }
-    
-    if (pattern) {
-      query.$or = [
-        { question: pattern },
-        { section: pattern },
-        { topic: pattern },
-      ];
-    }
-  }
-
-  query.reviewStatus = 'approved';
-
-  const [items, total] = await Promise.all([
-    QuestionBank.find(query)
-      .sort({ updatedAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .select('_id examSlug stageSlug section topic difficulty type question questionNumber options explanation reviewStatus updatedAt'),
-    QuestionBank.countDocuments(query),
-  ]);
-
-  return {
-    page,
-    limit,
-    total,
-    items: items.map((item) => ({
-      id: String(item._id),
-      examSlug: item.examSlug,
-      stageSlug: item.stageSlug,
-      section: item.section,
-      topic: item.topic,
-      difficulty: item.difficulty,
-      type: item.type,
-      questionNumber: item.questionNumber || null,
-      question: item.question,
-      options: item.options || [],
-      explanation: item.explanation || '',
-      reviewStatus: item.reviewStatus,
-      updatedAt: item.updatedAt,
-    })),
-  };
+  return cachedTodaysQuestions;
 };
 
 module.exports = {
   ingestQuestions,
   pullSimilarQuestions,
   importQuestionsFromJson,
-  listQuestions,
   listQuestionsForReview,
   bulkUpdateReviewStatus,
   updateQuestionForReview,

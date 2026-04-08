@@ -1,4 +1,4 @@
-const { logger } = require('../config/logger');
+const { logger, logStore } = require('../config/logger');
 const { nodeEnv } = require('../config/env');
 
 const errorHandler = (err, req, res, next) => {
@@ -30,11 +30,30 @@ const errorHandler = (err, req, res, next) => {
     response.stack = err.stack;
   }
 
+  const requestId = req.headers['x-request-id'] || Date.now() + '-' + Math.random().toString(36).slice(2, 11);
+
+  const logData = {
+    service: 'aiguru-api',
+    requestId,
+    method: req.method,
+    url: req.originalUrl,
+    statusCode: status,
+    error: err.message,
+    stack: err.stack,
+    userAgent: req.headers['user-agent'],
+    ip: req.ip,
+    userId: req.user?.id || 'anonymous',
+    ...(err.errors ? { errors: err.errors } : {}),
+  };
+
+  logStore.add('error', 'api', req.method + ' ' + req.originalUrl + ' - ' + err.message, null, logData);
+
   logger.error('Request error', {
     status,
     path: req.originalUrl,
     method: req.method,
     message: err.message,
+    stack: err.stack,
     ...(err.errors ? { errors: err.errors } : {}),
   });
 
