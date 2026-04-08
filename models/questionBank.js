@@ -47,6 +47,13 @@ const QuestionBankSchema = new mongoose.Schema(
       maxlength: 16,
       index: true,
     },
+    primaryLanguage: {
+      type: String,
+      trim: true,
+      default: 'en',
+      maxlength: 16,
+      enum: ['en', 'hi', 'bilingual'],
+    },
     examSlug: {
       type: String,
       trim: true,
@@ -89,6 +96,12 @@ const QuestionBankSchema = new mongoose.Schema(
       maxlength: 300,
     },
     passageText: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 12000,
+    },
+    passageText_hi: {
       type: String,
       trim: true,
       default: '',
@@ -169,11 +182,41 @@ const QuestionBankSchema = new mongoose.Schema(
       required: true,
       maxlength: 6000,
     },
+    question_hi: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 6000,
+    },
     options: {
       type: [String],
       default: [],
     },
+    options_hi: {
+      type: [String],
+      default: [],
+    },
     optionObjects: {
+      type: [
+        {
+          _id: false,
+          id: {
+            type: String,
+            trim: true,
+            default: '',
+            maxlength: 8,
+          },
+          text: {
+            type: String,
+            trim: true,
+            default: '',
+            maxlength: 1000,
+          },
+        },
+      ],
+      default: [],
+    },
+    optionObjects_hi: {
       type: [
         {
           _id: false,
@@ -286,6 +329,12 @@ const QuestionBankSchema = new mongoose.Schema(
       default: '',
       maxlength: 6000,
     },
+    explanation_hi: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 6000,
+    },
     inputOutput: {
       type: String,
       trim: true,
@@ -353,7 +402,6 @@ const QuestionBankSchema = new mongoose.Schema(
       type: String,
       required: true,
       maxlength: 80,
-      index: true,
     },
     timesSeen: {
       type: Number,
@@ -369,7 +417,7 @@ const QuestionBankSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-QuestionBankSchema.index({ owner: 1, fingerprint: 1 }, { unique: true });
+QuestionBankSchema.index({ fingerprint: 1 }, { unique: true });
 QuestionBankSchema.index({ owner: 1, domain: 1, type: 1, difficulty: 1, topic: 1 });
 QuestionBankSchema.index({ owner: 1, examSlug: 1, stageSlug: 1, section: 1, difficulty: 1, type: 1 });
 QuestionBankSchema.index({ owner: 1, examSlug: 1, stageSlug: 1, groupType: 1, groupId: 1, groupOrder: 1 });
