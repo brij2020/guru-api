@@ -29,6 +29,7 @@ module.exports = (app) => {
   router.put('/review-item/:id', readLimiter, authenticate, asyncHandler(questionBankController.updateReviewQuestion));
   router.post('/review-item/:id/ai-review', aiLimiter, authenticate, asyncHandler(questionBankController.aiReviewQuestion));
   router.get('/coverage', readLimiter, authenticate, asyncHandler(questionBankController.getCoverage));
+  router.get('/todays-questions', readLimiter, asyncHandler(questionBankController.getTodaysQuestionsBySection));
   router.post('/pdf-jobs', readLimiter, authenticate, asyncHandler(pdfExtractionJobController.createPdfJob));
   router.get('/pdf-jobs', readLimiter, authenticate, asyncHandler(pdfExtractionJobController.listPdfJobs));
   router.get('/pdf-jobs/:id', readLimiter, authenticate, asyncHandler(pdfExtractionJobController.getPdfJob));

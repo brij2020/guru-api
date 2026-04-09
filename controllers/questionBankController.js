@@ -128,6 +128,11 @@ const getCoverage = async (req, res) => {
   res.json({ data: result });
 };
 
+const getTodaysQuestionsBySection = async (req, res) => {
+  const result = await questionBankService.getTodaysQuestionsBySection();
+  res.json({ data: result });
+};
+
 module.exports = {
   pullSimilarQuestions,
   assemblePaper: assemblePaperHandler,
@@ -139,4 +144,5 @@ module.exports = {
   updateReviewQuestion,
   aiReviewQuestion,
   getCoverage,
+  getTodaysQuestionsBySection,
 };
