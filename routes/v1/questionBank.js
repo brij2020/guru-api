@@ -35,6 +35,9 @@ module.exports = (app) => {
   router.get('/pdf-jobs/:id', readLimiter, authenticate, asyncHandler(pdfExtractionJobController.getPdfJob));
   router.post('/pdf-jobs/:id/run', readLimiter, authenticate, asyncHandler(pdfExtractionJobController.runPdfJob));
   router.post('/pdf-jobs/:id/import', readLimiter, authenticate, asyncHandler(pdfExtractionJobController.importPdfJob));
+  router.get('/:id', readLimiter, authenticate, asyncHandler(questionBankController.getQuestionById));
+  router.put('/:id', readLimiter, authenticate, asyncHandler(questionBankController.updateQuestionById));
+  router.delete('/:id', readLimiter, authenticate, asyncHandler(questionBankController.deleteQuestionById));
 
   app.use('/api/v1/question-bank', router);
 };

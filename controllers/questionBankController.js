@@ -9,13 +9,15 @@ const {
 } = require('../validators/questionBankValidator');
 const ApiError = require('../errors/apiError');
 
+const isAdminLike = (role) => ['admin', 'super_admin'].includes(role);
+
 const requirePermission = (user, permission) => {
-  if (user?.role === 'admin') return true;
+  if (isAdminLike(user?.role)) return true;
   return user?.adminPermissions?.[permission] === 'write' || user?.adminPermissions?.[permission] === 'read';
 };
 
 const requireWritePermission = (user, permission) => {
-  if (user?.role === 'admin') return true;
+  if (isAdminLike(user?.role)) return true;
   return user?.adminPermissions?.[permission] === 'write';
 };
 
@@ -70,7 +72,7 @@ const listForReview = async (req, res) => {
   const filters = validateReviewListQuery(req.query || {});
   const result = await questionBankService.listQuestionsForReview({
     ownerId: req.user.id,
-    isAdmin: req.user.role === 'admin',
+    isAdmin: isAdminLike(req.user.role),
     filters,
   });
   res.json({ data: result });
@@ -133,6 +135,52 @@ const getTodaysQuestionsBySection = async (req, res) => {
   res.json({ data: result });
 };
 
+const getQuestionById = async (req, res) => {
+  if (!requirePermission(req.user, 'questionEditor')) {
+    throw new ApiError(403, 'You do not have permission to edit questions');
+  }
+  const { id } = req.params;
+  const result = await questionBankService.getQuestionByIdForReview({
+    ownerId: req.user.id,
+    isAdmin: isAdminLike(req.user.role),
+    id,
+  });
+  if (!result) throw new ApiError(404, 'Question not found');
+  res.json({ data: result });
+};
+
+const updateQuestionById = async (req, res) => {
+  if (!requireWritePermission(req.user, 'questionEditor')) {
+    throw new ApiError(403, 'You do not have permission to edit questions');
+  }
+  const { id } = req.params;
+  const updates = validateReviewQuestionUpdate({ ...(req.body || {}), id });
+  const { id: _, ...rest } = updates;
+  const result = await questionBankService.updateQuestionForReview({
+    ownerId: req.user.id,
+    reviewerId: req.user.id,
+    isAdmin: isAdminLike(req.user.role),
+    id,
+    updates: rest,
+  });
+  if (!result) throw new ApiError(404, 'Question not found');
+  res.json({ data: result });
+};
+
+const deleteQuestionById = async (req, res) => {
+  if (!requireWritePermission(req.user, 'questionEditor')) {
+    throw new ApiError(403, 'You do not have permission to delete questions');
+  }
+  const { id } = req.params;
+  const result = await questionBankService.deleteQuestionForReview({
+    ownerId: req.user.id,
+    isAdmin: isAdminLike(req.user.role),
+    id,
+  });
+  if (!result) throw new ApiError(404, 'Question not found');
+  res.json({ data: result });
+};
+
 module.exports = {
   pullSimilarQuestions,
   assemblePaper: assemblePaperHandler,
@@ -145,4 +193,7 @@ module.exports = {
   aiReviewQuestion,
   getCoverage,
   getTodaysQuestionsBySection,
+  getQuestionById,
+  updateQuestionById,
+  deleteQuestionById,
 };

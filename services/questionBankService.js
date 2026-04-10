@@ -50,8 +50,48 @@ const OPTIONS_REQUIRED_TYPES = ['mcq', 'output'];
 
 const normalizeText = (value) =>
   String(value || '')
+    .normalize('NFC')
     .trim()
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
     .replace(/\s+/g, ' ');
+
+const normalizeHindi = (text) => {
+  if (!text) return '';
+  return String(text)
+    .normalize('NFC')
+    .trim()
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/\s+/g, ' ');
+};
+
+const isDevanagari = (text) => /[\u0900-\u097F]/.test(text);
+
+const detectPrimaryLanguage = (question, question_hi) => {
+  const hasHindi = question_hi && normalizeHindi(question_hi).length > 0;
+  if (hasHindi) return 'bilingual';
+  return 'en';
+};
+
+const validateHindiQuestion = (item) => {
+  const primaryLang = item.primaryLanguage || 'en';
+  
+  if (primaryLang === 'hi' || primaryLang === 'bilingual') {
+    if (!item.question_hi || !normalizeHindi(item.question_hi).trim()) {
+      throw new ApiError(400, 'Hindi question text required for Hindi/bilingual questions');
+    }
+    if (primaryLang === 'hi' && item.options?.length && (!item.options_hi || item.options_hi.length !== item.options.length)) {
+      throw new ApiError(400, 'Hindi options required when English options present');
+    }
+  }
+  
+  if (primaryLang === 'en') {
+    if (!item.question || !normalizeText(item.question).trim()) {
+      throw new ApiError(400, 'English question text required');
+    }
+  }
+  
+  return true;
+};
 
 const normalizeQuestionTextForFingerprint = (text) => {
   if (!text) return '';
@@ -82,11 +122,6 @@ const normalizeQuestionTextForFingerprint = (text) => {
 const normalizeLanguage = (value) => {
   const normalized = normalizeText(value).toLowerCase().replace(/[^a-z-]/g, '');
   if (['en', 'hi', 'bilingual'].includes(normalized)) return normalized;
-  return 'en';
-};
-
-const detectPrimaryLanguage = (question, question_hi) => {
-  if (question_hi && question_hi.trim()) return 'bilingual';
   return 'en';
 };
 
@@ -1118,108 +1153,116 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
   };
 
   const list = Array.isArray(payload.questions) ? payload.questions : [];
-  const docs = list
-    .map((item) => {
-      const question = normalizeText(item?.question || '');
-      if (!question) return null;
-      const type = normalizeQuestionType(item?.type || 'mcq');
-      const difficulty = normalizeDifficulty(item?.difficulty || 'medium');
-      const options = Array.isArray(item?.options)
-        ? item.options
-        : [];
-      const options_hi = Array.isArray(item?.options_hi)
-        ? item.options_hi
-        : normalizeOptionsPayloadHi(item?.options_hi_str || []);
-      const { optionObjects, options: normalizedOptions } = normalizeOptionsPayload(options);
-      const optionObjects_hi = normalizeOptionObjectsHi(options_hi);
-      const resolvedAnswer = resolveAnswerFields({
-        optionObjects,
-        answer: item?.answer || item?.correctAnswer,
-        answerKey: item?.answerKey,
-        correctOption: item?.correct_option,
-      });
-      const questionNumber = Number(item?.questionNumber);
-      const source = normalizeSource(item?.source, {
-        exam: normalizeText(item?.domain || defaults.domain || ''),
-        type: normalizeText(item?.provider || defaults.provider || 'import-json'),
-      });
-      const rcMeta = normalizeRcMetadata({
-        groupType: item?.groupType,
-        groupId: item?.groupId || item?.passageId || '',
-        groupTitle: item?.groupTitle || item?.passageTitle || '',
-        passageText: item?.passageText || item?.passage || item?.comprehensionText || '',
-        passageText_hi: item?.passageText_hi || item?.passage_hi || '',
-        groupOrder: item?.groupOrder,
-      });
-      const assets = normalizeAssetsPayload(item?.assets, {
-        url: item?.imageUrl || item?.figureUrl || item?.diagramUrl || '',
-        kind: item?.assetKind || item?.figureType || 'image',
-      });
-      const hasVisual = Boolean(item?.hasVisual) || assets.length > 0;
-      const reviewStatus = normalizeReviewStatus(item?.reviewStatus || defaults.reviewStatus || 'draft');
-
-      return {
-        owner: ownerId,
-        sourceAttempt: null,
-        provider: defaults.provider,
-        testId: normalizeText(item?.testId || defaults.testId || `import-${defaults.examSlug}-${defaults.stageSlug}`),
-        testTitle: normalizeText(item?.testTitle || defaults.testTitle || `${defaults.examSlug} ${defaults.stageSlug} imported set`),
-        domain: normalizeText(item?.domain || defaults.domain),
-        language: normalizeLanguage(item?.language || defaults.language || 'en'),
-        primaryLanguage: detectPrimaryLanguage(question, item?.question_hi),
-        examSlug: normalizeSlug(item?.examSlug || defaults.examSlug),
-        stageSlug: normalizeSlug(item?.stageSlug || defaults.stageSlug),
-        section: normalizeSlug(item?.section || ''),
-        groupType: rcMeta.groupType,
-        groupId: rcMeta.groupId,
-        groupTitle: rcMeta.groupTitle,
-        passageText: rcMeta.passageText,
-        passageText_hi: normalizeText(item?.passageText_hi || ''),
-        groupOrder: rcMeta.groupOrder,
-        questionNumber: Number.isInteger(questionNumber) && questionNumber > 0 ? questionNumber : null,
-        source,
-        difficulty,
-        type,
-        topic: normalizeText(item?.topic || ''),
-        tags: normalizeList([item?.topic, item?.section, 'imported']),
-        promptContext: normalizeText(item?.promptContext || defaults.promptContext || 'Imported from admin JSON'),
+  const docs = [];
+  
+  for (const item of list) {
+    const question = normalizeText(item?.question || '');
+    const question_hi = normalizeHindi(item?.question_hi || '');
+    const primaryLanguage = detectPrimaryLanguage(question, question_hi);
+    
+    if (primaryLanguage === 'bilingual') {
+      validateHindiQuestion({
+        ...item,
+        primaryLanguage,
         question,
-        question_hi: normalizeText(item?.question_hi || ''),
-        options: normalizedOptions,
-        options_hi: normalizeOptionsPayloadHi(item?.options_hi || item?.options_hi_str || []),
-        optionObjects,
-        optionObjects_hi,
-        hasVisual,
-        assets,
-        answer: resolvedAnswer.answer,
-        answerKey: resolvedAnswer.answerKey,
-        parsedAnswerKey: normalizeText(
-          item?.parsedAnswerKey || item?.parsed_answer_key || item?.answerKey || item?.correct_option || ''
-        ).toUpperCase().slice(0, 8),
-        answerConfidence: normalizeAnswerConfidence(
-          item?.answerConfidence || item?.answer_confidence || item?.confidence || ''
-        ),
-        answerRawSnippet: normalizeText(
-          item?.answerRawSnippet || item?.answer_raw_snippet || item?.rawAnswerSnippet || item?.answerSnippet || ''
-        ),
-        explanation: normalizeText(item?.explanation || ''),
-        explanation_hi: normalizeText(item?.explanation_hi || ''),
-        inputOutput: '',
-        code: normalizeText(item?.code || ''),
-        expectedOutput: normalizeText(item?.expectedOutput || ''),
-        idealSolution: normalizeText(item?.idealSolution || ''),
-        solutionApproach: '',
-        sampleSolution: '',
-        complexity: '',
-        keyConsiderations: [],
-        reviewStatus,
-        reviewedBy: null,
-        reviewedAt: null,
-        fingerprint: buildFingerprint(question, type),
-        lastUsedAt: new Date(),
-      };
-    })
-    .filter(Boolean);
+        question_hi,
+      });
+    }
+    
+    if (!question && primaryLanguage === 'en') continue;
+    
+    const type = normalizeQuestionType(item?.type || 'mcq');
+    const difficulty = normalizeDifficulty(item?.difficulty || 'medium');
+    const options = Array.isArray(item?.options) ? item.options : [];
+    const options_hi = Array.isArray(item?.options_hi) ? item.options_hi : [];
+    const { optionObjects, options: normalizedOptions } = normalizeOptionsPayload(options);
+    const optionObjects_hi = normalizeOptionObjectsHi(options_hi);
+    const resolvedAnswer = resolveAnswerFields({
+      optionObjects,
+      answer: item?.answer || item?.correctAnswer,
+      answerKey: item?.answerKey,
+      correctOption: item?.correct_option,
+    });
+    const questionNumber = Number(item?.questionNumber);
+    const source = normalizeSource(item?.source, {
+      exam: normalizeText(item?.domain || defaults.domain || ''),
+      type: normalizeText(item?.provider || defaults.provider || 'import-json'),
+    });
+    const rcMeta = normalizeRcMetadata({
+      groupType: item?.groupType,
+      groupId: item?.groupId || item?.passageId || '',
+      groupTitle: item?.groupTitle || item?.passageTitle || '',
+      passageText: item?.passageText || item?.passage || item?.comprehensionText || '',
+      groupOrder: item?.groupOrder,
+    });
+    const assets = normalizeAssetsPayload(item?.assets, {
+      url: item?.imageUrl || item?.figureUrl || item?.diagramUrl || '',
+      kind: item?.assetKind || item?.figureType || 'image',
+    });
+    const hasVisual = Boolean(item?.hasVisual) || assets.length > 0;
+    const reviewStatus = normalizeReviewStatus(item?.reviewStatus || defaults.reviewStatus || 'draft');
+
+    docs.push({
+      owner: ownerId,
+      sourceAttempt: null,
+      provider: defaults.provider,
+      testId: normalizeText(item?.testId || defaults.testId || `import-${defaults.examSlug}-${defaults.stageSlug}`),
+      testTitle: normalizeText(item?.testTitle || defaults.testTitle || `${defaults.examSlug} ${defaults.stageSlug} imported set`),
+      domain: normalizeText(item?.domain || defaults.domain),
+      language: normalizeLanguage(item?.language || defaults.language || 'en'),
+      primaryLanguage,
+      examSlug: normalizeSlug(item?.examSlug || defaults.examSlug),
+      stageSlug: normalizeSlug(item?.stageSlug || defaults.stageSlug),
+      section: normalizeSlug(item?.section || ''),
+      groupType: rcMeta.groupType,
+      groupId: rcMeta.groupId,
+      groupTitle: rcMeta.groupTitle,
+      passageText: rcMeta.passageText,
+      passageText_hi: normalizeHindi(item?.passageText_hi || ''),
+      groupOrder: rcMeta.groupOrder,
+      questionNumber: Number.isInteger(questionNumber) && questionNumber > 0 ? questionNumber : null,
+      source,
+      difficulty,
+      type,
+      topic: normalizeText(item?.topic || ''),
+      tags: normalizeList([item?.topic, item?.section, 'imported']),
+      promptContext: normalizeText(item?.promptContext || defaults.promptContext || 'Imported from admin JSON'),
+      question,
+      question_hi,
+      options: normalizedOptions,
+      options_hi: normalizeOptionsPayloadHi(options_hi),
+      optionObjects,
+      optionObjects_hi,
+      hasVisual,
+      assets,
+      answer: resolvedAnswer.answer,
+      answerKey: resolvedAnswer.answerKey,
+      parsedAnswerKey: normalizeText(
+        item?.parsedAnswerKey || item?.parsed_answer_key || item?.answerKey || item?.correct_option || ''
+      ).toUpperCase().slice(0, 8),
+      answerConfidence: normalizeAnswerConfidence(
+        item?.answerConfidence || item?.answer_confidence || item?.confidence || ''
+      ),
+      answerRawSnippet: normalizeText(
+        item?.answerRawSnippet || item?.answer_raw_snippet || item?.rawAnswerSnippet || item?.answerSnippet || ''
+      ),
+      explanation: normalizeText(item?.explanation || ''),
+      explanation_hi: normalizeHindi(item?.explanation_hi || ''),
+      inputOutput: '',
+      code: normalizeText(item?.code || ''),
+      expectedOutput: normalizeText(item?.expectedOutput || ''),
+      idealSolution: normalizeText(item?.idealSolution || ''),
+      solutionApproach: '',
+      sampleSolution: '',
+      complexity: '',
+      keyConsiderations: [],
+      reviewStatus,
+      reviewedBy: null,
+      reviewedAt: null,
+      fingerprint: buildFingerprint(question, type),
+      lastUsedAt: new Date(),
+    });
+  }
 
   if (docs.length === 0) return { imported: 0, inserted: 0, updated: 0, duplicatesSkipped: 0 };
   await enforceBlueprintSectionKeys(docs);
@@ -2103,14 +2146,75 @@ const listQuestions = async ({ filters = {} }) => {
   };
 };
 
+const getQuestionByIdForReview = async ({ ownerId, isAdmin = false, id }) => {
+  const query = { _id: id };
+  if (!isAdmin) query.owner = ownerId;
+
+  const item = await QuestionBank.findOne(query)
+    .select(
+      '_id owner examSlug stageSlug section topic difficulty type questionNumber source question question_hi options options_hi optionObjects optionObjects_hi hasVisual assets answer answerKey parsedAnswerKey answerConfidence answerRawSnippet explanation explanation_hi reviewStatus updatedAt groupType groupId groupTitle passageText passageText_hi groupOrder primaryLanguage'
+    )
+    .lean();
+
+  if (!item) return null;
+
+  return {
+    id: String(item._id),
+    _id: String(item._id),
+    ownerId: String(item.owner || ''),
+    examSlug: item.examSlug,
+    stageSlug: item.stageSlug,
+    section: item.section,
+    groupType: item.groupType || 'none',
+    groupId: item.groupId || '',
+    groupTitle: item.groupTitle || '',
+    passageText: item.passageText || '',
+    passageText_hi: item.passageText_hi || '',
+    groupOrder: item.groupOrder || null,
+    topic: item.topic,
+    difficulty: item.difficulty,
+    type: item.type,
+    questionNumber: item.questionNumber || null,
+    source: item.source || {},
+    question: item.question || '',
+    question_hi: item.question_hi || '',
+    options: item.options || [],
+    options_hi: item.options_hi || [],
+    optionObjects: item.optionObjects || [],
+    optionObjects_hi: item.optionObjects_hi || [],
+    hasVisual: Boolean(item.hasVisual),
+    assets: Array.isArray(item.assets) ? item.assets : [],
+    answer: item.answer || '',
+    answerKey: item.answerKey || '',
+    parsedAnswerKey: item.parsedAnswerKey || '',
+    answerConfidence: item.answerConfidence || 'unknown',
+    answerRawSnippet: item.answerRawSnippet || '',
+    explanation: item.explanation || '',
+    explanation_hi: item.explanation_hi || '',
+    reviewStatus: item.reviewStatus || 'draft',
+    updatedAt: item.updatedAt,
+    primaryLanguage: item.primaryLanguage || 'en',
+  };
+};
+
+const deleteQuestionForReview = async ({ ownerId, isAdmin = false, id }) => {
+  const query = { _id: id };
+  if (!isAdmin) query.owner = ownerId;
+  const deleted = await QuestionBank.findOneAndDelete(query).select('_id').lean();
+  if (!deleted) return null;
+  return { id: String(deleted._id) };
+};
+
 module.exports = {
   ingestQuestions,
   pullSimilarQuestions,
   importQuestionsFromJson,
   listQuestions,
+  getQuestionByIdForReview,
   listQuestionsForReview,
   bulkUpdateReviewStatus,
   updateQuestionForReview,
+  deleteQuestionForReview,
   aiReviewQuestion,
   getCoverageSnapshot,
   getTodaysQuestionsBySection,

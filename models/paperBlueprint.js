@@ -43,6 +43,12 @@ const PaperBlueprintSchema = new mongoose.Schema(
       maxlength: 80,
       index: true,
     },
+    examName: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 200,
+    },
     stageSlug: {
       type: String,
       trim: true,

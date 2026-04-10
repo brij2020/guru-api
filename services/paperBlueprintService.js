@@ -32,6 +32,7 @@ const upsertBlueprint = async (ownerId, payload) => {
     {
       $set: {
         name: payload.name || '',
+        examName: payload.examName || '',
         durationMinutes,
         examStageQuestions,
         totalQuestions,

@@ -16,6 +16,7 @@ const sectionSchema = Joi.object({
 
 const upsertBlueprintSchema = Joi.object({
   examSlug: slugSchema.required(),
+  examName: Joi.string().trim().max(200).allow('').optional(),
   stageSlug: slugSchema.required(),
   name: Joi.string().trim().max(200).allow('').optional(),
   learningMode: Joi.string().trim().valid('foundation', 'intermediate', 'advanced', 'expert').default('foundation'),
