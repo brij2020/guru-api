@@ -1276,6 +1276,18 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
     };
   }
 
+  const fingerprints = uniqueDocs
+    .map((doc) => String(doc?.fingerprint || '').trim())
+    .filter(Boolean);
+  const existingDocs = fingerprints.length > 0
+    ? await QuestionBank.find({ fingerprint: { $in: fingerprints } })
+        .select('_id fingerprint question groupId section topic')
+        .lean()
+    : [];
+  const existingByFingerprint = new Map(
+    existingDocs.map((row) => [String(row?.fingerprint || ''), row])
+  );
+
   const ops = uniqueDocs.map((doc) => ({
     updateOne: {
       filter: { fingerprint: doc.fingerprint },
@@ -1288,6 +1300,36 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
   const inserted = Object.keys(result?.upsertedIds || {}).length;
   const updated = Number(result?.modifiedCount || 0);
   const insertedIds = Object.values(result?.upsertedIds || {}).map(id => String(id));
+  const upsertedEntries = Object.entries(result?.upsertedIds || {});
+  const insertedIndices = new Set(upsertedEntries.map(([index]) => Number(index)));
+
+  const insertedItems = upsertedEntries
+    .map(([index, id]) => {
+      const doc = uniqueDocs[Number(index)] || {};
+      return {
+        id: String(id || ''),
+        question: normalizeText(doc.question || '').slice(0, 220),
+        groupId: normalizeText(doc.groupId || ''),
+        section: normalizeText(doc.section || ''),
+        topic: normalizeText(doc.topic || ''),
+      };
+    })
+    .filter((item) => item.id);
+
+  const updatedItems = uniqueDocs
+    .map((doc, index) => ({ doc, index }))
+    .filter(({ index }) => !insertedIndices.has(index))
+    .map(({ doc }) => {
+      const existing = existingByFingerprint.get(String(doc?.fingerprint || ''));
+      return {
+        id: String(existing?._id || ''),
+        question: normalizeText(doc?.question || existing?.question || '').slice(0, 220),
+        groupId: normalizeText(doc?.groupId || existing?.groupId || ''),
+        section: normalizeText(doc?.section || existing?.section || ''),
+        topic: normalizeText(doc?.topic || existing?.topic || ''),
+      };
+    })
+    .filter((item) => item.id);
 
   return {
     imported: docs.length,
@@ -1295,6 +1337,9 @@ const importQuestionsFromJson = async ({ ownerId, payload = {} }) => {
     updated,
     duplicatesSkipped,
     insertedIds,
+    updatedIds: updatedItems.map((item) => item.id),
+    insertedItems,
+    updatedItems,
   };
 };
 
