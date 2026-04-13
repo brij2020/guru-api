@@ -29,6 +29,8 @@ const registerAdminReferralRoutes = require('./v1/admin/referrals');
 const registerAdminPermissionRoutes = require('./v1/admin/permissions');
 const registerAdminLogsRoutes = require('./v1/adminLogs');
 const registerNavigationRoutes = require('./v1/navigation');
+const registerBookmarkRoutes = require('./v1/bookmarks');
+const registerRecommendationRoutes = require('./v1/recommendations');
 
 module.exports = (app) => {
   registerAuthRoutes(app);
@@ -62,4 +64,6 @@ module.exports = (app) => {
   registerAdminPermissionRoutes(app);
   registerAdminLogsRoutes(app);
   registerNavigationRoutes(app);
+  registerBookmarkRoutes(app);
+  registerRecommendationRoutes(app);
 };

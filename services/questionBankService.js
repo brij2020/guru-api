@@ -2250,6 +2250,23 @@ const deleteQuestionForReview = async ({ ownerId, isAdmin = false, id }) => {
   return { id: String(deleted._id) };
 };
 
+const getQuestionsByIds = async (ids) => {
+  const questions = await QuestionBank.find({ _id: { $in: ids } })
+    .select('_id question options difficulty type topic questionHi optionsHi')
+    .lean();
+  
+  return questions.map(q => ({
+    _id: String(q._id),
+    question: q.question,
+    questionHi: q.questionHi,
+    options: q.options || [],
+    optionsHi: q.optionsHi || [],
+    difficulty: q.difficulty,
+    type: q.type,
+    topic: q.topic,
+  }));
+};
+
 module.exports = {
   ingestQuestions,
   pullSimilarQuestions,
@@ -2263,4 +2280,5 @@ module.exports = {
   aiReviewQuestion,
   getCoverageSnapshot,
   getTodaysQuestionsBySection,
+  getQuestionsByIds,
 };

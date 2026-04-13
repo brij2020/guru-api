@@ -38,6 +38,7 @@ module.exports = (app) => {
   router.get('/:id', readLimiter, authenticate, asyncHandler(questionBankController.getQuestionById));
   router.put('/:id', readLimiter, authenticate, asyncHandler(questionBankController.updateQuestionById));
   router.delete('/:id', readLimiter, authenticate, asyncHandler(questionBankController.deleteQuestionById));
+  router.post('/by-ids', readLimiter, asyncHandler(questionBankController.getQuestionsByIds));
 
   app.use('/api/v1/question-bank', router);
 };

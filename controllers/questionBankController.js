@@ -181,6 +181,15 @@ const deleteQuestionById = async (req, res) => {
   res.json({ data: result });
 };
 
+const getQuestionsByIds = async (req, res) => {
+  const { ids } = req.body;
+  if (!Array.isArray(ids)) {
+    throw new ApiError(400, 'ids array is required');
+  }
+  const result = await questionBankService.getQuestionsByIds(ids);
+  res.json({ data: result });
+};
+
 module.exports = {
   pullSimilarQuestions,
   assemblePaper: assemblePaperHandler,
@@ -196,4 +205,5 @@ module.exports = {
   getQuestionById,
   updateQuestionById,
   deleteQuestionById,
+  getQuestionsByIds,
 };
