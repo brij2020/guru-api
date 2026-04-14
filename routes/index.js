@@ -31,6 +31,7 @@ const registerAdminLogsRoutes = require('./v1/adminLogs');
 const registerNavigationRoutes = require('./v1/navigation');
 const registerBookmarkRoutes = require('./v1/bookmarks');
 const registerRecommendationRoutes = require('./v1/recommendations');
+const registerStudyPlanRoutes = require('./v1/studyPlans');
 
 module.exports = (app) => {
   registerAuthRoutes(app);
@@ -66,4 +67,5 @@ module.exports = (app) => {
   registerNavigationRoutes(app);
   registerBookmarkRoutes(app);
   registerRecommendationRoutes(app);
+  registerStudyPlanRoutes(app);
 };
