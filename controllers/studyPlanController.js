@@ -3,13 +3,15 @@ const mongoose = require('mongoose');
 
 exports.create = async (req, res) => {
   try {
-    const { subject, subjectId, topic, date, startHour, endHour, icon, color, isBreak } = req.body;
+    const { subject, subjectId, examSlug, stageSlug, topic, date, startHour, endHour, icon, color, isBreak } = req.body;
     const userId = req.user.id;
 
     const studyPlan = new StudyPlan({
       userId,
       subject,
       subjectId,
+      examSlug,
+      stageSlug,
       topic,
       date: new Date(date),
       startHour,

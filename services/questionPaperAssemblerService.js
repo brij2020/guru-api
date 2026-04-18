@@ -1170,9 +1170,52 @@ const assembleItPaper = async ({ ownerId, payload }) => {
   return assemblePaper({ ownerId, payload });
 };
 
+const assembleWeeklyTest = async ({ ownerId, examSlug, stageSlug, sectionsWithTopics, questionCount = 50 }) => {
+  const effectiveExamSlug = normalizeText(examSlug || 'ssc-cgl').toLowerCase();
+  const effectiveStageSlug = normalizeText(stageSlug || 'tier-1').toLowerCase();
+  const effectiveQuestionCount = Math.min(Math.max(Number(questionCount) || 50, 1), 100);
+  
+  const effectiveSectionsWithTopics = Array.isArray(sectionsWithTopics) && sectionsWithTopics.length > 0
+    ? sectionsWithTopics.map(s => ({
+        section: normalizeText(s.section || ''),
+        topics: (s.topics || []).map(t => normalizeText(t)).filter(Boolean)
+      })).filter(s => s.section && s.topics.length > 0)
+    : [];
+
+  console.log(`[assembleWeeklyTest] Generating weekly test:`, {
+    examSlug: effectiveExamSlug,
+    stageSlug: effectiveStageSlug,
+    sectionsWithTopics: effectiveSectionsWithTopics,
+    questionCount: effectiveQuestionCount
+  });
+
+  const payload = {
+    examSlug: effectiveExamSlug,
+    stageSlug: effectiveStageSlug,
+    testTitle: `Weekly Test - ${new Date().toISOString().split('T')[0]}`,
+    questionCount: effectiveQuestionCount,
+    sectionsWithTopics: effectiveSectionsWithTopics,
+    questionStyles: ['MCQ'],
+    assemblyMode: 'flex',
+  };
+
+  try {
+    const result = await assemblePaper({ ownerId, payload });
+    console.log(`[assembleWeeklyTest] Success:`, {
+      paperId: result.paper?.paperId,
+      questionsGenerated: result.paper?.servedQuestions
+    });
+    return result;
+  } catch (error) {
+    console.error('[assembleWeeklyTest] Error:', error.message);
+    throw error;
+  }
+};
+
 module.exports = {
   assemblePaper,
   assembleItPaper,
+  assembleWeeklyTest,
   _internal: {
     getBlueprint,
     buildDifficultyTargets,

@@ -67,6 +67,21 @@ const UserSchema = new mongoose.Schema(
       subscribedReferrals: { type: Number, default: 0 },
       coinsFromReferrals: { type: Number, default: 0 },
     },
+    preferences: {
+      lockDay: {
+        type: String,
+        enum: ['friday', 'saturday'],
+        default: 'friday'
+      },
+      examSlug: {
+        type: String,
+        default: 'ssc-cgl'
+      },
+      stageSlug: {
+        type: String,
+        default: 'tier-1'
+      }
+    },
   },
   { timestamps: true }
 );

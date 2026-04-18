@@ -14,6 +14,16 @@ const studyPlanSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  examSlug: {
+    type: String,
+    default: '',
+    index: true,
+  },
+  stageSlug: {
+    type: String,
+    default: '',
+    index: true,
+  },
   topic: {
     type: String,
     default: '',

@@ -67,6 +67,10 @@ const MockPaperSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    questions: {
+      type: [Object],
+      default: [],
+    },
     sourceBreakdown: {
       dbCount: { type: Number, default: 0, min: 0 },
       aiTopupCount: { type: Number, default: 0, min: 0 },
