@@ -69,5 +69,7 @@ const weeklyTestSchema = new mongoose.Schema({
 });
 
 weeklyTestSchema.index({ userId: 1, lockDate: 1 }, { unique: true });
+weeklyTestSchema.index({ status: 1, lockDate: -1 });
+weeklyTestSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('WeeklyTest', weeklyTestSchema);

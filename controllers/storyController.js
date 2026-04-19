@@ -1,4 +1,5 @@
 const Story = require('../models/story');
+const asyncHandler = require('../middleware/asyncHandler');
 
 const CATEGORY_LABELS = {
   'important-updates': 'Important Updates',
@@ -65,6 +66,22 @@ const getBySlug = async (req, res) => {
   }
 };
 
+const getById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const story = await Story.findById(id).populate('author', 'name email');
+    
+    if (!story) {
+      return res.status(404).json({ success: false, error: 'Story not found' });
+    }
+    
+    res.json({ success: true, data: story.toPublic() });
+  } catch (error) {
+    console.error('Error fetching story:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch story' });
+  }
+};
+
 const getCategories = (req, res) => {
   res.json({
     success: true,
@@ -74,7 +91,12 @@ const getCategories = (req, res) => {
 
 const create = async (req, res) => {
   try {
-    const { title, slug, excerpt, content, coverImage, category, tags, status, featured } = req.body;
+    const {
+      title, slug, excerpt, content, coverImage, coverImageAlt,
+      category, tags, status, featured,
+      authorName, authorBio, authorImage,
+      scheduledAt, seo, social
+    } = req.body;
     
     const story = new Story({
       title,
@@ -82,11 +104,18 @@ const create = async (req, res) => {
       excerpt,
       content,
       coverImage,
+      coverImageAlt,
       category,
       tags,
       status,
       featured,
       author: req.user?.id || null,
+      authorName,
+      authorBio,
+      authorImage,
+      scheduledAt,
+      seo,
+      social,
     });
     
     await story.save();
@@ -126,6 +155,123 @@ const update = async (req, res) => {
   }
 };
 
+const search = async (req, res) => {
+  try {
+    const { q, category, limit = 20, page = 1 } = req.query;
+    
+    if (!q || q.trim().length < 2) {
+      return res.status(400).json({ success: false, error: 'Search query must be at least 2 characters' });
+    }
+    
+    const filter = {
+      status: 'published',
+      $or: [
+        { title: { $regex: q, $options: 'i' } },
+        { excerpt: { $regex: q, $options: 'i' } },
+        { tags: { $in: [new RegExp(q, 'i')] } },
+      ],
+    };
+    if (category) filter.category = category;
+    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const [stories, total] = await Promise.all([
+      Story.find(filter)
+        .sort({ publishedAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .populate('author', 'name email'),
+      Story.countDocuments(filter),
+    ]);
+    
+    res.json({
+      success: true,
+      data: {
+        stories: stories.map(s => s.toPublic()),
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / parseInt(limit)),
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error searching stories:', error);
+    res.status(500).json({ success: false, error: 'Failed to search stories' });
+  }
+};
+
+const getRelated = async (req, res) => {
+  try {
+    const { id, limit = 4 } = req.params;
+    
+    const story = await Story.findById(id);
+    if (!story) {
+      return res.status(404).json({ success: false, error: 'Story not found' });
+    }
+    
+    const related = await Story.find({
+      _id: { $ne: story._id },
+      status: 'published',
+      $or: [
+        { category: story.category },
+        { tags: { $in: story.tags } },
+      ],
+    })
+      .sort({ publishedAt: -1 })
+      .limit(parseInt(limit))
+      .select('title slug excerpt coverImage category publishedAt readingTime')
+      .lean();
+    
+    res.json({ success: true, data: related });
+  } catch (error) {
+    console.error('Error fetching related stories:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch related stories' });
+  }
+};
+
+const getFeatured = async (req, res) => {
+  try {
+    const { limit = 5 } = req.query;
+    
+    const featured = await Story.find({
+      status: 'published',
+      featured: true,
+    })
+      .sort({ publishedAt: -1 })
+      .limit(parseInt(limit))
+      .select('title slug excerpt coverImage category publishedAt readingTime')
+      .lean();
+    
+    res.json({ success: true, data: featured });
+  } catch (error) {
+    console.error('Error fetching featured stories:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch featured stories' });
+  }
+};
+
+const incrementView = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const story = await Story.findByIdAndUpdate(
+      id,
+      { $inc: { views: 1, readCount: 1 } },
+      { new: true }
+    );
+    
+    if (!story) {
+      return res.status(404).json({ success: false, error: 'Story not found' });
+    }
+    
+    res.json({ success: true, data: { views: story.views } });
+  } catch (error) {
+    console.error('Error incrementing view:', error);
+    res.status(500).json({ success: false, error: 'Failed to increment view' });
+  }
+};
+
 const remove = async (req, res) => {
   try {
     const { id } = req.params;
@@ -142,4 +288,4 @@ const remove = async (req, res) => {
   }
 };
 
-module.exports = { getAll, getBySlug, getCategories, create, update, remove };
+module.exports = { getAll, getBySlug, getById, getCategories, create, update, remove, search, getRelated, getFeatured, incrementView };

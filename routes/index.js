@@ -34,6 +34,8 @@ const registerRecommendationRoutes = require('./v1/recommendations');
 const registerStudyPlanRoutes = require('./v1/studyPlans');
 const registerStudyPlannerRoutes = require('./v1/studyPlanner');
 const registerNotificationRoutes = require('./v1/notifications');
+const registerAdminStoriesRoutes = require('./v1/admin/stories');
+const registerStoriesRoutes = require('./v1/stories');
 
 module.exports = (app) => {
   registerAuthRoutes(app);
@@ -72,4 +74,6 @@ module.exports = (app) => {
   registerStudyPlanRoutes(app);
   registerStudyPlannerRoutes(app);
   registerNotificationRoutes(app);
+  registerAdminStoriesRoutes(app);
+  registerStoriesRoutes(app);
 };

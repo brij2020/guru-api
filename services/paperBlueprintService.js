@@ -5,16 +5,37 @@ const normalizeSlug = (value) =>
     .trim()
     .toLowerCase();
 
+const blueprintCache = new Map();
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+const getCacheKey = (examSlug, stageSlug) => `${examSlug}::${stageSlug}`;
+
+const invalidateCache = (examSlug, stageSlug) => {
+  const key = getCacheKey(examSlug, stageSlug);
+  blueprintCache.delete(key);
+};
+
 const getActiveBlueprint = async (examSlug, stageSlug) => {
   const exam = normalizeSlug(examSlug);
   const stage = normalizeSlug(stageSlug);
   if (!exam || !stage) return null;
 
-  return PaperBlueprint.findOne({
+  const cacheKey = getCacheKey(exam, stage);
+  const cached = blueprintCache.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  const data = await PaperBlueprint.findOne({
     examSlug: exam,
     stageSlug: stage,
     isActive: true,
   }).sort({ updatedAt: -1 });
+
+  blueprintCache.set(cacheKey, { data, timestamp: Date.now() });
+
+  return data;
 };
 
 const listActiveBlueprints = async () =>
@@ -27,7 +48,7 @@ const upsertBlueprint = async (ownerId, payload) => {
   const durationMinutes = Number(payload.durationMinutes || 60);
   const examStageQuestions = Number(payload.examStageQuestions || totalQuestions || 1);
 
-  return PaperBlueprint.findOneAndUpdate(
+  const result = await PaperBlueprint.findOneAndUpdate(
     { owner: ownerId, examSlug, stageSlug },
     {
       $set: {
@@ -51,10 +72,15 @@ const upsertBlueprint = async (ownerId, payload) => {
       setDefaultsOnInsert: true,
     }
   );
+
+  invalidateCache(examSlug, stageSlug);
+
+  return result;
 };
 
 module.exports = {
   getActiveBlueprint,
   listActiveBlueprints,
   upsertBlueprint,
+  invalidateCache,
 };
