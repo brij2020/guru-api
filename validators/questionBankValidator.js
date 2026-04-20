@@ -227,7 +227,16 @@ const aiReviewQuestionSchema = Joi.object({
 const coverageQuerySchema = Joi.object({
   examSlug: Joi.string().trim().max(80).required(),
   stageSlug: Joi.string().trim().max(80).required(),
+  includeQuestions: Joi.boolean().truthy('true').falsy('false').optional(),
 });
+
+const listQuestionsQuerySchema = Joi.object({
+  examSlug: Joi.string().trim().max(80).required(),
+  stageSlug: Joi.string().trim().max(80).required(),
+  limit: Joi.number().integer().min(1).max(500).default(100),
+});
+
+const validateListQuestionsQuery = (payload) => validatePayload(listQuestionsQuerySchema, payload);
 
 const createPdfJobSchema = Joi.object({
   examSlug: Joi.string().trim().max(80).required(),
@@ -317,6 +326,7 @@ module.exports = {
   validateReviewQuestionUpdate,
   validateAiReviewQuestion,
   validateCoverageQuery,
+  validateListQuestionsQuery,
   validateCreatePdfJob,
   validateListPdfJobsQuery,
 };

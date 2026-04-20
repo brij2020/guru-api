@@ -1901,16 +1901,22 @@ Return ONLY valid JSON:
   };
 };
 
-const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
+const getCoverageSnapshot = async ({ ownerId, filters = {}, isAdmin = false }) => {
   const examSlug = normalizeText(filters.examSlug).toLowerCase();
   const stageSlug = normalizeText(filters.stageSlug).toLowerCase();
+  const includeQuestions = filters.includeQuestions === 'true';
 
-  const blueprint = await PaperBlueprint.findOne({
-    owner: ownerId,
+  const blueprintQuery = {
     examSlug,
     stageSlug,
     isActive: true,
-  }).sort({ updatedAt: -1 });
+  };
+  // Only filter by owner if NOT admin and ownerId is provided
+  if (ownerId && !isAdmin) {
+    blueprintQuery.owner = ownerId;
+  }
+
+  const blueprint = await PaperBlueprint.findOne(blueprintQuery).sort({ updatedAt: -1 });
 
   if (!blueprint) {
     return {
@@ -1932,13 +1938,18 @@ const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
     };
   }
 
+  const aggregateMatch = {
+    examSlug,
+    stageSlug,
+  };
+  // Admin sees all questions, non-admin sees only their own
+  if (!isAdmin && ownerId) {
+    aggregateMatch.owner = ownerId;
+  }
+
   const aggregateRows = await QuestionBank.aggregate([
     {
-      $match: {
-        owner: blueprint.owner,
-        examSlug,
-        stageSlug,
-      },
+      $match: aggregateMatch,
     },
     {
       $group: {
@@ -2038,7 +2049,7 @@ const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
   const completionAllPct = totalTarget > 0 ? Math.min(100, Math.round((totalAvailableAll / totalTarget) * 100)) : 0;
   const completionApprovedPct = totalTarget > 0 ? Math.min(100, Math.round((totalAvailableApproved / totalTarget) * 100)) : 0;
 
-  return {
+  const response = {
     examSlug,
     stageSlug,
     hasBlueprint: true,
@@ -2062,6 +2073,21 @@ const getCoverageSnapshot = async ({ ownerId, filters = {} }) => {
     sectionDifficulty,
     extraSections,
   };
+
+  if (includeQuestions) {
+    const questionQuery = { examSlug, stageSlug };
+    if (!isAdmin && ownerId) {
+      questionQuery.owner = ownerId;
+    }
+    const questionList = await QuestionBank.find(questionQuery)
+      .select('question topic section difficulty reviewStatus createdAt')
+      .limit(200)
+      .lean();
+    response.questions = questionList;
+    response.questionsCount = questionList.length;
+  }
+
+  return response;
 };
 
 const SECTION_KEYS = [

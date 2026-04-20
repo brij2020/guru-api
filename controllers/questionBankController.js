@@ -6,6 +6,7 @@ const {
   validateReviewStatusUpdate,
   validateReviewQuestionUpdate,
   validateCoverageQuery,
+  validateListQuestionsQuery,
 } = require('../validators/questionBankValidator');
 const ApiError = require('../errors/apiError');
 
@@ -125,7 +126,16 @@ const getCoverage = async (req, res) => {
   }
 
   const filters = validateCoverageQuery(req.query || {});
-  const result = await questionBankService.getCoverageSnapshot({ filters });
+  const isAdmin = ['admin', 'super_admin'].includes(req.user?.role);
+  const result = await questionBankService.getCoverageSnapshot({ filters, isAdmin });
+
+  res.json({ data: result });
+};
+
+const listQuestions = async (req, res) => {
+  const filters = validateListQuestionsQuery(req.query || {});
+  const isAdmin = ['admin', 'super_admin'].includes(req.user?.role);
+  const result = await questionBankService.listQuestions({ filters, isAdmin });
 
   res.json({ data: result });
 };
@@ -201,6 +211,7 @@ module.exports = {
   updateReviewQuestion,
   aiReviewQuestion,
   getCoverage,
+  listQuestions,
   getTodaysQuestionsBySection,
   getQuestionById,
   updateQuestionById,

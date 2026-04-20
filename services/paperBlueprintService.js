@@ -41,6 +41,32 @@ const getActiveBlueprint = async (examSlug, stageSlug) => {
 const listActiveBlueprints = async () =>
   PaperBlueprint.find({ isActive: true }).sort({ examSlug: 1, stageSlug: 1, updatedAt: -1 });
 
+const listAllBlueprints = async (filter = {}, limit = 50, page = 1) => {
+  const skip = (page - 1) * limit;
+  const [blueprints, total] = await Promise.all([
+    PaperBlueprint.find(filter)
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    PaperBlueprint.countDocuments(filter),
+  ]);
+
+  return {
+    blueprints,
+    pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+  };
+};
+
+const getBlueprintById = async (id) => {
+  return PaperBlueprint.findById(id).lean();
+};
+
+const deleteBlueprint = async (id) => {
+  const result = await PaperBlueprint.findByIdAndDelete(id);
+  return result;
+};
+
 const upsertBlueprint = async (ownerId, payload) => {
   const examSlug = normalizeSlug(payload.examSlug);
   const stageSlug = normalizeSlug(payload.stageSlug);
@@ -81,6 +107,9 @@ const upsertBlueprint = async (ownerId, payload) => {
 module.exports = {
   getActiveBlueprint,
   listActiveBlueprints,
+  listAllBlueprints,
+  getBlueprintById,
+  deleteBlueprint,
   upsertBlueprint,
   invalidateCache,
 };
